@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules/
+build/
+coverage/
+cache.db*
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+uploads/

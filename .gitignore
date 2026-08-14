@@ -1,0 +1,19 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+cache.db*
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+uploads/
+
+# Environment variables
+.env
+.env.*
+!.env.example

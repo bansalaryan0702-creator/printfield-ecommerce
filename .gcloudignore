@@ -1,0 +1,13 @@
+.gcloudignore
+.git
+.gitignore
+node_modules/
+build/
+dist/
+coverage/
+cache.db*
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+uploads/

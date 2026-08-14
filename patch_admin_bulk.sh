@@ -1,0 +1,1 @@
+sed -i 's/const \[isImporting, setIsImporting\] = useState(false);/const [isImporting, setIsImporting] = useState(false);\n  const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });/g' src/pages/Admin.tsx
