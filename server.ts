@@ -5,7 +5,11 @@ import express from 'express';
 import * as fsSync from 'fs';
 import crypto from 'crypto';
 
-const DATA_ENC_KEY = process.env.DATA_ENC_KEY || 'printfield-secure-encryption-key-12345!'.padEnd(32, '0');
+if (!process.env.DATA_ENC_KEY) {
+  console.error('FATAL: DATA_ENC_KEY environment variable is not set. Refusing to start without encryption.');
+  process.exit(1);
+}
+const DATA_ENC_KEY = process.env.DATA_ENC_KEY;
 function encryptField(text: any): string {
   if (!text) return text;
   if (typeof text !== 'string') text = JSON.stringify(text);
@@ -40,6 +44,8 @@ import path from 'path';
 import os from 'os';
 import { createRequire } from 'module';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import cors from 'cors';
 
 // Register global error handlers immediately to catch unhandled errors
 process.on('uncaughtException', (err) => {
@@ -114,6 +120,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'fire
 
 import Razorpay from 'razorpay';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import admin from 'firebase-admin';
 
 const s3BucketName = process.env.AWS_S3_BUCKET || 'printfielddigital';
 const s3Region = process.env.AWS_REGION || 'ap-south-1';
@@ -396,6 +403,27 @@ const firebaseApp = initializeApp(firebaseConfig);
 const firestoreDb = initializeFirestore(firebaseApp, { experimentalForceLongPolling: true }, firebaseConfig.firestoreDatabaseId || 'ai-studio-84a659f4-d467-4e09-88a5-5dfb369ca41e');
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseStorage = getStorage(firebaseApp);
+
+if (!admin.apps.length) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+      projectId: firebaseConfig.projectId,
+    });
+  } catch (e) {
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: firebaseConfig.projectId,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+      });
+    } catch (e2) {
+      console.warn('Firebase Admin SDK initialization skipped:', (e2 as Error).message);
+    }
+  }
+}
 
 
 export const db = firestoreDb;
@@ -695,12 +723,16 @@ function safeJsonParse(text: any) {
 const app = express();
   app.set('trust proxy', 1);
 const PORT = 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-dev-key-do-not-use-in-prod';
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set. Refusing to start.');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const DB_FILE = path.join(process.cwd(), 'app.db');
 const OLD_DB_FILE = path.join(process.cwd(), 'database.json');
 
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Set up Database auth for server
 async function setupDB() {
@@ -1079,8 +1111,18 @@ async function startServer() {
 const PORT = 3000;
 const SITE_URL = 'https://printfield.shop';
 
-  app.use(express.json({ limit: '100mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }));
+  app.use(cors({
+    origin: ['https://printfield.shop', 'http://localhost:3000', 'http://localhost:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
   
 
@@ -1096,7 +1138,6 @@ const SITE_URL = 'https://printfield.shop';
       if (!token) return false;
       try {
         const jwt = require('jsonwebtoken');
-        const JWT_SECRET = process.env.JWT_SECRET || 'fallback-dev-key-do-not-use-in-prod';
         const decoded = jwt.verify(token, JWT_SECRET);
         return ['admin', 'manager', 'employee'].includes(decoded.role);
       } catch (err) {
@@ -1114,7 +1155,6 @@ const SITE_URL = 'https://printfield.shop';
       if (!token) return false;
       try {
         const jwt = require('jsonwebtoken');
-        const JWT_SECRET = process.env.JWT_SECRET || 'fallback-dev-key-do-not-use-in-prod';
         const decoded = jwt.verify(token, JWT_SECRET);
         return ['admin', 'manager', 'employee'].includes(decoded.role);
       } catch (err) {
@@ -1125,6 +1165,19 @@ const SITE_URL = 'https://printfield.shop';
 
   app.use('/api/ai/', aiRateLimiter);
   app.use('/api/', generalApiLimiter);
+
+  const authRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'Too many authentication attempts. Please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use('/api/users/login', authRateLimiter);
+  app.use('/api/users/register', authRateLimiter);
+  app.use('/api/users/forgot-password', authRateLimiter);
+  app.use('/api/users/reset-password', authRateLimiter);
+  app.use('/api/login', authRateLimiter);
   
   // ----- API ROUTES -----
 
@@ -1160,7 +1213,7 @@ const SITE_URL = 'https://printfield.shop';
     isProcessingQueue = false;
   }
 
-  app.post('/api/upload/chunk', upload.single('chunk'), async (req, res) => {
+  app.post('/api/upload/chunk', verifyUser, upload.single('chunk'), async (req, res) => {
     try {
       const uploadId = req.body.uploadId;
       const chunkIndex = parseInt(req.body.chunkIndex, 10);
@@ -1183,7 +1236,7 @@ const SITE_URL = 'https://printfield.shop';
         else if (originalName.toLowerCase().endsWith('.pdf')) mimeType = 'application/pdf';
         
         const authHeader = req.headers.authorization;
-        const isAdmin = authHeader && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1] === (process.env.ADMIN_TOKEN || 'admin-secret-token');
+        const isAdmin = authHeader && authHeader.startsWith('Bearer ') && process.env.ADMIN_TOKEN && authHeader.split(' ')[1] === process.env.ADMIN_TOKEN;
         if (!isAdmin) {
           const verification = await verifyImageWithAI(finalBuffer, mimeType);
           if (!verification.safe) {
@@ -1226,16 +1279,17 @@ const SITE_URL = 'https://printfield.shop';
       }
       res.json({ complete: false, received: receivedCount });
     } catch (e: any) {
-      res.status(500).json({ error: e.message || 'Chunk upload failed' });
+      console.error('Chunk upload error:', e);
+      res.status(500).json({ error: 'Chunk upload failed' });
     }
   });
 
-  app.post('/api/upload', upload.single('file'), async (req, res) => {
+  app.post('/api/upload', verifyUser, upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     
     try {
       const authHeader = req.headers.authorization;
-      const isAdmin = authHeader && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1] === (process.env.ADMIN_TOKEN || 'admin-secret-token');
+      const isAdmin = authHeader && authHeader.startsWith('Bearer ') && process.env.ADMIN_TOKEN && authHeader.split(' ')[1] === process.env.ADMIN_TOKEN;
       
       if (!isAdmin) {
         const verification = await verifyImageWithAI(req.file.buffer, req.file.mimetype);
@@ -1279,7 +1333,7 @@ const SITE_URL = 'https://printfield.shop';
       res.json({ url, pageCount, driveFileId });
     } catch(e: any) {
       console.error("Upload error:", e);
-      res.status(500).json({ error: e.message || 'Error saving file to disk' });
+      res.status(500).json({ error: 'Error saving file to disk' });
     }
   });
   
@@ -1329,7 +1383,15 @@ const SITE_URL = 'https://printfield.shop';
   // Legacy static files serving with download support
   app.get('/uploads/:filename', async (req, res, next) => {
     try {
-      const filePath = path.join(process.cwd(), 'uploads', req.params.filename);
+      const filename = path.basename(req.params.filename);
+      if (filename !== req.params.filename || filename.includes('..')) {
+        return res.status(400).send('Invalid filename');
+      }
+      const uploadDir = path.resolve(process.cwd(), 'uploads');
+      const filePath = path.join(uploadDir, filename);
+      if (!filePath.startsWith(uploadDir)) {
+        return res.status(403).send('Forbidden');
+      }
       // check if file exists
       try {
         await fs.access(filePath);
@@ -1420,6 +1482,9 @@ const SITE_URL = 'https://printfield.shop';
       if (!email || !password || !name || !phone) {
         return res.status(400).json({ error: 'Name, email, phone and password are required' });
       }
+      if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      }
 
       // Check if email exists
       const usersRef = collection(db, 'users');
@@ -1445,7 +1510,8 @@ const SITE_URL = 'https://printfield.shop';
       const token = jwt.sign({ id, role: 'customer' }, JWT_SECRET, { expiresIn: '7d' });
       res.json({ token, user: { id, email, name, phone, companyName, role: 'customer' } });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Register error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1465,7 +1531,8 @@ const SITE_URL = 'https://printfield.shop';
       const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
       res.json({ token, user: { id: user.id, email: user.email, name: user.name, phone: user.phone || '', companyName: user.companyName || '', role: user.role } });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Login error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1503,7 +1570,8 @@ const SITE_URL = 'https://printfield.shop';
         res.status(500).json({ error: 'Failed to send reset email. Please contact support.' });
       }
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Forgot password error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1512,6 +1580,7 @@ const SITE_URL = 'https://printfield.shop';
     try {
       const { email, code, newPassword } = req.body;
       if (!email || !code || !newPassword) return res.status(400).json({ error: 'Email, code, and new password required' });
+      if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
 
       const q = query(collection(db, 'users'), where('email', '==', email), fLimit(1));
       const qs = await getDocs(q);
@@ -1532,7 +1601,8 @@ const SITE_URL = 'https://printfield.shop';
 
       res.json({ success: true, message: 'Password updated successfully' });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Reset password error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1542,15 +1612,26 @@ const SITE_URL = 'https://printfield.shop';
       const { token, googleAccessToken } = req.body;
       if (!token) return res.status(400).json({ error: 'Token required' });
       
-      const decodedToken = jwt.decode(token) as any; if (!decodedToken) throw new Error("Invalid token");
+      let decodedToken: any;
+      try {
+        if (admin.apps.length) {
+          decodedToken = await admin.auth().verifyIdToken(token);
+        } else {
+          decodedToken = jwt.decode(token) as any;
+          if (!decodedToken) throw new Error("Invalid token");
+        }
+      } catch (verifyErr: any) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
+      }
       const { email, name, uid } = decodedToken;
+      
+      if (!email) {
+        return res.status(401).json({ error: 'Token missing email claim' });
+      }
       
       if (googleAccessToken && email) {
         googleTokensCache.set(email.toLowerCase().trim(), googleAccessToken);
       }
-      
-      const isSystemAdmin = email.toLowerCase().trim() === 'bansalaryan0702@gmail.com';
-      const defaultRole = isSystemAdmin ? 'admin' : 'customer';
       
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('email', '==', email), fLimit(1));
@@ -1558,25 +1639,21 @@ const SITE_URL = 'https://printfield.shop';
       
       let user;
       if (qs.empty) {
-        const id = uid || Math.random().toString(36).substr(2, 9);
-        user = { id, email, name: name || '', role: defaultRole };
+        const id = uid || crypto.randomUUID();
+        user = { id, email, name: name || '', role: 'customer' };
         await setDoc(doc(db, 'users', id), {
-          email, name: name || '', role: defaultRole, savedAddresses: '[]', createdAt: Date.now(),
+          email, name: name || '', role: 'customer', savedAddresses: '[]', createdAt: Date.now(),
           googleAccessToken: googleAccessToken || null
         });
       } else {
         const docId = qs.docs[0].id;
         const existingData = qs.docs[0].data();
-        const roleToSet = isSystemAdmin ? 'admin' : (existingData.role || 'customer');
-        user = { id: docId, ...existingData, role: roleToSet } as any;
+        user = { id: docId, ...existingData, role: existingData.role || 'customer' } as any;
         
         const updateFields: any = {};
         if (googleAccessToken) {
           updateFields.googleAccessToken = googleAccessToken;
           user.googleAccessToken = googleAccessToken;
-        }
-        if (isSystemAdmin && existingData.role !== 'admin') {
-          updateFields.role = 'admin';
         }
         if (Object.keys(updateFields).length > 0) {
           await updateDoc(doc(db, 'users', docId), updateFields);
@@ -1586,7 +1663,8 @@ const SITE_URL = 'https://printfield.shop';
       const jwtToken = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
       res.json({ token: jwtToken, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
     } catch (err: any) {
-      res.status(401).json({ error: err.message });
+      console.error('Google login error:', err);
+      res.status(401).json({ error: 'Internal server error' });
     }
   });
 
@@ -1623,7 +1701,8 @@ const SITE_URL = 'https://printfield.shop';
       }
       res.json(user);
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Get profile error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1657,7 +1736,8 @@ const SITE_URL = 'https://printfield.shop';
       await updateDoc(doc(db, 'users', req.user.id), { savedAddresses: encryptField(JSON.stringify(addresses)) });
       res.json({ success: true, addresses });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Save address error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1676,13 +1756,14 @@ const SITE_URL = 'https://printfield.shop';
       await updateDoc(doc(db, 'users', req.user.id), { savedAddresses: encryptField(JSON.stringify(addresses)) });
       res.json({ success: true, addresses });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Delete address error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
   app.put('/api/users/me', verifyUser, async (req: any, res) => {
     try {
-      const { name, email, phone, company, companyName, savedQuotationDetails, password } = req.body;
+      const { name, email, phone, company, companyName, savedQuotationDetails, password, currentPassword } = req.body;
       const docSnap = await getDoc(doc(db, 'users', req.user.id));
       if (!docSnap.exists()) return res.status(404).json({ error: 'User not found' });
       const user = docSnap.data() as any;
@@ -1696,13 +1777,26 @@ const SITE_URL = 'https://printfield.shop';
         savedQuotationDetails: savedQuotationDetails !== undefined ? savedQuotationDetails : user.savedQuotationDetails
       };
       if (password) {
+        if (!currentPassword) {
+          return res.status(400).json({ error: 'Current password is required to change password' });
+        }
+        if (!user.password) {
+          return res.status(400).json({ error: 'Cannot change password for Google-authenticated accounts' });
+        }
+        const validCurrent = await bcrypt.compare(currentPassword, user.password);
+        if (!validCurrent) {
+          return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+        if (password.length < 8) {
+          return res.status(400).json({ error: 'New password must be at least 8 characters' });
+        }
         updates.password = await bcrypt.hash(password, 10);
       }
 
       await updateDoc(doc(db, 'users', req.user.id), updates);
       res.json({ success: true, user: { ...user, ...updates } });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: 'Failed to update profile' });
     }
   });
 
@@ -1718,7 +1812,8 @@ const SITE_URL = 'https://printfield.shop';
       }
       res.json({ designs });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Get designs error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1755,7 +1850,8 @@ const SITE_URL = 'https://printfield.shop';
       await updateDoc(doc(db, 'users', req.user.id), { savedDesigns: JSON.stringify(designs) });
       res.json({ success: true, designs });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Save design error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1774,7 +1870,8 @@ const SITE_URL = 'https://printfield.shop';
       await updateDoc(doc(db, 'users', req.user.id), { savedDesigns: JSON.stringify(designs) });
       res.json({ success: true, designs });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Delete design error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1803,7 +1900,8 @@ const SITE_URL = 'https://printfield.shop';
       }
       res.json(orders);
     } catch(e: any) {
-      res.status(500).json({ error: e.message });
+      console.error('Get orders error:', e);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1843,7 +1941,8 @@ const SITE_URL = 'https://printfield.shop';
       const order = await razorpay.orders.create(options);
       res.json(order);
     } catch (e: any) {
-      res.status(500).json({ error: e.message || 'Failed to create razorpay order' });
+      console.error('Create razorpay order error:', e);
+      res.status(500).json({ error: 'Failed to create razorpay order' });
     }
   });
 
@@ -1979,7 +2078,8 @@ const SITE_URL = 'https://printfield.shop';
             attachments: []
           });
         } catch (retryErr: any) {
-          return res.status(400).json({ error: retryErr.message || 'Failed to send email notification.' });
+          console.error('GST bill email retry failed:', retryErr);
+          return res.status(400).json({ error: 'Failed to send email notification.' });
         }
       }
 
@@ -1988,7 +2088,8 @@ const SITE_URL = 'https://printfield.shop';
         message: 'GST bill request sent successfully via email.'
       });
     } catch (e: any) {
-      res.status(500).json({ error: e.message });
+      console.error('GST bill request error:', e);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -1999,10 +2100,21 @@ const SITE_URL = 'https://printfield.shop';
         return res.status(400).json({ error: 'Missing items or shipping address' });
       }
 
-      const orderId = Math.random().toString(36).substr(2, 9);
+      const orderId = crypto.randomUUID();
       let total = 0;
       for (const item of items) {
-        total += (item.price || 0) * (item.quantity || 1);
+        if (!item.productId || !item.quantity || item.quantity < 1) {
+          return res.status(400).json({ error: 'Invalid item: productId and quantity >= 1 required' });
+        }
+        const prod = await getProductById(item.productId);
+        if (!prod) {
+          return res.status(400).json({ error: `Product not found: ${item.productId}` });
+        }
+        const price = prod.price || 0;
+        if (price < 0) {
+          return res.status(400).json({ error: 'Invalid product price' });
+        }
+        total += price * item.quantity;
       }
 
       const userSnap = await getDoc(doc(db, 'users', req.user.id));
@@ -2037,13 +2149,6 @@ const SITE_URL = 'https://printfield.shop';
       if (Object.keys(userUpdate).length > 0) {
         await updateDoc(doc(db, 'users', req.user.id), userUpdate);
       }
-      
-      for (const item of items) {
-        const prod = await getProductById(item.productId);
-        if (!prod) {
-          console.warn(`Product lookup warning for order item (id: ${item.productId}), proceeding...`);
-        }
-      }
 
       await setDoc(doc(db, 'orders', orderId), {
           userId: req.user.id,
@@ -2056,15 +2161,16 @@ const SITE_URL = 'https://printfield.shop';
       });
 
       for (const item of items) {
-           const itemId = Math.random().toString(36).substr(2, 9);
+           const itemId = crypto.randomUUID();
+           const prod = await getProductById(item.productId);
            const customizationsStr = item.customizations ? (typeof item.customizations === 'string' ? item.customizations : JSON.stringify(item.customizations)) : null;
            await setDoc(doc(db, 'order_items', itemId), {
                orderId,
                productId: item.productId,
-               name: item.name || '',
-               image: item.image || '',
+               name: item.name || prod?.name || '',
+               image: item.image || prod?.image || '',
                quantity: item.quantity,
-               price: item.price,
+               price: prod?.price || 0,
                customizations: customizationsStr
            });
       }
@@ -2205,7 +2311,8 @@ const SITE_URL = 'https://printfield.shop';
 
       res.json({ success: true, orderId });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('Create order error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -2228,36 +2335,6 @@ const SITE_URL = 'https://printfield.shop';
     res.status(500).json({ error: "AI assistant error", details: errMsg });
   }
 
-  app.get('/api/ai/test-key', (req, res) => {
-    const key = process.env.MY_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "";
-    let fileExists = false;
-    let fileContentRedacted = "";
-    let readError = "";
-    try {
-      const devEnvPath = '/app/.dev.env.json';
-      fileExists = fsSync.existsSync(devEnvPath);
-      if (fileExists) {
-        const raw = fsSync.readFileSync(devEnvPath, 'utf8');
-        const parsed = JSON.parse(raw);
-        const geminiInFile = parsed.GEMINI_API_KEY || "";
-        fileContentRedacted = `length=${geminiInFile.length}, first5=${geminiInFile.substring(0, 5)}, last5=${geminiInFile.substring(geminiInFile.length - 5)}`;
-      }
-    } catch (e: any) {
-      readError = e.message || e.toString();
-    }
-
-    res.json({
-      length: key.length,
-      first5: key.substring(0, 5),
-      last5: key.substring(key.length - 5),
-      rawEqualsPlaceholder: key === 'MY_GEMINI_API_KEY',
-      isMySet: !!process.env.MY_GEMINI_API_KEY,
-      isGeminiSet: !!process.env.GEMINI_API_KEY,
-      fileExists,
-      fileContentRedacted,
-      readError
-    });
-  });
 
   
   app.post('/api/ai/generate-card-description', verifyAdmin, async (req, res) => {
@@ -2529,7 +2606,7 @@ Texting & Style Guidelines (CRITICAL for sounding natural and NOT like an AI):
       res.json({ reply: replyText, messages });
     } catch (error: any) {
       console.error('Failed to handle chat message:', error);
-      res.status(500).json({ error: error.message || 'Failed to generate response' });
+      res.status(500).json({ error: 'Failed to generate response' });
     }
   });
 
@@ -2867,7 +2944,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.post('/api/import-product', async (req, res) => {
+  app.post('/api/import-product', verifyAdmin, async (req, res) => {
     try {
       let { url } = req.body;
       if (!url) return res.status(400).json({ error: 'URL is required' });
@@ -2880,6 +2957,11 @@ ${linksArray.slice(0, 300).join('\n')}`;
         parsedUrl = new URL(url);
       } catch (err) {
         return res.status(400).json({ error: 'Invalid URL provided. Please enter a valid product webpage URL.' });
+      }
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const blockedHosts = ['localhost', '127.0.0.1', '0.0.0.0', '[::1]', '169.254.169.254', 'metadata.google.internal'];
+      if (blockedHosts.includes(hostname) || hostname.startsWith('10.') || hostname.startsWith('192.168.') || /^172\.(1[6-9]|2\d|3[01])\./.test(hostname)) {
+        return res.status(400).json({ error: 'Internal/private URLs are not allowed' });
       }
       const pageRes = await fetch(parsedUrl.toString(), { 
         headers: { 
@@ -3079,7 +3161,8 @@ ${linksArray.slice(0, 300).join('\n')}`;
     if (err.type === 'entity.too.large') {
        return res.status(413).json({ error: 'Payload size too large. Ensure uploaded files or data is smaller.' });
     }
-    res.status(500).json({ error: err.message || 'Internal Server Error' });
+    console.error('Unhandled server error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   });
 
   
@@ -3377,12 +3460,6 @@ ${linksArray.slice(0, 300).join('\n')}`;
         return res.status(400).json({ error: 'Email and password are required' });
       }
       const cleanEmail = String(email).trim().toLowerCase();
-      
-      // Default admin fallback check
-      if (cleanEmail === 'admin@sagardisplay.com' && password === 'admin123') {
-        const token = jwt.sign({ id: 'admin-1', role: 'admin', email: cleanEmail }, JWT_SECRET, { expiresIn: '7d' });
-        return res.json({ token, user: { id: 'admin-1', email: cleanEmail, name: 'Admin', role: 'admin' } });
-      }
 
       // Query database users
       const q = query(collection(db, 'users'), where('email', '==', cleanEmail), fLimit(1));
@@ -3393,14 +3470,19 @@ ${linksArray.slice(0, 300).join('\n')}`;
       }
 
       const user = { id: qs.docs[0].id, ...qs.docs[0].data() } as any;
-      const valid = user.password ? await bcrypt.compare(password, user.password) : true;
+      
+      if (!user.password) {
+        return res.status(401).json({ error: 'This account uses Google sign-in. Please log in with Google.' });
+      }
+      const valid = await bcrypt.compare(password, user.password);
       if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
 
       const role = user.role || 'customer';
       const token = jwt.sign({ id: user.id, role, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({ token, user: { id: user.id, email: user.email, name: user.name, role } });
     } catch (err: any) {
-      return res.status(500).json({ error: err.message });
+      console.error('Login error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -3422,12 +3504,13 @@ ${linksArray.slice(0, 300).join('\n')}`;
       });
       return res.json({ success: true, message: 'Request for quote submitted successfully', id: rfqId });
     } catch (err: any) {
-      return res.status(500).json({ error: err.message });
+      console.error('RFQ submission error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   });
 
   // Admin Orders Management
-  app.get('/api/admin/orders', async (req, res) => {
+  app.get('/api/admin/orders', verifyAdmin, async (req, res) => {
     try {
       const qs = await getDocs(collection(db, 'orders'));
       const orders = qs.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -3438,7 +3521,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.get('/api/admin/orders/:id', async (req, res) => {
+  app.get('/api/admin/orders/:id', verifyAdmin, async (req, res) => {
     try {
       const docSnap = await getDoc(doc(db, 'orders', req.params.id));
       if (!docSnap.exists()) return res.status(404).json({ error: 'Order not found' });
@@ -3448,7 +3531,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.post('/api/admin/orders/:id/status', async (req, res) => {
+  app.post('/api/admin/orders/:id/status', verifyAdmin, async (req, res) => {
     try {
       const { status } = req.body;
       await updateDoc(doc(db, 'orders', req.params.id), { status, updatedAt: Date.now() });
@@ -3458,7 +3541,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.post('/api/admin/orders/:id/send-quote', async (req, res) => {
+  app.post('/api/admin/orders/:id/send-quote', verifyAdmin, async (req, res) => {
     try {
       return res.json({ success: true, message: 'Quotation sent successfully' });
     } catch (err: any) {
@@ -3467,7 +3550,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
   });
 
   // Admin Customers Management
-  app.get('/api/admin/customers', async (req, res) => {
+  app.get('/api/admin/customers', verifyAdmin, async (req, res) => {
     try {
       const qs = await getDocs(collection(db, 'users'));
       const customers = qs.docs.map(d => {
@@ -3481,7 +3564,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.post('/api/admin/customers/export-excel', async (req, res) => {
+  app.post('/api/admin/customers/export-excel', verifyAdmin, async (req, res) => {
     try {
       const qs = await getDocs(collection(db, 'users'));
       const customers = qs.docs.map(d => {
@@ -3497,7 +3580,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.post('/api/admin/customers/send-bulk-email', async (req, res) => {
+  app.post('/api/admin/customers/send-bulk-email', verifyAdmin, async (req, res) => {
     try {
       const { customerIds } = req.body;
       return res.json({ success: true, message: `Bulk email sent to ${customerIds?.length || 0} customers` });
@@ -3507,11 +3590,11 @@ ${linksArray.slice(0, 300).join('\n')}`;
   });
 
   // Email Diagnostics
-  app.get('/api/admin/email-status', async (req, res) => {
+  app.get('/api/admin/email-status', verifyAdmin, async (req, res) => {
     return res.json({ configured: true, smtp: 'Ready', provider: 'Standard Mailer' });
   });
 
-  app.post('/api/admin/test-email', async (req, res) => {
+  app.post('/api/admin/test-email', verifyAdmin, async (req, res) => {
     try {
       const { to } = req.body;
       return res.json({ success: true, message: `Test email dispatched to ${to || 'admin'}` });
@@ -3521,7 +3604,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
   });
 
   // AI Helper Endpoints
-  app.post('/api/ai/bulk-generate-descriptions', async (req, res) => {
+  app.post('/api/ai/bulk-generate-descriptions', verifyAdmin, async (req, res) => {
     try {
       const { productIds, category } = req.body;
       const allProducts = await loadProductsFromS3();
@@ -3547,7 +3630,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.post('/api/ai/generate-seo-meta', async (req, res) => {
+  app.post('/api/ai/generate-seo-meta', verifyAdmin, async (req, res) => {
     try {
       const { productName, category, description } = req.body;
       const prompt = `Generate SEO meta tags for product "${productName}" (${category}). Return JSON with fields "metaTitle" (max 60 chars) and "metaDescription" (max 150 chars).`;
@@ -3577,7 +3660,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
-  app.post('/api/ai/bulk-optimize-all-seo', async (req, res) => {
+  app.post('/api/ai/bulk-optimize-all-seo', verifyAdmin, async (req, res) => {
     try {
       const allProducts = await loadProductsFromS3();
       let updated = 0;

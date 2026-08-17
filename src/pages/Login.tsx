@@ -52,8 +52,9 @@ export function Login() {
       
       const searchParams = new URLSearchParams(location.search);
       const redirect = searchParams.get('redirect');
-      if (redirect) {
-        navigate(`/${redirect}`);
+      const safeRedirects = ['/', '/checkout', '/orders', '/profile', '/categories'];
+      if (redirect && safeRedirects.includes(redirect)) {
+        navigate(redirect);
       } else {
         navigate('/');
       }
@@ -92,8 +93,9 @@ export function Login() {
 
       const searchParams = new URLSearchParams(location.search);
       const redirect = searchParams.get("redirect");
-      if (redirect) {
-        navigate(`/${redirect}`);
+      const safeRedirects = ["/", "/checkout", "/orders", "/profile", "/categories"];
+      if (redirect && safeRedirects.includes(redirect)) {
+        navigate(redirect);
       } else {
         navigate("/");
       }
