@@ -611,7 +611,7 @@ async function sendGmailEmail({
 
 
 async function sendAdminEmail({
-  to = 'bansalaryan0702@gmail.com',
+  to,
   subject,
   text,
   replyTo,
@@ -626,8 +626,7 @@ async function sendAdminEmail({
   googleAccessToken?: string;
   debug?: boolean;
 }): Promise<any> {
-  // Hardcoded as requested
-  to = 'bansalaryan0702@gmail.com';
+  to = to || process.env.ADMIN_EMAIL || 'admin@printfield.shop';
 
   const diagnostics: any = {
     success: false,
@@ -636,7 +635,7 @@ async function sendAdminEmail({
     smtp: { attempted: true, success: false }
   };
 
-  const smtpUser = process.env.SMTP_USER || 'bansalaryan0702@gmail.com';
+  const smtpUser = process.env.SMTP_USER || to;
   const smtpPass = process.env.SMTP_PASS;
   const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
   const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
@@ -1614,12 +1613,10 @@ const SITE_URL = 'https://printfield.shop';
       
       let decodedToken: any;
       try {
-        if (admin.apps.length) {
-          decodedToken = await admin.auth().verifyIdToken(token);
-        } else {
-          decodedToken = jwt.decode(token) as any;
-          if (!decodedToken) throw new Error("Invalid token");
+        if (!admin.apps.length) {
+          return res.status(500).json({ error: 'Authentication service unavailable' });
         }
+        decodedToken = await admin.auth().verifyIdToken(token);
       } catch (verifyErr: any) {
         return res.status(401).json({ error: 'Invalid or expired token' });
       }
@@ -2059,7 +2056,7 @@ const SITE_URL = 'https://printfield.shop';
         addressDetails = `${addr.fullName}, ${addr.street}, ${addr.city}, ${addr.state} ${addr.zip} - Ph: ${addr.phone}`;
       } catch(e) {}
       
-      const messageText = `GST Bill Request for Order #${orderId}\n\nDeliver To Admin: bansalaryan0702@gmail.com\n\nCustomer Email: ${req.user.email}\n\nShipping Address: ${addressDetails}\n\nItems:\n${itemDetails}\nTotal: Rs. ${orderData.total}`;
+      const messageText = `GST Bill Request for Order #${orderId}\n\nDeliver To Admin: ${process.env.ADMIN_EMAIL || 'admin@printfield.shop'}\n\nCustomer Email: ${req.user.email}\n\nShipping Address: ${addressDetails}\n\nItems:\n${itemDetails}\nTotal: Rs. ${orderData.total}`;
       
       try {
         await sendAdminEmail({
