@@ -3848,11 +3848,15 @@ ${linksArray.slice(0, 300).join('\n')}`;
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
 
-    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/faq', '/custom-printing', '/checkout', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
+    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
+    const invalidExtensions = /\.(php|asp|aspx|jsp|cgi|pl|py|rb|do|action|xml|json|txt|csv|doc|docx|pdf|xls|xlsx|zip|rar|exe|dmg|apk)(\?|$)/i;
     app.get('*', (req, res) => {
       const reqPath = req.path;
+      if (invalidExtensions.test(reqPath)) {
+        return res.status(404).send('<!DOCTYPE html><html><head><title>404</title></head><body><h1>Not Found</h1></body></html>');
+      }
       if (!knownPrefixes.some(p => reqPath === p || reqPath.startsWith(p + '/'))) {
-        return res.status(404).sendFile(path.join(distPath, 'index.html'));
+        return res.status(404).send('<!DOCTYPE html><html><head><title>404</title></head><body><h1>Not Found</h1></body></html>');
       }
       res.sendFile(path.join(distPath, 'index.html'));
     });

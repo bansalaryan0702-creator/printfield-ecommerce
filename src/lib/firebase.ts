@@ -4,8 +4,7 @@ import { initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const customConfig = {
-  ...firebaseConfig,
-  authDomain: 'printfield.shop'
+  ...firebaseConfig
 };
 const app = initializeApp(customConfig);
 export const db = initializeFirestore(app, { experimentalForceLongPolling: true }, (firebaseConfig as any).firestoreDatabaseId || 'ai-studio-84a659f4-d467-4e09-88a5-5dfb369ca41e');
