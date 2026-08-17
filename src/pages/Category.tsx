@@ -164,23 +164,7 @@ export function CategoryPage() {
             </ul>
           </div>
           
-          {availableSubCategories && availableSubCategories.length > 0 && (
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4 tracking-wider text-sm uppercase">Sub Category</h3>
-              <ul className="space-y-3">
-                 <li key="all-subs">
-                   <button onClick={() => { handleSubCategoryChange('all'); }} className={`text-sm ${subCategory === 'all' ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'} text-left w-full`}>All {category.name}</button>
-                </li>
-                {availableSubCategories.map(sub => (
-                  <li key={sub}>
-                    <button onClick={() => { handleSubCategoryChange(sub); }} className={`text-sm ${subCategory === sub ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'} text-left w-full`}>
-                      {sub}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+
         </div>
 
         {/* Product Grid */}
