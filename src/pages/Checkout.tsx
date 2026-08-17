@@ -277,7 +277,7 @@ export function Checkout() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 font-serif">Request Quotation</h1>
         
-        <div className="grid lg:grid-cols-12 gap-12">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Form */}
           <div className="lg:col-span-7">
             <form onSubmit={handlePlaceOrder} className="space-y-8">
@@ -332,19 +332,19 @@ export function Checkout() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input type="text" name="fullName" value={address.fullName} onChange={handleChange} required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="Enter your first and last name" />
+                    <input type="text" name="fullName" value={address.fullName} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="Enter your first and last name" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" name="email" value={address.email} onChange={handleChange} required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="name@company.com" />
+                    <input type="email" name="email" value={address.email} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="name@company.com" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input type="tel" name="phone" value={address.phone} onChange={handleChange} required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="10-digit mobile number" />
+                    <input type="tel" name="phone" value={address.phone} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="10-digit mobile number" />
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Company Name <span className="text-gray-400 font-normal">(Optional)</span></label>
-                    <input type="text" name="company" value={address.company} onChange={handleChange} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="Your business or organization name" />
+                    <input type="text" name="company" value={address.company} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none transition-all" placeholder="Your business or organization name" />
                   </div>
                 </div>
               </div>
@@ -369,7 +369,7 @@ export function Checkout() {
 
           {/* Order Summary */}
           <div className="lg:col-span-5">
-            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 sticky top-24">
+            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 lg:sticky lg:top-24">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Quotation Summary</h2>
               <div className="space-y-4 mb-6">
                 {cart.map((item: any, idx: number) => (

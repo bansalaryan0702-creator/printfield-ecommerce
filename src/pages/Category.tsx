@@ -3,7 +3,7 @@ import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/src/components/layout/Layout";
 import { Categories } from "@/src/data/products";
 import { ProductCard } from "@/src/components/ui/ProductCard";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trophy, Info } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
 import { Button } from '@/src/components/ui/button';
 import { Pagination } from "@/src/components/ui/Pagination";
@@ -78,8 +78,8 @@ export function CategoryPage() {
   return (
     <Layout>
       <SEO 
-        title={`${category.name} | Printfield`}
-        description={`Browse our premium collection of ${String(category.name || '').toLowerCase()} for your business needs.`}
+        title={`Custom ${category.name} Printing in Whitefield Bangalore | Printfield`}
+        description={`Buy custom ${String(category.name || '').toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${String(category.name || '').toLowerCase()} with fast delivery. Order online at Printfield.`}
         canonicalUrl={`/category/${categoryId || 'all'}`}
         ogImage={category.image}
       />
@@ -109,6 +109,40 @@ export function CategoryPage() {
           </p>
         </div>
       </div>
+
+      {/* Trophy Availability Marquee Banner */}
+      {normalizedCategoryId && (normalizedCategoryId.toLowerCase().includes('troph') || normalizedCategoryId.toLowerCase() === 'trophies') && (
+        <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-y border-amber-200 overflow-hidden whitespace-nowrap">
+          <div className="py-3 flex overflow-hidden">
+            <div className="flex items-center gap-16 text-sm md:text-base font-semibold text-amber-800 animate-[marquee_20s_linear_infinite]">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex items-center gap-16 shrink-0">
+                  <span className="flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-amber-600" />
+                    Availability May Vary
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                  <span className="flex items-center gap-2">
+                    <Info className="w-4 h-4 text-amber-600" />
+                    If a specific model is unavailable, we&apos;ll craft a similar premium alternative
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                  <span className="flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-amber-600" />
+                    Same quality, same craftsmanship — guaranteed
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                  <span className="flex items-center gap-2">
+                    <Info className="w-4 h-4 text-amber-600" />
+                    Contact us for the latest stock on any model
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-20 flex flex-col md:flex-row gap-8">
         

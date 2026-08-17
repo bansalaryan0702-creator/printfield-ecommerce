@@ -15,11 +15,11 @@ export function Footer() {
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
               Your one-stop destination for premium quality custom printing, personalized gifts, and digital corporate solutions.
             </p>
-            <div className="flex gap-4 pt-2">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors"><Facebook className="h-5 w-5" /></a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors"><Twitter className="h-5 w-5" /></a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors"><Instagram className="h-5 w-5" /></a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors"><Linkedin className="h-5 w-5" /></a>
+            <div className="flex gap-2 pt-2">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors p-2 -m-2 rounded-lg"><Facebook className="h-5 w-5" /></a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors p-2 -m-2 rounded-lg"><Twitter className="h-5 w-5" /></a>
+              <a href="https://instagram.com/printfield.whitefield" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors p-2 -m-2 rounded-lg"><Instagram className="h-5 w-5" /></a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors p-2 -m-2 rounded-lg"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
 

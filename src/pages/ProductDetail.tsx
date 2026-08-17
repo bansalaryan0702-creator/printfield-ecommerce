@@ -1239,7 +1239,7 @@ export function ProductDetail() {
       if (!productId) return;
       setProductsLoading(true);
 
-      const matchInAllProducts = allProducts && allProducts.find(p => p.id === productId || p.id.toLowerCase() === productId.toLowerCase());
+      const matchInAllProducts = allProducts && allProducts.find(p => p.id === productId || p.id.toLowerCase() === productId.toLowerCase() || p.slug === productId || (p.slug && p.slug.toLowerCase() === productId.toLowerCase()));
 
       if (matchInAllProducts && !isCancelled) {
         applyProductData(matchInAllProducts);
@@ -1752,7 +1752,7 @@ export function ProductDetail() {
       <SEO 
         title={product?.metaTitle || `${product?.name || 'Product Details'} - Custom Printing | Printfield`}
         description={product?.metaDescription || product?.cardDescription || product?.description || 'Custom printing services with fast turnaround and high quality at Printfield.'}
-        canonicalUrl={`/product/${product?.id || ''}`}
+        canonicalUrl={`/product/${product?.slug || product?.id || ''}`}
         ogImage={product?.image}
         schema={product ? JSON.stringify({
           "@context": "https://schema.org",
@@ -1761,63 +1761,21 @@ export function ProductDetail() {
           "image": [product?.image, ...(Array.isArray(product?.images) ? product?.images : [])].filter(Boolean),
           "description": product?.metaDescription || product?.cardDescription || product?.description || `Custom printed ${product?.name} with high-quality material and finish.`,
           "sku": product?.id,
-          "mpn": product?.id,
           "brand": {
             "@type": "Brand",
             "name": "Printfield"
           },
           "offers": {
             "@type": "Offer",
-            "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.id}` : `https://printfield.shop/product/${product?.id}`,
-            "priceCurrency": "INR",
-            "price": (product?.price || 0).toString(),
-            "priceValidUntil": "2027-12-31",
+            "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://printfield.shop/product/${product?.slug || product?.id}`,
             "itemCondition": "https://schema.org/NewCondition",
             "availability": product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
             "seller": {
               "@type": "Organization",
-              "name": "Printfield"
+              "name": "Printfield",
+              "areaServed": ["Whitefield", "Brookefield", "Marathahalli", "ITPL", "Mahadevapura", "Bengaluru"]
             }
-          },
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "reviewCount": "128",
-            "bestRating": "5",
-            "worstRating": "1"
-          },
-          "review": [
-            {
-              "@type": "Review",
-              "reviewRating": {
-                "@type": "Rating",
-                "ratingValue": "5",
-                "bestRating": "5",
-                "worstRating": "1"
-              },
-              "author": {
-                "@type": "Person",
-                "name": "Verified Customer"
-              },
-              "reviewBody": "Outstanding print quality, durable materials, and fast turnaround time.",
-              "datePublished": "2026-01-15"
-            },
-            {
-              "@type": "Review",
-              "reviewRating": {
-                "@type": "Rating",
-                "ratingValue": "5",
-                "bestRating": "5",
-                "worstRating": "1"
-              },
-              "author": {
-                "@type": "Person",
-                "name": "Corporate Buyer"
-              },
-              "reviewBody": "Great bulk ordering process and excellent color accuracy for our company logos.",
-              "datePublished": "2026-02-01"
-            }
-          ]
+          }
         }) : undefined}
       />
       {showCustomizer && (
@@ -2759,6 +2717,21 @@ export function ProductDetail() {
                     </Button>
                   )}
               </div>
+              {/* Trust Badges */}
+              <div className="grid grid-cols-3 gap-3 mt-4 mb-2">
+                <div className="flex flex-col items-center text-center p-2 bg-green-50 rounded-lg">
+                  <svg className="w-5 h-5 text-green-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  <span className="text-[11px] font-medium text-green-700">Quality Assured</span>
+                </div>
+                <div className="flex flex-col items-center text-center p-2 bg-blue-50 rounded-lg">
+                  <svg className="w-5 h-5 text-blue-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span className="text-[11px] font-medium text-blue-700">Fast Turnaround</span>
+                </div>
+                <div className="flex flex-col items-center text-center p-2 bg-purple-50 rounded-lg">
+                  <svg className="w-5 h-5 text-purple-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  <span className="text-[11px] font-medium text-purple-700">Secure Order</span>
+                </div>
+              </div>
               <p className="text-sm text-center text-gray-500 font-medium pt-2 flex items-center justify-center gap-2">
                 <Shield className="h-4 w-4"  /> 100% Satisfaction Guarantee
               </p>
@@ -2809,6 +2782,15 @@ export function ProductDetail() {
             </div>
             <h4 className="font-bold text-gray-900">No Upfront Payment</h4>
             <p className="text-sm text-gray-500">Submit specs & receive quotation by email.</p>
+            <a
+              href={`https://wa.me/919606371222?text=${encodeURIComponent(`Hi Printfield, I'm interested in: ${product?.name || 'a product'}. Please share details.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors mt-3"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Chat on WhatsApp for Quick Quote
+            </a>
           </div>
           <div className="space-y-3">
             <div className="mx-auto w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center">

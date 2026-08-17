@@ -7,8 +7,8 @@ export function About() {
   return (
     <Layout>
       <SEO 
-        title="About Printfield | Our Story & Custom Printing Services"
-        description="Learn about Printfield, a premier destination for high-quality custom printing, personalized corporate gifts, and digital solutions located in Bengaluru."
+        title="About Printfield | Best Printing Shop in Whitefield Bangalore"
+        description="Learn about Printfield, the best printing shop in Whitefield, Bengaluru 560066. Custom printing, trophies, corporate gifts & signage. Fast delivery across Bangalore."
         canonicalUrl="/about"
       />
       <div className="bg-white">

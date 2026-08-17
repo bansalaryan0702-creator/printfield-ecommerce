@@ -38,141 +38,7 @@ interface Review {
   reply?: string;
 }
 
-const INITIAL_REVIEWS: Review[] = [
-  {
-    id: "rev-1",
-    author: "Ananya Sharma",
-    role: "Marketing Manager, TechPulse",
-    verified: true,
-    rating: 5,
-    date: "August 2, 2026",
-    category: "Business Cards",
-    productName: "Velvet Soft-Touch Foil Business Cards",
-    title: "Unbelievable quality & prompt delivery!",
-    content: "Ordered 500 gold foil business cards for our annual corporate summit. The soft-touch velvet feel with gold embossing exceeded our expectations. Everyone at the event asked where we got them printed!",
-    helpfulCount: 34,
-    reply: "Thank you Ananya! We're thrilled your gold foil cards made a fantastic impression at TechPulse."
-  },
-  {
-    id: "rev-2",
-    author: "Rohan Verma",
-    role: "Founder, Urban Brew Cafe",
-    verified: true,
-    rating: 5,
-    date: "July 28, 2026",
-    category: "Apparel",
-    productName: "Premium Heavyweight Custom Hoodies",
-    title: "Best staff uniform hoodies we've ever purchased",
-    content: "The custom embroidery on our staff hoodies came out crisp and colorful. Fabric is 380 GSM thick cotton, very comfortable and doesn't fade after multiple machine washes.",
-    helpfulCount: 22
-  },
-  {
-    id: "rev-3",
-    author: "Priya Nair",
-    role: "Event Organizer",
-    verified: true,
-    rating: 5,
-    date: "July 20, 2026",
-    category: "Signage",
-    productName: "Custom Retractable Roll-Up Banners",
-    title: "High resolution printing and durable stands",
-    content: "We needed 6 standees printed on urgent notice within 24 hours. Printfield delivered them directly to the venue in Bengaluru right on time. Crisp colors and smooth vinyl material.",
-    helpfulCount: 18
-  },
-  {
-    id: "rev-4",
-    author: "Kavita Reddy",
-    role: "HR Lead, Apex Solutions",
-    verified: true,
-    rating: 5,
-    date: "July 18, 2026",
-    category: "Corporate Gifts",
-    productName: "Luxury Welcome Onboarding Kit",
-    title: "Impressive onboarding kits for new hires",
-    content: "Includes custom notebook, metal pen, thermal flask, and tech pouch with our laser-engraved logo. New employees are constantly sharing unboxing videos on LinkedIn!",
-    helpfulCount: 29
-  },
-  {
-    id: "rev-5",
-    author: "Vikram Sengupta",
-    role: "Creative Director, Studio V",
-    verified: true,
-    rating: 4,
-    date: "July 15, 2026",
-    category: "Drinkware",
-    productName: "Custom Matte Ceramic Coffee Mugs",
-    title: "Great print clarity on ceramic mugs, slight transit delay",
-    content: "The colors matched our brand vector files perfectly. Slight delay of 1 day due to monsoon shipping, but customer support kept us updated throughout.",
-    helpfulCount: 11,
-    reply: "Hi Vikram! Thanks for the review. Apologies for the weather delay, glad you love the mug print quality!"
-  },
-  {
-    id: "rev-6",
-    author: "Deepak Choudhury",
-    role: "Store Manager",
-    verified: true,
-    rating: 4,
-    date: "June 29, 2026",
-    category: "Packaging",
-    productName: "Custom Rigid Box Packaging",
-    title: "Sturdy custom packaging, box size was slightly roomy",
-    content: "We ordered custom matte black shipping boxes with gloss foil logo. Packaging quality is premium and protects our products. The box dimensions were slightly roomier than expected, so we added bubble wrap.",
-    helpfulCount: 15
-  },
-  {
-    id: "rev-7",
-    author: "Sameer Joshi",
-    role: "Marketing Specialist",
-    verified: true,
-    rating: 4,
-    date: "June 22, 2026",
-    category: "Stationery",
-    productName: "Glossy Promotional Posters",
-    title: "Solid poster paper quality and vibrant colors",
-    content: "Posters turned out great for our retail store promotion. The paper stock is thick and glossy. Would order again!",
-    helpfulCount: 9
-  },
-  {
-    id: "rev-8",
-    author: "Neha Kapoor",
-    role: "Brand Strategist",
-    verified: true,
-    rating: 4,
-    date: "June 14, 2026",
-    category: "Apparel",
-    productName: "Eco-Friendly Canvas Tote Bags",
-    title: "Nice fabric feel and durable handles",
-    content: "The tote bags look good with our minimalist screen-printed logo. Handles are sturdy and stitched well. Very decent product for event giveaways.",
-    helpfulCount: 14
-  },
-  {
-    id: "rev-9",
-    author: "Arjun Mehta",
-    role: "Operations Lead",
-    verified: true,
-    rating: 4,
-    date: "June 08, 2026",
-    category: "Corporate Gifts",
-    productName: "Custom Engraved Crystal Trophies",
-    title: "Sleek awards with good weight",
-    content: "Engraving was sharp and clear on crystal block trophies. Arrived safely packaged in individual velvet presentation boxes.",
-    helpfulCount: 8
-  },
-  {
-    id: "rev-10",
-    author: "Tarun Gupta",
-    role: "Small Business Owner",
-    verified: true,
-    rating: 3,
-    date: "June 01, 2026",
-    category: "Stationery",
-    productName: "Standard Glossy Flyers",
-    title: "Good print quality but delivery took 4 days instead of 2",
-    content: "Print clarity was good for the price, but the courier delayed delivery by 2 days which affected our local flyer distribution schedule.",
-    helpfulCount: 21,
-    reply: "Hi Tarun, we sincerely apologize for the shipping delay on your flyer order. We've issued a 15% discount code to your email for your next order!"
-  }
-];
+const INITIAL_REVIEWS: Review[] = [];
 
 export function Rating() {
   const [reviews, setReviews] = useState<Review[]>(() => {
@@ -371,7 +237,7 @@ export function Rating() {
                   ))}
                 </div>
                 <p className="text-xs md:text-sm text-slate-300 font-medium">
-                  Based on <strong className="text-white font-bold">{totalReviews + 2840}</strong> verified reviews
+                  Based on <strong className="text-white font-bold">{totalReviews}</strong> verified reviews
                 </p>
                 <Button 
                   onClick={() => setIsModalOpen(true)}

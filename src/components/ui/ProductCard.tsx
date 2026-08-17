@@ -74,7 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link 
-      to={`/product/${product.id}${hoveredColorName ? `?color=${encodeURIComponent(hoveredColorName)}` : ''}`} 
+      to={`/product/${product.slug || product.id}${hoveredColorName ? `?color=${encodeURIComponent(hoveredColorName)}` : ''}`} 
       className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
     >
       <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100 relative">

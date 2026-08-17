@@ -41,12 +41,26 @@ export function FAQ() {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  const faqSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  });
+
   return (
     <Layout>
       <SEO 
-        title="Frequently Asked Questions | Printfield FAQs"
-        description="Find answers to common questions about Printfield's custom printing services, shipping times, minimum order quantities, and supported file formats."
+        title="FAQ - Printing Services Whitefield Bangalore | Printfield"
+        description="Find answers about Printfield's custom printing services in Whitefield, Bangalore 560066. Shipping times, minimum orders, file formats & more."
         canonicalUrl="/faq"
+        schema={faqSchema}
       />
       <div className="bg-gray-50 min-h-screen py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">

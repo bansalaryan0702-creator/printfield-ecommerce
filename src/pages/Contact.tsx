@@ -1,7 +1,8 @@
 import { Layout } from "../components/layout/Layout";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
 import React, { useState } from "react";
 import { SEO } from "../components/SEO";
+import { apiFetch } from "../lib/api";
 
 export function Contact() {
   const [formData, setFormData] = useState({
@@ -18,25 +19,34 @@ export function Contact() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const res = await apiFetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        setSubmitStatus("success");
+        setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+      } else {
+        setSubmitStatus("error");
+      }
+    } catch {
+      setSubmitStatus("error");
+    } finally {
       setIsSubmitting(false);
-      setSubmitStatus("success");
-      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-      
-      setInterval(() => setSubmitStatus("idle"), 5000);
-    }, 1500);
+      setTimeout(() => setSubmitStatus("idle"), 5000);
+    }
   };
 
   return (
     <Layout>
       <SEO 
-        title="Contact Printfield | Bulk Orders & Support"
-        description="Get in touch with Printfield for bulk corporate orders, custom printing quotes, or general support. Our team is ready to help you bring your brand to life."
+        title="Contact Printfield | Best Printing Shop Whitefield Bangalore"
+        description="Contact Printfield in Whitefield, Bangalore 560066. Bulk orders, custom printing quotes & support. Call +91 9606371222 or visit us on Borewell Road."
         canonicalUrl="/contact"
       />
       <div className="bg-gray-50 min-h-screen py-16 md:py-24">
@@ -51,7 +61,7 @@ export function Contact() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-12 lg:gap-8">
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-8">
             {/* Contact Information */}
             <div className="lg:col-span-1 space-y-8">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col gap-8">
@@ -65,7 +75,7 @@ export function Contact() {
                     <p className="text-gray-600 leading-relaxed">
                       No 96, Mini Villa, Opp. Chaitnya Swojas,<br/>
                       Borewell Road, Whitefield,<br/>
-                      Bengaluru Karnataka 560066
+                      Bengaluru, Karnataka 560066
                     </p>
                   </div>
                 </div>
@@ -78,9 +88,9 @@ export function Contact() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Call Us</h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <a href="tel:+919606371222" className="text-purple-600 hover:text-purple-700 font-semibold leading-relaxed transition-colors">
                       +91 9606371222
-                    </p>
+                    </a>
                   </div>
                 </div>
 
@@ -92,9 +102,9 @@ export function Contact() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Email Us</h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <a href="mailto:Aryan@printfield.in" className="text-purple-600 hover:text-purple-700 font-semibold leading-relaxed transition-colors break-all">
                       Aryan@printfield.in
-                    </p>
+                    </a>
                   </div>
                 </div>
 
@@ -113,6 +123,30 @@ export function Contact() {
                   </div>
                 </div>
 
+                <div className="w-full h-px bg-gray-100"></div>
+
+                <a
+                  href="https://wa.me/919606371222?text=Hi%20Printfield%2C%20I%27m%20interested%20in%20your%20printing%20services."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors"
+                >
+                  <MessageCircle className="w-5 h-5" /> Chat on WhatsApp
+                </a>
+              </div>
+
+              {/* Google Maps Embed */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.5!2d77.75!3d12.97!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDU4JzEyLjAiTiA3N8KwNDUnMDAuMCJF!5e0!3m2!1sen!2sin!4v1"
+                  width="100%"
+                  height="250"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Printfield Location - Whitefield, Bangalore"
+                ></iframe>
               </div>
             </div>
 
@@ -124,6 +158,12 @@ export function Contact() {
                 {submitStatus === "success" && (
                   <div className="bg-green-50 text-green-800 p-4 rounded-xl mb-6 flex items-center border border-green-200">
                     Thank you for reaching out! We've received your message and will get back to you shortly.
+                  </div>
+                )}
+
+                {submitStatus === "error" && (
+                  <div className="bg-red-50 text-red-800 p-4 rounded-xl mb-6 flex items-center border border-red-200">
+                    Something went wrong. Please try again or call us at +91 9606371222.
                   </div>
                 )}
 

@@ -375,7 +375,7 @@ async function getProductById(productId: string) {
   }
 
   const products = await loadProductsFromS3();
-  return products.find((p: any) => p.id === rawId || p.id === decodedId || (p.name && String(p.name || '').toLowerCase() === rawId.toLowerCase())) || null;
+  return products.find((p: any) => p.id === rawId || p.id === decodedId || p.slug === rawId || p.slug === decodedId || (p.name && String(p.name || '').toLowerCase() === rawId.toLowerCase())) || null;
 }
 
 // --- SQLite Local Cache Fallback Layer ---
@@ -1076,7 +1076,8 @@ async function startServer() {
   await loadDeletedProductIds();
   const app = express();
   app.set('trust proxy', 1);
-  const PORT = 3000;
+const PORT = 3000;
+const SITE_URL = 'https://printfield.shop';
 
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ extended: true, limit: '100mb' }));
@@ -3147,7 +3148,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const id = req.params.id;
       const includeDisabled = req.query.includeDisabled === 'true';
       const allProducts = await loadProductsFromS3();
-      const product = allProducts.find((p: any) => p.id === id || p.id.toLowerCase() === id.toLowerCase());
+      const product = allProducts.find((p: any) => p.id === id || p.id.toLowerCase() === id.toLowerCase() || p.slug === id || (p.slug && p.slug.toLowerCase() === id.toLowerCase()));
       if (!product) return res.status(404).json({ error: 'Product not found' });
       if (product.isDisabled && !includeDisabled) return res.status(404).json({ error: 'Product not found' });
       res.json(product);
@@ -3653,6 +3654,50 @@ ${linksArray.slice(0, 300).join('\n')}`;
     res.status(404).json({ error: 'API route not found' });
   });
 
+  // Dynamic Sitemap.xml
+  app.get('/sitemap.xml', async (req, res) => {
+    try {
+      const baseUrl = SITE_URL;
+      const products = await loadProductsFromS3();
+      const activeProducts = products.filter((p: any) => !p.isDisabled);
+      const categoryNames = [...new Set(activeProducts.map((p: any) => p.category).filter(Boolean))];
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+      const staticPages = [
+        { path: '/', priority: '1.0', changefreq: 'daily' },
+        { path: '/categories', priority: '0.9', changefreq: 'daily' },
+        { path: '/custom-printing', priority: '0.8', changefreq: 'weekly' },
+        { path: '/about', priority: '0.6', changefreq: 'monthly' },
+        { path: '/faq', priority: '0.6', changefreq: 'monthly' },
+        { path: '/contact', priority: '0.7', changefreq: 'monthly' },
+        { path: '/rating', priority: '0.5', changefreq: 'monthly' },
+      ];
+
+      for (const page of staticPages) {
+        xml += `  <url>\n    <loc>${baseUrl}${page.path}</loc>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
+      }
+
+      for (const cat of categoryNames) {
+        const encoded = encodeURIComponent(cat);
+        xml += `  <url>\n    <loc>${baseUrl}/category/${encoded}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+      }
+
+      for (const product of activeProducts) {
+        const slug = (product as any).slug || product.id;
+        xml += `  <url>\n    <loc>${baseUrl}/product/${encodeURIComponent(slug)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+      }
+
+      xml += `</urlset>`;
+      res.setHeader('Content-Type', 'application/xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      return res.send(xml);
+    } catch (err) {
+      console.warn('Sitemap generation error:', err);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
   // Dynamic Meta Tags Injection for Product Pages (SEO optimization for crawlers & bots)
   app.get('/product/:id(*)', async (req, res, next) => {
     try {
@@ -3660,34 +3705,73 @@ ${linksArray.slice(0, 300).join('\n')}`;
       if (!prodId) return next();
 
       const currentProds = await loadProductsFromS3();
-      const product = currentProds.find((p: any) => p.id === prodId || p.id === decodeURIComponent(prodId));
+      const product = currentProds.find((p: any) => p.id === prodId || p.id === decodeURIComponent(prodId) || p.slug === prodId);
 
       if (product) {
         const title = product.metaTitle || `${product.name} - Custom Printing | Printfield`;
         const desc = product.metaDescription || product.cardDescription || product.description || `Buy custom printed ${product.name} at Printfield. Premium quality, customizable designs, and fast shipping.`;
         const img = product.image || '';
+        const canonicalSlug = product.slug || product.id;
+        const canonicalUrl = `https://printfield.shop/product/${encodeURIComponent(canonicalSlug)}`;
+        const ogImageUrl = img.startsWith('http') ? img : `https://printfield.shop${img}`;
 
         const distPath = path.join(process.cwd(), 'dist');
         const indexPath = path.join(distPath, 'index.html');
 
-        if (fs.existsSync(indexPath)) {
-          let html = fs.readFileSync(indexPath, 'utf8');
+        if (fsSync.existsSync(indexPath)) {
+          let html = fsSync.readFileSync(indexPath, 'utf8');
 
           function escapeAttr(str: string) {
             return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
           }
 
+          function escapeJson(str: string) {
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+          }
+
+          const productJsonLd = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": product.name,
+            "image": [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean),
+            "description": desc,
+            "sku": product.id,
+            "brand": { "@type": "Brand", "name": "Printfield" },
+            "offers": {
+              "@type": "Offer",
+              "url": canonicalUrl,
+              "itemCondition": "https://schema.org/NewCondition",
+              "availability": product.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+              "seller": { "@type": "Organization", "name": "Printfield" }
+            }
+          });
+
+          const breadcrumbJsonLd = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
+              { "@type": "ListItem", "position": 2, "name": product.category || "Products", "item": `${baseUrl}/category/${encodeURIComponent(product.category || '')}` },
+              { "@type": "ListItem", "position": 3, "name": product.name, "item": canonicalUrl }
+            ]
+          });
+
           const metaTags = `
     <title>${escapeAttr(title)}</title>
     <meta name="description" content="${escapeAttr(desc)}" />
+    <link rel="canonical" href="${canonicalUrl}" />
     <meta property="og:title" content="${escapeAttr(title)}" />
     <meta property="og:description" content="${escapeAttr(desc)}" />
-    <meta property="og:image" content="${escapeAttr(img)}" />
+    <meta property="og:image" content="${escapeAttr(ogImageUrl)}" />
+    <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:type" content="product" />
+    <meta property="og:site_name" content="Printfield" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeAttr(title)}" />
     <meta name="twitter:description" content="${escapeAttr(desc)}" />
-    <meta name="twitter:image" content="${escapeAttr(img)}" />
+    <meta name="twitter:image" content="${escapeAttr(ogImageUrl)}" />
+    <script type="application/ld+json">${escapeJson(productJsonLd)}</script>
+    <script type="application/ld+json">${escapeJson(breadcrumbJsonLd)}</script>
 `;
           html = html.replace(/<title>.*?<\/title>/gi, '');
           html = html.replace('</head>', `${metaTags}\n</head>`);
@@ -3696,6 +3780,51 @@ ${linksArray.slice(0, 300).join('\n')}`;
       }
     } catch (err) {
       console.warn('Product page SSR meta injection error:', err);
+    }
+    next();
+  });
+
+  // Dynamic Meta Tags Injection for Category Pages
+  app.get('/category/:id(*)', async (req, res, next) => {
+    try {
+      const catId = req.params.id;
+      if (!catId) return next();
+
+      const decodedCat = decodeURIComponent(catId);
+      const catTitle = `${decodedCat} - Custom Printing in Whitefield Bangalore | Printfield`;
+      const catDesc = `Buy custom ${decodedCat.toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${decodedCat.toLowerCase()} with fast delivery. Order online at Printfield.`;
+      const canonicalUrl = `https://printfield.shop/category/${encodeURIComponent(decodedCat)}`;
+
+      const distPath = path.join(process.cwd(), 'dist');
+      const indexPath = path.join(distPath, 'index.html');
+
+      if (fsSync.existsSync(indexPath)) {
+        let html = fsSync.readFileSync(indexPath, 'utf8');
+
+        function escapeAttr(str: string) {
+          return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        const metaTags = `
+    <title>${escapeAttr(catTitle)}</title>
+    <meta name="description" content="${escapeAttr(catDesc)}" />
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:title" content="${escapeAttr(catTitle)}" />
+    <meta property="og:description" content="${escapeAttr(catDesc)}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Printfield" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeAttr(catTitle)}" />
+    <meta name="twitter:description" content="${escapeAttr(catDesc)}" />
+`;
+        html = html.replace(/<title>.*?<\/title>/gi, '');
+        html = html.replace(/<title>.*?<\/title>/gi, '');
+        html = html.replace('</head>', `${metaTags}\n</head>`);
+        return res.setHeader('Content-Type', 'text/html').send(html);
+      }
+    } catch (err) {
+      console.warn('Category page SSR meta injection error:', err);
     }
     next();
   });

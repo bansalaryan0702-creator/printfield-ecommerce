@@ -17,3 +17,8 @@
   --color-purple-900: #492783;
   --color-purple-950: #2b1451;
 }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

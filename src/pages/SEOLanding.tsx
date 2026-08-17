@@ -17,14 +17,26 @@ export const SEOLanding: React.FC = () => {
   const schema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "PrintingService",
-    "name": "Custom Business Printing & Merchandise",
-    "description": "Premium custom merchandise, business cards, and corporate gifts with fast turnaround and exceptional quality.",
+    "name": "Printfield - Custom Printing Services Whitefield Bangalore",
+    "description": "Premium custom printing services in Whitefield, Bengaluru 560066. Trophies, corporate gifts, apparel, signage, banners & promotional products with fast delivery.",
     "url": typeof window !== 'undefined' ? window.location.origin + "/custom-printing" : "https://printfield.shop/custom-printing",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "No 96, Mini Villa, Opp. Chaitnya Swojas, Borewell Road",
+      "addressLocality": "Whitefield",
+      "addressRegion": "Bengaluru, Karnataka",
+      "postalCode": "560066",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 12.9698,
+      "longitude": 77.7500
+    },
+    "telephone": "+919606371222",
+    "areaServed": ["Whitefield", "Brookefield", "Marathahalli", "ITPL", "Mahadevapura", "Bengaluru"],
     "offers": {
       "@type": "Offer",
-      "priceRange": "$$",
-      "priceCurrency": "INR",
-      "price": "99.00",
       "availability": "https://schema.org/InStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
@@ -33,8 +45,8 @@ export const SEOLanding: React.FC = () => {
   return (
     <Layout>
       <SEO 
-        title="Custom Printing Services & Promotional Products | Printfield" 
-        description="Elevate your brand with premium custom merchandise, business cards, corporate gifts, and print on demand services. Free online design studio & fast shipping."
+        title="Best Printing Services in Whitefield Bangalore | Custom Printing | Printfield" 
+        description="Premium custom printing services in Whitefield, Bengaluru 560066. Trophies, corporate gifts, apparel, signage, banners & promotional products. Fast delivery within 5km. Order online."
         canonicalUrl="/custom-printing"
         schema={schema}
       />

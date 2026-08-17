@@ -13,28 +13,24 @@ const LOCAL_PRODUCTS_BY_CATEGORY: Record<string, any[]> = {
     {
       id: "custom-tshirts",
       name: "Custom Round Neck T-Shirts",
-      price: 349,
       image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=300&auto=format&fit=crop",
       description: "Premium bio-washed cotton t-shirts with durable custom prints."
     },
     {
       id: "custom-polos",
       name: "Custom Polo T-Shirts",
-      price: 499,
       image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=300&auto=format&fit=crop",
       description: "Professional collared polo shirts, perfect for corporate teams."
     },
     {
       id: "custom-hoodies",
       name: "Custom Hoodies & Sweatshirts",
-      price: 899,
       image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=300&auto=format&fit=crop",
       description: "Cozy custom hoodies with premium embroidery or print."
     },
     {
       id: "tote-bags",
       name: "Custom Canvas Tote Bags",
-      price: 149,
       image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop",
       description: "Eco-friendly branded canvas bags for events and retail."
     }
@@ -43,28 +39,24 @@ const LOCAL_PRODUCTS_BY_CATEGORY: Record<string, any[]> = {
     {
       id: "personalized-mugs",
       name: "Personalized Ceramic Mugs",
-      price: 249,
       image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=300&auto=format&fit=crop",
       description: "Custom printed ceramic mugs. Perfect for corporate gifting."
     },
     {
       id: "custom-bottles",
       name: "Premium Steel Water Bottles",
-      price: 449,
       image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?q=80&w=300&auto=format&fit=crop",
       description: "Insulated stainless steel bottles with laser engraved logo."
     },
     {
       id: "custom-keychains",
       name: "Engraved Metal Keychains",
-      price: 99,
       image: "https://images.unsplash.com/photo-1582139329536-e7284fece509?q=80&w=300&auto=format&fit=crop",
       description: "Durable metal or leather keychains with custom branding."
     },
     {
       id: "notebooks",
       name: "Custom Executive Notebooks",
-      price: 299,
       image: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=300&auto=format&fit=crop",
       description: "Premium leatherette notebooks with hard cover and custom page inserts."
     }
@@ -73,21 +65,18 @@ const LOCAL_PRODUCTS_BY_CATEGORY: Record<string, any[]> = {
     {
       id: "roll-up-standees",
       name: "Roll-up Standees (6x3 ft)",
-      price: 1299,
       image: "https://images.unsplash.com/photo-1497005367839-6e852de72767?q=80&w=300&auto=format&fit=crop",
       description: "Portable, easy to assemble roll-up display standees."
     },
     {
       id: "vinyl-banners",
       name: "Outdoor Vinyl Banners",
-      price: 349,
       image: "https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=300&auto=format&fit=crop",
       description: "Heavy-duty waterproof banners with grommets for display."
     },
     {
       id: "promotional-posters",
       name: "HD Wall Posters",
-      price: 149,
       image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?q=80&w=300&auto=format&fit=crop",
       description: "High-resolution printed glossy or matte posters."
     }
@@ -96,14 +85,12 @@ const LOCAL_PRODUCTS_BY_CATEGORY: Record<string, any[]> = {
     {
       id: "shipping-boxes",
       name: "Custom Corrugated Boxes",
-      price: 49,
       image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=300&auto=format&fit=crop",
       description: "Sturdy branded packaging boxes for safe product transit."
     },
     {
       id: "paper-bags",
       name: "Premium Branded Paper Bags",
-      price: 29,
       image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop",
       description: "Elegant paper carrying bags with high quality prints."
     }
@@ -266,9 +253,9 @@ export function Navbar() {
       });
       if (filtered.length === 0) {
         filtered = [
-          { id: 'jkcr3tpxx', name: 'Standard Visiting Cards', price: 199, image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Premium quality standard visiting cards.' },
-          { id: 'njui14k70', name: 'Rounded Corner Visiting Cards', price: 249, image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Visiting cards with rounded corners.' },
-          { id: 'o2w2btqp1', name: 'Non-Tearable Visiting Cards', price: 299, image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Visiting cards printed on waterproof non-tearable paper.' }
+          { id: 'jkcr3tpxx', name: 'Standard Visiting Cards', image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Premium quality standard visiting cards.' },
+          { id: 'njui14k70', name: 'Rounded Corner Visiting Cards', image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Visiting cards with rounded corners.' },
+          { id: 'o2w2btqp1', name: 'Non-Tearable Visiting Cards', image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Visiting cards printed on waterproof non-tearable paper.' }
         ];
       }
     } else if (catId === 'business-stationery') {
@@ -291,8 +278,8 @@ export function Navbar() {
       });
       if (filtered.length === 0) {
         filtered = [
-          { id: 'flyers-a5', name: 'A5 Marketing Flyers', price: 499, image: 'https://images.unsplash.com/photo-1557002666-613dcf589254?q=80&w=300&auto=format&fit=crop', description: 'Vibrant promotional flyers.' },
-          { id: 'brochures-trifold', name: 'Tri-Fold Pamphlets & Brochures', price: 699, image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop', description: 'Tri-fold marketing brochures.' }
+          { id: 'flyers-a5', name: 'A5 Marketing Flyers', image: 'https://images.unsplash.com/photo-1557002666-613dcf589254?q=80&w=300&auto=format&fit=crop', description: 'Vibrant promotional flyers.' },
+          { id: 'brochures-trifold', name: 'Tri-Fold Pamphlets & Brochures', image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop', description: 'Tri-fold marketing brochures.' }
         ];
       }
     } else if (catId === 'gifts') {
@@ -863,7 +850,7 @@ export function Navbar() {
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="Search for products..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border-transparent rounded-full text-sm focus:bg-white focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-100 border-transparent rounded-full text-sm focus:bg-white focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all"
                 />
                 {showSuggestions && suggestions.length > 0 && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
@@ -874,7 +861,7 @@ export function Navbar() {
                           setSearchQuery(p.name);
                           setShowSuggestions(false);
                           setShowMobileSearch(false);
-                          navigate('/product/' + p.id);
+                          navigate('/product/' + (p.slug || p.id));
                         }}
                         className="px-4 py-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 last:border-0 flex items-center gap-3"
                       >
@@ -904,20 +891,25 @@ export function Navbar() {
               <Link to="/" className="flex items-center">
                 <img referrerPolicy="no-referrer" src="/logo.png" alt="Printfield" className="h-10 w-auto object-contain" />
               </Link>
-              <div className="hidden lg:flex items-center gap-6 border-l border-gray-200 pl-6 xl:pl-8">
+              <div className="hidden md:flex items-center gap-6 border-l border-gray-200 pl-6 xl:pl-8">
                  <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
                    <ShieldCheck className="w-4 h-4 text-green-600" />
                    <span className="hidden xl:inline">Premium Quality</span>
                    <span className="inline xl:hidden">Premium</span>
                  </div>
-                 <Link to="/rating" className="flex items-center gap-1.5 text-sm text-gray-700 font-semibold hover:text-purple-600 transition-colors bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                 <Link to="/rating" className="hidden lg:flex items-center gap-1.5 text-sm text-gray-700 font-semibold hover:text-purple-600 transition-colors bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
                    <span className="text-amber-500">★</span>
                    <span>4.3 Reviews</span>
                  </Link>
-                 <Link to="/contact" className="flex items-center gap-2 text-sm text-gray-600 font-medium hover:text-purple-600 transition-colors">
-                   <Phone className="w-4 h-4 text-purple-600" />
-                   <span>Support</span>
-                 </Link>
+                  <a href="tel:+919606371222" className="flex items-center gap-2 text-sm text-gray-600 font-medium hover:text-purple-600 transition-colors">
+                    <Phone className="w-4 h-4 text-purple-600" />
+                    <span className="hidden xl:inline">+91 9606371222</span>
+                    <span className="xl:hidden">Call</span>
+                  </a>
+                  <a href="https://wa.me/919606371222?text=Hi%20Printfield%2C%20I%27m%20interested%20in%20your%20printing%20services." target="_blank" rel="noopener noreferrer" className="hidden lg:flex items-center gap-1.5 text-sm text-white font-semibold bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-full transition-colors">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    <span className="hidden md:inline">WhatsApp</span>
+                  </a>
               </div>
             </div>
 
@@ -945,7 +937,7 @@ export function Navbar() {
                         onMouseDown={() => {
                           setSearchQuery(p.name);
                           setShowSuggestions(false);
-                          navigate('/product/' + p.id);
+                          navigate('/product/' + (p.slug || p.id));
                         }}
                         className="px-4 py-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 last:border-0 flex items-center gap-3"
                       >
@@ -1095,7 +1087,7 @@ export function Navbar() {
                                 <ul className="space-y-0.5">
                                   {subProducts.slice(0, 4).map((p: any) => (
                                     <li key={p.id}>
-                                      <Link to={`/product/${p.id}`} className="text-[11px] text-gray-600 hover:text-purple-600 hover:bg-purple-50 px-2 py-1 rounded transition-colors block truncate font-medium">
+                                      <Link to={`/product/${p.slug || p.id}`} className="text-[11px] text-gray-600 hover:text-purple-600 hover:bg-purple-50 px-2 py-1 rounded transition-colors block truncate font-medium">
                                         {p.name}
                                       </Link>
                                     </li>
@@ -1136,7 +1128,7 @@ export function Navbar() {
                         <ul className="space-y-0.5">
                           {products.slice(0, 4).map((p: any) => (
                             <li key={p.id}>
-                              <Link to={`/product/${p.id}`} className="text-[11px] text-gray-600 hover:text-purple-600 hover:bg-purple-50 px-2 py-1 rounded transition-colors block truncate font-medium">
+                              <Link to={`/product/${p.slug || p.id}`} className="text-[11px] text-gray-600 hover:text-purple-600 hover:bg-purple-50 px-2 py-1 rounded transition-colors block truncate font-medium">
                                 {p.name}
                               </Link>
                             </li>
@@ -1170,7 +1162,7 @@ export function Navbar() {
               </Link>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-1.5 rounded-full hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                className="p-2.5 rounded-full hover:bg-slate-800 text-slate-300 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
