@@ -3708,6 +3708,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const product = currentProds.find((p: any) => p.id === prodId || p.id === decodeURIComponent(prodId) || p.slug === prodId);
 
       if (product) {
+        const baseUrl = SITE_URL;
         const title = product.metaTitle || `${product.name} - Custom Printing | Printfield`;
         const desc = product.metaDescription || product.cardDescription || product.description || `Buy custom printed ${product.name} at Printfield. Premium quality, customizable designs, and fast shipping.`;
         const img = product.image || '';
@@ -3777,6 +3778,8 @@ ${linksArray.slice(0, 300).join('\n')}`;
           html = html.replace('</head>', `${metaTags}\n</head>`);
           return res.setHeader('Content-Type', 'text/html').send(html);
         }
+      } else {
+        return res.status(404).send('<!DOCTYPE html><html><head><title>404 - Product Not Found</title></head><body><h1>Product not found</h1><p><a href="/">Go to homepage</a></p></body></html>');
       }
     } catch (err) {
       console.warn('Product page SSR meta injection error:', err);
@@ -3791,9 +3794,16 @@ ${linksArray.slice(0, 300).join('\n')}`;
       if (!catId) return next();
 
       const decodedCat = decodeURIComponent(catId);
-      const catTitle = `${decodedCat} - Custom Printing in Whitefield Bangalore | Printfield`;
-      const catDesc = `Buy custom ${decodedCat.toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${decodedCat.toLowerCase()} with fast delivery. Order online at Printfield.`;
-      const canonicalUrl = `https://printfield.shop/category/${encodeURIComponent(decodedCat)}`;
+      const allProducts = await loadProductsFromS3();
+      const validCategories = [...new Set(allProducts.filter((p: any) => !p.isDisabled).map((p: any) => p.category).filter(Boolean))];
+      if (!validCategories.some(c => c.toLowerCase() === decodedCat.toLowerCase())) {
+        return res.status(404).send('<!DOCTYPE html><html><head><title>404 - Category Not Found</title></head><body><h1>Category not found</h1><p><a href="/categories">Browse all categories</a></p></body></html>');
+      }
+
+      const canonicalCat = validCategories.find(c => c.toLowerCase() === decodedCat.toLowerCase()) || decodedCat;
+      const catTitle = `${canonicalCat} - Custom Printing in Whitefield Bangalore | Printfield`;
+      const catDesc = `Buy custom ${canonicalCat.toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${canonicalCat.toLowerCase()} with fast delivery. Order online at Printfield.`;
+      const canonicalUrl = `https://printfield.shop/category/${encodeURIComponent(canonicalCat)}`;
 
       const distPath = path.join(process.cwd(), 'dist');
       const indexPath = path.join(distPath, 'index.html');
@@ -3819,7 +3829,6 @@ ${linksArray.slice(0, 300).join('\n')}`;
     <meta name="twitter:description" content="${escapeAttr(catDesc)}" />
 `;
         html = html.replace(/<title>.*?<\/title>/gi, '');
-        html = html.replace(/<title>.*?<\/title>/gi, '');
         html = html.replace('</head>', `${metaTags}\n</head>`);
         return res.setHeader('Content-Type', 'text/html').send(html);
       }
@@ -3838,7 +3847,13 @@ ${linksArray.slice(0, 300).join('\n')}`;
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+
+    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/faq', '/custom-printing', '/checkout', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
     app.get('*', (req, res) => {
+      const reqPath = req.path;
+      if (!knownPrefixes.some(p => reqPath === p || reqPath.startsWith(p + '/'))) {
+        return res.status(404).sendFile(path.join(distPath, 'index.html'));
+      }
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
