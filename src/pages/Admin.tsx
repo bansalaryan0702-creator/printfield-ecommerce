@@ -1780,7 +1780,7 @@ export function Admin() {
                     <div className="mt-3 pt-3 border-t border-blue-100 bg-white p-3 rounded-lg border border-gray-200">
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Google Search Result Preview</span>
                       <div className="font-sans">
-                        <div className="text-xs text-emerald-800 font-normal truncate">https://printfield.shop › product › {name ? name.toLowerCase().replace(/\s+/g, '-') : 'product-id'}</div>
+                        <div className="text-xs text-emerald-800 font-normal truncate">https://printfieldonline.com › product › {name ? name.toLowerCase().replace(/\s+/g, '-') : 'product-id'}</div>
                         <div className="text-sm text-blue-800 hover:underline font-medium line-clamp-1">
                           {metaTitle || `${name || 'Product Title'} - Custom Printing | Printfield`}
                         </div>

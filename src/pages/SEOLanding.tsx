@@ -19,7 +19,7 @@ export const SEOLanding: React.FC = () => {
     "@type": "PrintingService",
     "name": "Printfield - Custom Printing Services Whitefield Bangalore",
     "description": "Premium custom printing services in Whitefield, Bengaluru 560066. Trophies, corporate gifts, apparel, signage, banners & promotional products with fast delivery.",
-    "url": typeof window !== 'undefined' ? window.location.origin + "/custom-printing" : "https://printfield.shop/custom-printing",
+    "url": typeof window !== 'undefined' ? window.location.origin + "/custom-printing" : "https://printfieldonline.com/custom-printing",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "No 96, Mini Villa, Opp. Chaitnya Swojas, Borewell Road",

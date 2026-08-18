@@ -234,8 +234,8 @@ export function Home() {
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           "name": "Printfield Digital Solutions",
-          "image": "https://printfield.shop/logo.png",
-          "url": "https://printfield.shop",
+          "image": "https://printfieldonline.com/logo.png",
+          "url": "https://printfieldonline.com",
           "telephone": "+919606371222",
           "email": "Aryan@printfield.in",
           "address": {

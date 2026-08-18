@@ -626,7 +626,7 @@ async function sendAdminEmail({
   googleAccessToken?: string;
   debug?: boolean;
 }): Promise<any> {
-  to = to || process.env.ADMIN_EMAIL || 'admin@printfield.shop';
+  to = to || process.env.ADMIN_EMAIL || 'admin@printfieldonline.com';
 
   const diagnostics: any = {
     success: false,
@@ -1108,14 +1108,14 @@ async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
 const PORT = 3000;
-const SITE_URL = 'https://printfield.shop';
+const SITE_URL = 'https://printfieldonline.com';
 
   app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   }));
   app.use(cors({
-    origin: ['https://printfield.shop', 'http://localhost:3000', 'http://localhost:5173'],
+    origin: ['https://printfieldonline.com', 'http://localhost:3000', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -2056,7 +2056,7 @@ const SITE_URL = 'https://printfield.shop';
         addressDetails = `${addr.fullName}, ${addr.street}, ${addr.city}, ${addr.state} ${addr.zip} - Ph: ${addr.phone}`;
       } catch(e) {}
       
-      const messageText = `GST Bill Request for Order #${orderId}\n\nDeliver To Admin: ${process.env.ADMIN_EMAIL || 'admin@printfield.shop'}\n\nCustomer Email: ${req.user.email}\n\nShipping Address: ${addressDetails}\n\nItems:\n${itemDetails}\nTotal: Rs. ${orderData.total}`;
+      const messageText = `GST Bill Request for Order #${orderId}\n\nDeliver To Admin: ${process.env.ADMIN_EMAIL || 'admin@printfieldonline.com'}\n\nCustomer Email: ${req.user.email}\n\nShipping Address: ${addressDetails}\n\nItems:\n${itemDetails}\nTotal: Rs. ${orderData.total}`;
       
       try {
         await sendAdminEmail({
@@ -3793,8 +3793,8 @@ ${linksArray.slice(0, 300).join('\n')}`;
         const desc = product.metaDescription || product.cardDescription || product.description || `Buy custom printed ${product.name} at Printfield. Premium quality, customizable designs, and fast shipping.`;
         const img = product.image || '';
         const canonicalSlug = product.slug || product.id;
-        const canonicalUrl = `https://printfield.shop/product/${encodeURIComponent(canonicalSlug)}`;
-        const ogImageUrl = img.startsWith('http') ? img : `https://printfield.shop${img}`;
+        const canonicalUrl = `https://printfieldonline.com/product/${encodeURIComponent(canonicalSlug)}`;
+        const ogImageUrl = img.startsWith('http') ? img : `https://printfieldonline.com${img}`;
 
         const distPath = path.join(process.cwd(), 'dist');
         const indexPath = path.join(distPath, 'index.html');
@@ -3883,7 +3883,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const canonicalCat = validCategories.find(c => c.toLowerCase() === decodedCat.toLowerCase()) || decodedCat;
       const catTitle = `${canonicalCat} - Custom Printing in Whitefield Bangalore | Printfield`;
       const catDesc = `Buy custom ${canonicalCat.toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${canonicalCat.toLowerCase()} with fast delivery. Order online at Printfield.`;
-      const canonicalUrl = `https://printfield.shop/category/${encodeURIComponent(canonicalCat)}`;
+      const canonicalUrl = `https://printfieldonline.com/category/${encodeURIComponent(canonicalCat)}`;
 
       const distPath = path.join(process.cwd(), 'dist');
       const indexPath = path.join(distPath, 'index.html');

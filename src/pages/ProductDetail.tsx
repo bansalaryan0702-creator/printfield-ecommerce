@@ -1767,7 +1767,7 @@ export function ProductDetail() {
           },
           "offers": {
             "@type": "Offer",
-            "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://printfield.shop/product/${product?.slug || product?.id}`,
+            "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://printfieldonline.com/product/${product?.slug || product?.id}`,
             "itemCondition": "https://schema.org/NewCondition",
             "availability": product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
             "seller": {
