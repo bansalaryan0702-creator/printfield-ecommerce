@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import axios from 'axios';
-import puppeteer from 'puppeteer';
 import express from 'express';
 import * as fsSync from 'fs';
 import crypto from 'crypto';
@@ -89,7 +88,6 @@ import * as XLSX from 'xlsx';
 import { Readable } from 'stream';
 
 import nodemailer from "nodemailer";
-import { createServer as createViteServer } from 'vite';
 import jwt from 'jsonwebtoken';
 import fs from 'fs/promises';
 import * as cheerio from 'cheerio';
@@ -2872,15 +2870,16 @@ ${chatLog}
         return res.status(400).json({ error: 'Invalid URL provided.' });
       }
 
-      const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      const pageRes = await fetch(parsedUrl.toString(), {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
       });
-      const page = await browser.newPage();
-      await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36');
-      await page.goto(parsedUrl.toString(), { waitUntil: 'networkidle2', timeout: 30000 });
-      const html = await page.content();
-      await browser.close();
+      if (!pageRes.ok) {
+        return res.status(400).json({ error: `Failed to fetch URL. Status: ${pageRes.status}` });
+      }
+      const html = await pageRes.text();
 
       console.log('Successfully fetched URL, length:', html.length);
       const $ = cheerio.load(html);
@@ -3919,6 +3918,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
   });
 
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
