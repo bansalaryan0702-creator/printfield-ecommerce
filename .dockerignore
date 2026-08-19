@@ -2,6 +2,7 @@
 .gitignore
 node_modules/
 build/
+dist/
 coverage/
 cache.db*
 *.db
@@ -9,3 +10,5 @@ cache.db*
 *.db-wal
 *.db-shm
 uploads/
+.env
+.env.*
