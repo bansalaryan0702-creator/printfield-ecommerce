@@ -1390,6 +1390,38 @@ const SITE_URL = 'https://printfieldonline.com';
   });
   
   // Legacy static files serving with download support
+  app.get('/uploads/:subdir/:filename', async (req, res, next) => {
+    try {
+      const filename = path.basename(req.params.filename);
+      const subdir = req.params.subdir;
+      if (filename !== req.params.filename || filename.includes('..') || subdir.includes('..')) {
+        return res.status(400).send('Invalid filename');
+      }
+      const uploadDir = path.resolve(process.cwd(), 'uploads');
+      const filePath = path.join(uploadDir, subdir, filename);
+      const s3SubPath = `${subdir}/${filename}`;
+      try {
+        await fs.access(filePath);
+        return res.sendFile(filePath);
+      } catch (e) {
+        try {
+          const s3Key = `uploads/${s3SubPath}`;
+          const getRes = await s3Client.send(new GetObjectCommand({ Bucket: s3BucketName, Key: s3Key }));
+          if (getRes.Body) {
+            const bytes = await getRes.Body.transformToByteArray();
+            const finalBuffer = Buffer.from(bytes);
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            if (getRes.ContentType) res.setHeader('Content-Type', getRes.ContentType);
+            return res.send(finalBuffer);
+          }
+        } catch (s3Err: any) {}
+        return next();
+      }
+    } catch (err) {
+      next();
+    }
+  });
+
   app.get('/uploads/:filename', async (req, res, next) => {
     try {
       const filename = path.basename(req.params.filename);
