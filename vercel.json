@@ -7,6 +7,13 @@
     { "source": "/uploads/(.*)", "destination": "/api" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/sitemap.xml", "destination": "/api" },
-    { "source": "/robots.txt", "destination": "/api" }
+    { "source": "/robots.txt", "destination": "/api" },
+    { "source": "/xiomi", "destination": "/api" },
+    { "source": "/alanwalker", "destination": "/api" },
+    { "source": "/wp-admin", "destination": "/api" },
+    { "source": "/wp-content", "destination": "/api" },
+    { "source": "/wp-includes", "destination": "/api" },
+    { "source": "/wordpress", "destination": "/api" },
+    { "source": "/reviews", "destination": "/api" }
   ]
 }
