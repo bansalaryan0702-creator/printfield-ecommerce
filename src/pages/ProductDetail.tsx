@@ -1767,6 +1767,9 @@ export function ProductDetail() {
           },
           "offers": {
             "@type": "Offer",
+            "price": product?.price || 0,
+            "priceCurrency": "INR",
+            "priceValidUntil": "2026-12-31",
             "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://printfieldonline.com/product/${product?.slug || product?.id}`,
             "itemCondition": "https://schema.org/NewCondition",
             "availability": product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
@@ -1774,6 +1777,40 @@ export function ProductDetail() {
               "@type": "Organization",
               "name": "Printfield",
               "areaServed": ["Whitefield", "Brookefield", "Marathahalli", "ITPL", "Mahadevapura", "Bengaluru"]
+            },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "INR"
+              },
+              "shippingDestination": {
+                "@type": "DefinedRegion",
+                "addressCountry": "IN"
+              },
+              "deliveryTime": {
+                "@type": "ShippingDeliveryTime",
+                "handlingTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": 1,
+                  "maxValue": 3,
+                  "unitCode": "DAY"
+                },
+                "transitTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": 1,
+                  "maxValue": 5,
+                  "unitCode": "DAY"
+                }
+              }
+            },
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "IN",
+              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+              "merchantReturnDays": 7,
+              "returnMethod": "https://schema.org/ReturnByMail"
             }
           }
         }) : undefined}

@@ -36,7 +36,11 @@ export const SEOLanding: React.FC = () => {
     "telephone": "+919606371222",
     "areaServed": ["Whitefield", "Brookefield", "Marathahalli", "ITPL", "Mahadevapura", "Bengaluru"],
     "offers": {
-      "@type": "Offer",
+      "@type": "AggregateOffer",
+      "priceCurrency": "INR",
+      "lowPrice": "10",
+      "highPrice": "5000",
+      "offerCount": "622",
       "availability": "https://schema.org/InStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
