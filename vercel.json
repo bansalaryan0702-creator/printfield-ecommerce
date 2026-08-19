@@ -14,6 +14,7 @@
     { "source": "/wp-content", "destination": "/api" },
     { "source": "/wp-includes", "destination": "/api" },
     { "source": "/wordpress", "destination": "/api" },
-    { "source": "/reviews", "destination": "/api" }
+    { "source": "/reviews", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
