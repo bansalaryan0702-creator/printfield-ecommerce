@@ -3859,7 +3859,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
           return res.setHeader('Content-Type', 'text/html').send(html);
         }
       } else {
-        return res.status(404).send('<!DOCTYPE html><html><head><title>404 - Product Not Found</title></head><body><h1>Product not found</h1><p><a href="/">Go to homepage</a></p></body></html>');
+        return res.status(404).set('X-Robots-Tag', 'noindex').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Product Not Found - Printfield</title><meta name="robots" content="noindex"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1f2937}.card{background:#fff;border-radius:16px;padding:48px;max-width:480px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}h1{font-size:64px;color:#f59e0b;margin-bottom:8px}p{color:#6b7280;margin:12px 0 24px;line-height:1.6}a{display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600}a:hover{background:#d97706}</style></head><body><div class="card"><h1>404</h1><p>This product doesn't exist or has been removed.</p><a href="/">Go to Homepage</a></div></body></html>`);
       }
     } catch (err) {
       console.warn('Product page SSR meta injection error:', err);
@@ -3877,7 +3877,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const allProducts = await loadProductsFromS3();
       const validCategories = [...new Set(allProducts.filter((p: any) => !p.isDisabled).map((p: any) => p.category).filter(Boolean))];
       if (!validCategories.some(c => c.toLowerCase() === decodedCat.toLowerCase())) {
-        return res.status(404).send('<!DOCTYPE html><html><head><title>404 - Category Not Found</title></head><body><h1>Category not found</h1><p><a href="/categories">Browse all categories</a></p></body></html>');
+        return res.status(404).set('X-Robots-Tag', 'noindex').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Category Not Found - Printfield</title><meta name="robots" content="noindex"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1f2937}.card{background:#fff;border-radius:16px;padding:48px;max-width:480px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}h1{font-size:64px;color:#f59e0b;margin-bottom:8px}p{color:#6b7280;margin:12px 0 24px;line-height:1.6}a{display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600}a:hover{background:#d97706}</style></head><body><div class="card"><h1>404</h1><p>This category doesn't exist.</p><a href="/categories">Browse Categories</a></div></body></html>`);
       }
 
       const canonicalCat = validCategories.find(c => c.toLowerCase() === decodedCat.toLowerCase()) || decodedCat;
@@ -3928,16 +3928,86 @@ ${linksArray.slice(0, 300).join('\n')}`;
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
 
+    const pageMeta: Record<string, { title: string; description: string; canonical: string }> = {
+      '/': { title: 'Printfield - Best Printing Shop in Whitefield Bangalore', description: 'Premium custom printing services in Whitefield, Bengaluru 560066. Trophies, apparel, corporate gifts, signage & more.', canonical: '/' },
+      '/about': { title: 'About Us - Printfield Digital Solutions', description: 'Learn about Printfield Digital Solutions, your trusted printing partner in Whitefield, Bengaluru.', canonical: '/about' },
+      '/faq': { title: 'FAQ - Printfield Printing Services', description: 'Frequently asked questions about Printfield printing services, delivery, pricing, and customization.', canonical: '/faq' },
+      '/contact': { title: 'Contact Us - Printfield Whitefield Bangalore', description: 'Contact Printfield for custom printing services. Call +91 96063 71222 or visit us in Whitefield, Bengaluru.', canonical: '/contact' },
+      '/rating': { title: 'Customer Reviews - Printfield', description: 'See what our customers say about Printfield printing services in Whitefield, Bangalore.', canonical: '/rating' },
+      '/reviews': { title: 'Customer Reviews - Printfield', description: 'See what our customers say about Printfield printing services in Whitefield, Bangalore.', canonical: '/rating' },
+      '/terms': { title: 'Terms of Service - Printfield', description: 'Terms and conditions for using Printfield online printing services.', canonical: '/terms' },
+      '/privacy': { title: 'Privacy Policy - Printfield', description: 'Printfield privacy policy. How we collect, use, and protect your personal information.', canonical: '/privacy' },
+      '/custom-printing': { title: 'Custom Printing Services in Whitefield Bangalore | Printfield', description: 'Professional custom printing services in Whitefield, Bangalore. T-shirts, mugs, trophies, corporate gifts, signage & more.', canonical: '/custom-printing' },
+      '/categories': { title: 'All Categories - Printfield Printing Services', description: 'Browse all printing categories at Printfield. Trophies, apparel, corporate gifts, signage, photo prints & more.', canonical: '/categories' },
+      '/checkout': { title: 'Checkout - Printfield', description: 'Complete your order at Printfield.', canonical: '/checkout' },
+      '/login': { title: 'Login - Printfield', description: 'Login to your Printfield account.', canonical: '/login' },
+      '/admin': { title: 'Admin Dashboard - Printfield', description: 'Printfield admin dashboard.', canonical: '/admin' },
+      '/orders': { title: 'My Orders - Printfield', description: 'View your Printfield order history.', canonical: '/orders' },
+      '/profile': { title: 'My Profile - Printfield', description: 'Manage your Printfield account profile.', canonical: '/profile' },
+      '/forgot-password': { title: 'Forgot Password - Printfield', description: 'Reset your Printfield account password.', canonical: '/forgot-password' },
+      '/reset-password': { title: 'Reset Password - Printfield', description: 'Set a new password for your Printfield account.', canonical: '/reset-password' },
+    };
+
+    const notFoundPage = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Page Not Found - Printfield</title><meta name="robots" content="noindex"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1f2937}.card{background:#fff;border-radius:16px;padding:48px;max-width:480px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}h1{font-size:64px;color:#f59e0b;margin-bottom:8px}p{color:#6b7280;margin:12px 0 24px;line-height:1.6}a{display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;transition:background .2s}a:hover{background:#d97706}</style></head><body><div class="card"><h1>404</h1><p>The page you're looking for doesn't exist or has been moved.</p><a href="/">Go to Homepage</a></div></body></html>`;
+
     const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
     const invalidExtensions = /\.(php|asp|aspx|jsp|cgi|pl|py|rb|do|action|xml|json|txt|csv|doc|docx|pdf|xls|xlsx|zip|rar|exe|dmg|apk)(\?|$)/i;
+    const spamPrefixes = ['/xiomi', '/alanwalker', '/wp-admin', '/wp-content', '/wp-includes', '/wordpress'];
+
     app.get('*', (req, res) => {
       const reqPath = req.path;
+
       if (invalidExtensions.test(reqPath)) {
-        return res.status(404).send('<!DOCTYPE html><html><head><title>404</title></head><body><h1>Not Found</h1></body></html>');
+        return res.status(404).set('X-Robots-Tag', 'noindex').send(notFoundPage);
       }
+
+      for (const spam of spamPrefixes) {
+        if (reqPath === spam || reqPath.startsWith(spam + '/')) {
+          return res.redirect(301, '/');
+        }
+      }
+
+      if (reqPath === '/reviews') {
+        return res.redirect(301, '/rating');
+      }
+
+      if (reqPath !== '/' && reqPath.endsWith('/')) {
+        return res.redirect(301, reqPath.slice(0, -1));
+      }
+
       if (!knownPrefixes.some(p => reqPath === p || reqPath.startsWith(p + '/'))) {
-        return res.status(404).send('<!DOCTYPE html><html><head><title>404</title></head><body><h1>Not Found</h1></body></html>');
+        return res.status(404).set('X-Robots-Tag', 'noindex').send(notFoundPage);
       }
+
+      const meta = pageMeta[reqPath];
+      if (meta) {
+        const indexPath = path.join(distPath, 'index.html');
+        if (fsSync.existsSync(indexPath)) {
+          let html = fsSync.readFileSync(indexPath, 'utf8');
+          function escapeAttr(str: string) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+          const canonicalUrl = `https://printfieldonline.com${meta.canonical}`;
+          const pageMetaTags = `
+    <title>${escapeAttr(meta.title)}</title>
+    <meta name="description" content="${escapeAttr(meta.description)}" />
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:title" content="${escapeAttr(meta.title)}" />
+    <meta property="og:description" content="${escapeAttr(meta.description)}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Printfield" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeAttr(meta.title)}" />
+    <meta name="twitter:description" content="${escapeAttr(meta.description)}" />
+`;
+          html = html.replace(/<title>.*?<\/title>/gi, '');
+          html = html.replace(/<link rel="canonical".*?\/>/gi, '');
+          html = html.replace(/<meta property="og:.*?\/>/gi, '');
+          html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
+          html = html.replace('</head>', `${pageMetaTags}\n</head>`);
+          return res.setHeader('Content-Type', 'text/html').send(html);
+        }
+      }
+
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
