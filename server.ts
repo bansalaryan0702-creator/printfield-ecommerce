@@ -118,7 +118,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'fire
 
 import Razorpay from 'razorpay';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import admin from 'firebase-admin';
+const admin = require('firebase-admin');
 
 const s3BucketName = process.env.AWS_S3_BUCKET || 'printfielddigital';
 const s3Region = process.env.AWS_REGION || 'ap-south-1';
@@ -396,13 +396,25 @@ let firebaseConfig: any = {};
 if (fsSync.existsSync(path.join(process.cwd(), 'firebase-applet-config.json'))) {
   firebaseConfig = safeJsonParse(fsSync.readFileSync(path.join(process.cwd(), 'firebase-applet-config.json'), 'utf-8'));
 }
+if (!firebaseConfig.projectId && process.env.FIREBASE_PROJECT_ID) {
+  firebaseConfig = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    appId: process.env.FIREBASE_APP_ID || '',
+    apiKey: process.env.FIREBASE_API_KEY || '',
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN || '',
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || '',
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID || '',
+    oAuthClientId: process.env.FIREBASE_OAUTH_CLIENT_ID || '',
+  };
+}
 
 const firebaseApp = initializeApp(firebaseConfig);
 const firestoreDb = initializeFirestore(firebaseApp, { experimentalForceLongPolling: true }, firebaseConfig.firestoreDatabaseId || 'ai-studio-84a659f4-d467-4e09-88a5-5dfb369ca41e');
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseStorage = getStorage(firebaseApp);
 
-if (!admin.apps.length) {
+if (!admin.getApps().length) {
   try {
     admin.initializeApp({
       credential: admin.credential.applicationDefault(),
@@ -1611,7 +1623,7 @@ const SITE_URL = 'https://printfieldonline.com';
       
       let decodedToken: any;
       try {
-        if (!admin.apps.length) {
+if (!admin.getApps().length) {
           return res.status(500).json({ error: 'Authentication service unavailable' });
         }
         decodedToken = await admin.auth().verifyIdToken(token);
