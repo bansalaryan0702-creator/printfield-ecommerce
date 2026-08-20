@@ -92,76 +92,12 @@ export function cleanAndDeduplicateImages(urls: (string | null | undefined)[]): 
 }
 
 export function getFallbackImage(product?: { name?: string | null; category?: string | null; subCategory?: string | null } | null): string {
-  const DEFAULT_FALLBACK = "https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=800&auto=format&fit=crop"; // Premium branding mockup with stationery
-
-  if (!product) return DEFAULT_FALLBACK;
-
-  const name = String(product.name || '').toLowerCase();
-  const category = String(product.category || '').toLowerCase();
-  const subCategory = String(product.subCategory || '').toLowerCase();
-
-  // 1. Match by product name keywords
-  if (name.includes('power') || name.includes('display') || name.includes('charger') || name.includes('bank') || name.includes('gear') || name.includes('tech') || name.includes('gadget') || name.includes('electronic') || name.includes('device') || name.includes('usb') || name.includes('battery')) {
-    return "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?q=80&w=800&auto=format&fit=crop"; // Sleek tech power bank & gadget mockup
-  }
-  if (name.includes('frame') || name.includes('photo frame') || name.includes('wall frame') || name.includes('wall art') || name.includes('canvas print')) {
-    return "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=800&auto=format&fit=crop"; // Modern minimalist wall photo frame mockup
-  }
-  if (name.includes('notebook') || name.includes('diary') || name.includes('planner') || name.includes('booklet') || name.includes('brochure') || name.includes('pamphlet') || name.includes('catalog') || name.includes('stationery')) {
-    return "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=800&auto=format&fit=crop"; // Premium stacked notebooks/booklets mockup
-  }
-  if (name.includes('mug') || name.includes('cup') || name.includes('tumbler') || name.includes('bottle') || name.includes('flask') || name.includes('drinkware')) {
-    return "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=800&auto=format&fit=crop"; // Premium ceramic cup/mug mockup
-  }
-  if (name.includes('t-shirt') || name.includes('polo') || name.includes('hoodie') || name.includes('shirt') || name.includes('cap') || name.includes('hat') || name.includes('apparel')) {
-    return "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop"; // Clean apparel/hoodie mockup
-  }
-  if (name.includes('box') || name.includes('bag') || name.includes('carton') || name.includes('packaging') || name.includes('mailer') || name.includes('pouch')) {
-    return "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop"; // Cardboard packaging boxes
-  }
-  if (name.includes('card') || name.includes('visiting card') || name.includes('business card')) {
-    return "https://images.unsplash.com/photo-1595079676339-1534801ad6cf?q=80&w=800&auto=format&fit=crop"; // Premium business card mockup
-  }
-  if (name.includes('gift') || name.includes('personalized') || name.includes('personalised') || name.includes('corporate')) {
-    return "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=800&auto=format&fit=crop"; // Beautiful gift package
-  }
-  if (name.includes('trophy') || name.includes('award') || name.includes('medal')) {
-    return "https://images.unsplash.com/photo-1578269174936-2709b5a5e023?q=80&w=800&auto=format&fit=crop"; // Golden awards/trophies
-  }
-  if (name.includes('sign') || name.includes('banner') || name.includes('standee') || name.includes('poster')) {
-    return "https://images.unsplash.com/photo-1572945281869-7023f82f338a?q=80&w=800&auto=format&fit=crop"; // Clean banner/signage mockup
-  }
-
-  // 2. Match by category / subCategory keywords
-  if (category.includes('corporate') || category.includes('gift') || subCategory.includes('gift')) {
-    return "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?q=80&w=800&auto=format&fit=crop";
-  }
-  if (category.includes('card') || subCategory.includes('card')) {
-    return "https://images.unsplash.com/photo-1595079676339-1534801ad6cf?q=80&w=800&auto=format&fit=crop";
-  }
-  if (category.includes('apparel') || subCategory.includes('apparel')) {
-    return "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop";
-  }
-  if (category.includes('drinkware') || subCategory.includes('drinkware')) {
-    return "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=800&auto=format&fit=crop";
-  }
-  if (category.includes('packaging') || subCategory.includes('packaging')) {
-    return "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop";
-  }
-  if (category.includes('stationery') || subCategory.includes('stationery') || category.includes('office') || subCategory.includes('office')) {
-    return "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop";
-  }
-  if (category.includes('trophy') || subCategory.includes('trophy') || category.includes('award') || subCategory.includes('award')) {
-    return "https://images.unsplash.com/photo-1578269174936-2709b5a5e023?q=80&w=800&auto=format&fit=crop";
-  }
-  if (category.includes('sign') || subCategory.includes('sign') || category.includes('banner') || subCategory.includes('banner')) {
-    return "https://images.unsplash.com/photo-1572945281869-7023f82f338a?q=80&w=800&auto=format&fit=crop";
-  }
-
-  return DEFAULT_FALLBACK;
+  const label = product?.name || product?.category || 'Product';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="%23f3f4f6" width="400" height="400"/><text fill="%239ca3af" font-family="system-ui,sans-serif" font-size="16" font-weight="600" text-anchor="middle" x="200" y="190">${encodeURIComponent(label.slice(0, 30))}</text><text fill="%23d1d5db" font-family="system-ui,sans-serif" font-size="40" text-anchor="middle" x="200" y="230">&#x1f4f7;</text></svg>`;
+  return `data:image/svg+xml,${svg}`;
 }
 
-const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=800&auto=format&fit=crop";
+const DEFAULT_FALLBACK_IMAGE = "";
 
 export function getFeaturedImage(product: { image?: string | null; images?: any; name?: string | null; category?: string | null; subCategory?: string | null } | null | undefined): string {
   const fallback = getFallbackImage(product);

@@ -24,7 +24,7 @@ export function Mug2DMockup({
     <div className="w-full h-full relative flex items-center justify-center bg-[#EBEBEB] overflow-hidden rounded-2xl">
       <div className="relative w-[80%] h-[80%] max-w-[500px] flex items-center justify-center">
         <img
-          src={productImage || "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=800&auto=format&fit=crop"}
+          src={productImage || ""}
           alt="Mug Mockup"
           className="w-full h-full object-contain pointer-events-none"
           style={{ mixBlendMode: "multiply" }}

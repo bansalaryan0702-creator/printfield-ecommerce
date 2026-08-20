@@ -9,90 +9,25 @@ import { CartDrawer } from "../../components/CartDrawer";
 // Local high quality products list for category dropdowns if database doesn't have them
 const LOCAL_PRODUCTS_BY_CATEGORY: Record<string, any[]> = {
   "apparel": [
-    {
-      id: "custom-tshirts",
-      name: "Custom Round Neck T-Shirts",
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=300&auto=format&fit=crop",
-      description: "Premium bio-washed cotton t-shirts with durable custom prints."
-    },
-    {
-      id: "custom-polos",
-      name: "Custom Polo T-Shirts",
-      image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=300&auto=format&fit=crop",
-      description: "Professional collared polo shirts, perfect for corporate teams."
-    },
-    {
-      id: "custom-hoodies",
-      name: "Custom Hoodies & Sweatshirts",
-      image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=300&auto=format&fit=crop",
-      description: "Cozy custom hoodies with premium embroidery or print."
-    },
-    {
-      id: "tote-bags",
-      name: "Custom Canvas Tote Bags",
-      image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop",
-      description: "Eco-friendly branded canvas bags for events and retail."
-    }
+    { id: "custom-tshirts", name: "Custom Round Neck T-Shirts", image: "", description: "Premium bio-washed cotton t-shirts with durable custom prints." },
+    { id: "custom-polos", name: "Custom Polo T-Shirts", image: "", description: "Professional collared polo shirts, perfect for corporate teams." },
+    { id: "custom-hoodies", name: "Custom Hoodies & Sweatshirts", image: "", description: "Cozy custom hoodies with premium embroidery or print." },
+    { id: "tote-bags", name: "Custom Canvas Tote Bags", image: "", description: "Eco-friendly branded canvas bags for events and retail." }
   ],
   "gifts": [
-    {
-      id: "personalized-mugs",
-      name: "Personalized Ceramic Mugs",
-      image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=300&auto=format&fit=crop",
-      description: "Custom printed ceramic mugs. Perfect for corporate gifting."
-    },
-    {
-      id: "custom-bottles",
-      name: "Premium Steel Water Bottles",
-      image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?q=80&w=300&auto=format&fit=crop",
-      description: "Insulated stainless steel bottles with laser engraved logo."
-    },
-    {
-      id: "custom-keychains",
-      name: "Engraved Metal Keychains",
-      image: "https://images.unsplash.com/photo-1582139329536-e7284fece509?q=80&w=300&auto=format&fit=crop",
-      description: "Durable metal or leather keychains with custom branding."
-    },
-    {
-      id: "notebooks",
-      name: "Custom Executive Notebooks",
-      image: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=300&auto=format&fit=crop",
-      description: "Premium leatherette notebooks with hard cover and custom page inserts."
-    }
+    { id: "personalized-mugs", name: "Personalized Ceramic Mugs", image: "", description: "Custom printed ceramic mugs. Perfect for corporate gifting." },
+    { id: "custom-bottles", name: "Premium Steel Water Bottles", image: "", description: "Insulated stainless steel bottles with laser engraved logo." },
+    { id: "custom-keychains", name: "Engraved Metal Keychains", image: "", description: "Durable metal or leather keychains with custom branding." },
+    { id: "notebooks", name: "Custom Executive Notebooks", image: "", description: "Premium leatherette notebooks with hard cover and custom page inserts." }
   ],
   "signage": [
-    {
-      id: "roll-up-standees",
-      name: "Roll-up Standees (6x3 ft)",
-      image: "https://images.unsplash.com/photo-1497005367839-6e852de72767?q=80&w=300&auto=format&fit=crop",
-      description: "Portable, easy to assemble roll-up display standees."
-    },
-    {
-      id: "vinyl-banners",
-      name: "Outdoor Vinyl Banners",
-      image: "https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=300&auto=format&fit=crop",
-      description: "Heavy-duty waterproof banners with grommets for display."
-    },
-    {
-      id: "promotional-posters",
-      name: "HD Wall Posters",
-      image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?q=80&w=300&auto=format&fit=crop",
-      description: "High-resolution printed glossy or matte posters."
-    }
+    { id: "roll-up-standees", name: "Roll-up Standees (6x3 ft)", image: "", description: "Portable, easy to assemble roll-up display standees." },
+    { id: "vinyl-banners", name: "Outdoor Vinyl Banners", image: "", description: "Heavy-duty waterproof banners with grommets for display." },
+    { id: "promotional-posters", name: "HD Wall Posters", image: "", description: "High-resolution printed glossy or matte posters." }
   ],
   "packaging": [
-    {
-      id: "shipping-boxes",
-      name: "Custom Corrugated Boxes",
-      image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=300&auto=format&fit=crop",
-      description: "Sturdy branded packaging boxes for safe product transit."
-    },
-    {
-      id: "paper-bags",
-      name: "Premium Branded Paper Bags",
-      image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop",
-      description: "Elegant paper carrying bags with high quality prints."
-    }
+    { id: "shipping-boxes", name: "Custom Corrugated Boxes", image: "", description: "Sturdy branded packaging boxes for safe product transit." },
+    { id: "paper-bags", name: "Premium Branded Paper Bags", image: "", description: "Elegant paper carrying bags with high quality prints." }
   ]
 };
 
@@ -252,9 +187,9 @@ export function Navbar() {
       });
       if (filtered.length === 0) {
         filtered = [
-          { id: 'jkcr3tpxx', name: 'Standard Visiting Cards', image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Premium quality standard visiting cards.' },
-          { id: 'njui14k70', name: 'Rounded Corner Visiting Cards', image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Visiting cards with rounded corners.' },
-          { id: 'o2w2btqp1', name: 'Non-Tearable Visiting Cards', image: 'https://images.unsplash.com/photo-1589330694165-27a3c3c764ed?q=80&w=300&auto=format&fit=crop', description: 'Visiting cards printed on waterproof non-tearable paper.' }
+          { id: 'jkcr3tpxx', name: 'Standard Visiting Cards', image: '', description: 'Premium quality standard visiting cards.' },
+          { id: 'njui14k70', name: 'Rounded Corner Visiting Cards', image: '', description: 'Visiting cards with rounded corners.' },
+          { id: 'o2w2btqp1', name: 'Non-Tearable Visiting Cards', image: '', description: 'Visiting cards printed on waterproof non-tearable paper.' }
         ];
       }
     } else if (catId === 'business-stationery') {
@@ -277,8 +212,8 @@ export function Navbar() {
       });
       if (filtered.length === 0) {
         filtered = [
-          { id: 'flyers-a5', name: 'A5 Marketing Flyers', image: 'https://images.unsplash.com/photo-1557002666-613dcf589254?q=80&w=300&auto=format&fit=crop', description: 'Vibrant promotional flyers.' },
-          { id: 'brochures-trifold', name: 'Tri-Fold Pamphlets & Brochures', image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop', description: 'Tri-fold marketing brochures.' }
+          { id: 'flyers-a5', name: 'A5 Marketing Flyers', image: '', description: 'Vibrant promotional flyers.' },
+          { id: 'brochures-trifold', name: 'Tri-Fold Pamphlets & Brochures', image: '', description: 'Tri-fold marketing brochures.' }
         ];
       }
     } else if (catId === 'gifts') {
@@ -865,7 +800,7 @@ export function Navbar() {
                         className="px-4 py-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 last:border-0 flex items-center gap-3"
                       >
                         {(p.image || (p.images && p.images[0])) ? (
-                           <img src={p.image || (p.images && p.images[0])} alt={p.name} className="w-8 h-8 object-cover rounded-md" />
+                           <img src={p.image || (p.images && p.images[0])} alt={p.name} className="w-8 h-8 object-cover rounded-md" loading="lazy" width="32" height="32" />
                         ) : (
                            <div className="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center"><Search className="w-4 h-4 text-gray-400" /></div>
                         )}

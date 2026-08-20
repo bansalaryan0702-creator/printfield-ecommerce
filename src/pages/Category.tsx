@@ -72,8 +72,8 @@ export function CategoryPage() {
   
   const categoryObj = Categories.find(c => c.id === normalizedCategoryId || c.name === normalizedCategoryId || c.name === decodeURIComponent(normalizedCategoryId) || encodeURIComponent(c.name) === normalizedCategoryId);
   const category = normalizedCategoryId === "all" || !normalizedCategoryId 
-       ? { name: "All Products", id: "all", image: "https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=1600&auto=format&fit=crop" }
-       : categoryObj || { name: decodeURIComponent(normalizedCategoryId), id: normalizedCategoryId, image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1600&auto=format&fit=crop" };
+       ? { name: "All Products", id: "all", image: "" }
+       : categoryObj || { name: decodeURIComponent(normalizedCategoryId), id: normalizedCategoryId, image: "" };
 
   return (
     <Layout>
@@ -86,11 +86,14 @@ export function CategoryPage() {
       {/* Category Header */}
       <div className="relative h-[280px] md:h-[340px] w-full overflow-hidden bg-slate-950 border-b border-slate-800">
         <img referrerPolicy="no-referrer" 
-          src={category.image || "https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=1600&auto=format&fit=crop"}
+          src={category.image || ""}
           alt={category.name}
           className="w-full h-full object-cover object-center opacity-50 filter saturate-[1.1] contrast-[1.05]"
+          loading="eager"
+          width="1600"
+          height="340"
           onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=1600&auto=format&fit=crop";
+            (e.currentTarget as HTMLImageElement).src = "";
           }}
         />
         {/* Subtle dual gradient overlays for depth & text readability */}

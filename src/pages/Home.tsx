@@ -43,7 +43,7 @@ const INDUSTRIES = [
     id: "education",
     name: "Education Institutions",
     tagline: "Schools, universities, and training academies",
-    image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "GraduationCap",
     kitTitle: "Academic Excellence Brand Kit",
     kitItems: [
@@ -58,7 +58,7 @@ const INDUSTRIES = [
     id: "manufacturing",
     name: "Manufacturing",
     tagline: "Production hubs, mills, and shipping factories",
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "Factory",
     kitTitle: "Industrial Safety & Identity Kit",
     kitItems: [
@@ -73,7 +73,7 @@ const INDUSTRIES = [
     id: "retail",
     name: "Retail",
     tagline: "Boutiques, department stores, and supermarkets",
-    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "Store",
     kitTitle: "Premium Retail Packaging & Brand Kit",
     kitItems: [
@@ -88,7 +88,7 @@ const INDUSTRIES = [
     id: "cafes-restaurants",
     name: "Cafes and Restaurants",
     tagline: "Bistros, coffee bars, and fine dining locations",
-    image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "Utensils",
     kitTitle: "Culinary Identity & Hospitality Kit",
     kitItems: [
@@ -103,7 +103,7 @@ const INDUSTRIES = [
     id: "healthcare",
     name: "Healthcare",
     tagline: "Clinics, labs, diagnostics, and care centers",
-    image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "HeartPulse",
     kitTitle: "Clinical Trust & Stationery Kit",
     kitItems: [
@@ -118,7 +118,7 @@ const INDUSTRIES = [
     id: "mnc",
     name: "MNC",
     tagline: "Corporate offices and multinational enterprises",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "Building2",
     kitTitle: "Executive Corporate Identity Kit",
     kitItems: [
@@ -133,7 +133,7 @@ const INDUSTRIES = [
     id: "itbc",
     name: "ITBC",
     tagline: "IT organizations and Business Centers / Tech Parks",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "Laptop",
     kitTitle: "Modern Tech Workspace Brand Kit",
     kitItems: [
@@ -148,7 +148,7 @@ const INDUSTRIES = [
     id: "realestate",
     name: "Realestate",
     tagline: "Builders, development consultants, and brokers",
-    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=800&auto=format&fit=crop",
+    image: "",
     icon: "HomeIcon",
     kitTitle: "Luxury Property Presentation Kit",
     kitItems: [
@@ -300,6 +300,9 @@ export function Home() {
               src="/api/proxy-image/1La7Wt1--ZaCPxI45PaIyuU0mQJCEEPMn" 
               alt="You Think It, We Ink It Brand Presentation Backdrop" 
               className="w-full h-full object-cover object-center lg:object-[center_right]"
+              fetchPriority="high"
+              width="1920"
+              height="1080"
             />
             {/* Elegant glass gradient overlay: solid white on the left (for text), transparent on the right (for image details) */}
             <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-white via-white/95 to-transparent md:from-white/95 md:via-white/85 md:to-transparent"></div>
@@ -440,6 +443,9 @@ export function Home() {
                     src={cat.image} 
                     alt={cat.name} 
                     className="w-full h-full object-cover object-center opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" 
+                    loading="lazy"
+                    width="800"
+                    height="600"
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/80"></div>
                 </div>
@@ -609,7 +615,7 @@ export function Home() {
                           alt={activeInd.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop";
+                            (e.currentTarget as HTMLImageElement).src = "";
                           }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent"></div>

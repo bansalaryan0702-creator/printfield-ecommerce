@@ -273,6 +273,7 @@ export function Checkout() {
         description="Securely request a quotation or checkout your custom printing order at Printfield."
         canonicalUrl="/checkout"
         type="website"
+        robots="noindex, nofollow"
       />
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 font-serif">Request Quotation</h1>
@@ -376,7 +377,7 @@ export function Checkout() {
                   <div key={idx} className="flex gap-4">
                     <div className="w-16 h-16 bg-white border rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                       {getFeaturedImage(item.product) ? (
-                        <img referrerPolicy="no-referrer" src={getOptimizedImage(getFeaturedImage(item.product), 150) || ''} alt={item.product.name} className="w-full h-full object-contain" onError={(e) => {
+                        <img referrerPolicy="no-referrer" src={getOptimizedImage(getFeaturedImage(item.product), 150) || ''} alt={item.product.name} className="w-full h-full object-contain" loading="lazy" width="64" height="64" onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }} />
                       ) : (

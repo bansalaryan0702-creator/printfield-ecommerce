@@ -3785,6 +3785,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const activeProducts = products.filter((p: any) => !p.isDisabled);
       const categoryNames = [...new Set(activeProducts.map((p: any) => p.category).filter(Boolean))];
 
+      const today = new Date().toISOString().split('T')[0];
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
       const staticPages = [
@@ -3798,17 +3799,19 @@ ${linksArray.slice(0, 300).join('\n')}`;
       ];
 
       for (const page of staticPages) {
-        xml += `  <url>\n    <loc>${baseUrl}${page.path}</loc>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
+        xml += `  <url>\n    <loc>${baseUrl}${page.path}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
       }
 
       for (const cat of categoryNames) {
         const encoded = encodeURIComponent(cat);
-        xml += `  <url>\n    <loc>${baseUrl}/category/${encoded}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+        xml += `  <url>\n    <loc>${baseUrl}/category/${encoded}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
       }
 
       for (const product of activeProducts) {
         const slug = (product as any).slug || product.id;
-        xml += `  <url>\n    <loc>${baseUrl}/product/${encodeURIComponent(slug)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+        const updatedAt = (product as any).updatedAt || (product as any).createdAt || today;
+        const lastmod = typeof updatedAt === 'string' && updatedAt.includes('T') ? updatedAt.split('T')[0] : today;
+        xml += `  <url>\n    <loc>${baseUrl}/product/${encodeURIComponent(slug)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
       }
 
       xml += `</urlset>`;

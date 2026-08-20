@@ -46,25 +46,25 @@ export function Admin() {
     const normalizedCat = String(cat || '').toLowerCase();
     
     if (normalizedCat.includes('apparel') || normalizedCat.includes('t-shirt') || normalizedCat.includes('shirt')) {
-      return 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop';
+      return ''
     }
     if (normalizedCat.includes('card') || normalizedCat.includes('business')) {
-      return 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?q=80&w=600&auto=format&fit=crop';
+      return ''
     }
     if (normalizedCat.includes('trophies') || normalizedCat.includes('trophy') || normalizedCat.includes('award')) {
-      return 'https://images.unsplash.com/photo-1578269174936-2709b5a5e023?q=80&w=600&auto=format&fit=crop';
+      return ''
     }
     if (normalizedCat.includes('gift') || normalizedCat.includes('corporate')) {
-      return 'https://images.unsplash.com/photo-1542744094-3a31f272c490?q=80&w=600&auto=format&fit=crop';
+      return ''
     }
     if (normalizedCat.includes('signage') || normalizedCat.includes('poster') || normalizedCat.includes('banner')) {
-      return 'https://images.unsplash.com/photo-1540200049848-d9813ea0e120?q=80&w=600&auto=format&fit=crop';
+      return ''
     }
     if (normalizedCat.includes('packaging') || normalizedCat.includes('box')) {
-      return 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=600&auto=format&fit=crop';
+      return ''
     }
     
-    return 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop';
+    return ''
   };
 
   const [categoriesData, setCategoriesData] = useState<{name: string, subCategories: string[]}[]>(() => {
@@ -1219,7 +1219,7 @@ export function Admin() {
   if (!token) {
     return (
       <Layout>
-        <SEO title="Admin Login | Printfield" description="Admin login" canonicalUrl="/admin" />
+        <SEO title="Admin Login | Printfield" description="Admin login" canonicalUrl="/admin" robots="noindex, nofollow" />
         <div className="max-w-md mx-auto my-20 p-8 bg-white rounded-2xl shadow-xl border border-gray-100 text-center">
           <UploadCloud className="h-16 w-16 text-purple-600 mx-auto mb-6" />
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Staff Portal</h1>
@@ -1253,7 +1253,7 @@ export function Admin() {
 
   return (
     <Layout>
-      <SEO title="Admin Dashboard | Printfield" description="Admin dashboard" canonicalUrl="/admin" />
+      <SEO title="Admin Dashboard | Printfield" description="Admin dashboard" canonicalUrl="/admin" robots="noindex, nofollow" />
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-8">
           <div>

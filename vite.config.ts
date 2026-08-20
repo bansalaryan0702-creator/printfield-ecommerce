@@ -18,8 +18,29 @@ export default defineConfig(({mode}) => {
       cssCodeSplit: true,
       target: 'es2022',
       minify: 'esbuild',
-      chunkSizeWarningLimit: 5000,
+      chunkSizeWarningLimit: 500,
       modulePreload: false,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router') || id.includes('node_modules/react-helmet')) {
+              return 'vendor-react';
+            }
+            if (id.includes('node_modules/motion')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('node_modules/firebase')) {
+              return 'vendor-firebase';
+            }
+            if (id.includes('node_modules/pdfjs-dist') || id.includes('node_modules/pdf-lib')) {
+              return 'vendor-pdf';
+            }
+            if (id.includes('node_modules/xlsx')) {
+              return 'vendor-xlsx';
+            }
+          },
+        },
+      },
     },
     server: {
       allowedHosts: 'all',

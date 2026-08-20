@@ -97,6 +97,8 @@ export function ProductCard({ product }: ProductCardProps) {
             }
           }}
           className={`h-full w-full object-contain bg-white object-center group-hover:scale-105 transition-transform duration-300`}
+          width="400"
+          height="300"
         />
       </div>
 

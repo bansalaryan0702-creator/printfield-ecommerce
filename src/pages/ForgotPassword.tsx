@@ -44,11 +44,12 @@ export function ForgotPassword() {
         title="Forgot Password | Printfield"
         description="Reset your Printfield account password."
         canonicalUrl="/forgot-password"
+        robots="noindex, nofollow"
       />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/">
-          <img referrerPolicy="no-referrer" src="/logo.png" alt="Printfield" className="mx-auto h-12 w-auto object-contain" />
+          <img referrerPolicy="no-referrer" src="/logo.png" alt="Printfield" className="mx-auto h-12 w-auto object-contain" loading="lazy" width="48" height="48" />
         </Link>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Reset your password

@@ -1881,6 +1881,9 @@ export function ProductDetail() {
                             ? "opacity-100"
                             : "opacity-80"
                         } ${currentView === "back" ? "scale-x-[-1]" : ""}`}
+                        loading="eager"
+                        width="1000"
+                        height="1000"
                         />
                     </>
                   )}
@@ -1929,6 +1932,9 @@ export function ProductDetail() {
                       alt={`${product?.name} ${i + 1}`}
                       onError={() => handleImageError(img)}
                       className="w-full h-full object-contain p-1.5"
+                      loading="lazy"
+                      width="80"
+                      height="80"
                      />
                   </div>
                 ))

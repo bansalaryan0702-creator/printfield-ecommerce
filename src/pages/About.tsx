@@ -31,9 +31,12 @@ export function About() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
                 <img referrerPolicy="no-referrer"
-                  src="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  src=""
                   alt="Printing Process"
                   className="rounded-2xl shadow-xl border border-gray-100"
+                  loading="lazy"
+                  width="800"
+                  height="600"
                 />
               </div>
               <div className="space-y-6">
