@@ -261,11 +261,44 @@ export function Home() {
           ],
           "priceRange": "₹₹",
           "openingHoursSpecification": [
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "09:00", "closes": "19:00" }
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "10:00", "closes": "19:00" }
           ],
-          "description": "Premium custom printing services in Whitefield, Bengaluru. Trophies, apparel, corporate gifts, signage, banners & more."
+          "description": "Printfield is a printing shop in Whitefield, Bengaluru offering custom t-shirt printing, corporate gifts, signage, banners, trophies, business cards and promotional products. Same-day design approval, bulk orders from 10 pieces, delivery within 1-2 days.",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "50",
+            "bestRating": "5"
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Printfield Printing Services",
+            "itemListElement": [
+              {"@type": "OfferCatalog", "name": "Custom T-Shirt Printing", "itemListElement": [
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "DTF Printing"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Screen Printing"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Embroidery"}}
+              ]},
+              {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Corporate Gifts & Merchandise"}},
+              {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Signage & Banners"}},
+              {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Business Cards & Stationery"}},
+              {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Custom Trophies & Awards"}}
+            ]
+          }
         })}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {"@type": "Question", "name": "Do you offer custom t-shirt printing in Whitefield?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, Printfield is located in Whitefield, Bengaluru 560066. We offer DTF printing, screen printing, and embroidery on t-shirts, hoodies, polo shirts, and caps. Orders start from just 10 pieces."}},
+          {"@type": "Question", "name": "What are your printing prices?", "acceptedAnswer": {"@type": "Answer", "text": "Our custom t-shirt printing starts at ₹99 per piece for screen printing (50+ pieces). DTF printing starts at ₹149 per print. Corporate gifts, signage, and business cards have separate pricing. Contact us for a custom quote."}},
+          {"@type": "Question", "name": "Do you deliver to ITPL and Marathahalli?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, we deliver to Whitefield, ITPL, Brookefield, Marathahalli, Mahadevapura, and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders."}},
+          {"@type": "Question", "name": "What printing methods do you offer?", "acceptedAnswer": {"@type": "Answer", "text": "We offer DTF (Direct-to-Film) printing for full-color designs, screen printing for bulk orders, and embroidery for premium corporate wear. We also do sublimation printing for mugs and gifts."}},
+          {"@type": "Question", "name": "Do you provide corporate gifting solutions?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, we are a leading corporate gifting company in Whitefield. We offer custom mugs, trophies, plaques, pens, bags, t-shirts, and more with your company logo. GST invoice provided for all orders."}},
+          {"@type": "Question", "name": "What is the minimum order quantity?", "acceptedAnswer": {"@type": "Answer", "text": "For DTF printing, minimum order is 10 pieces. For screen printing, minimum is 50 pieces. For corporate gifts and trophies, there is no minimum — even single pieces are welcome."}}
+        ]
+      }) }} />
       <div ref={containerRef} className="bg-white text-slate-900 min-h-screen selection:bg-purple-500 selection:text-white font-sans overflow-hidden">
         
         {/* MARQUEE SECTION */}
@@ -863,6 +896,33 @@ export function Home() {
               <Link to="/custom-printing" className="text-purple-600 font-semibold hover:text-purple-700 inline-flex items-center gap-1">
                 View All Areas <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ SECTION */}
+        <section className="py-16 bg-white">
+          <div className="max-w-4xl mx-auto px-6">
+            <h2 className="text-3xl font-black text-slate-900 text-center mb-12">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-4">
+              {[
+                { q: "Do you offer custom t-shirt printing in Whitefield?", a: "Yes, Printfield is located in Whitefield, Bengaluru 560066. We offer DTF printing, screen printing, and embroidery on t-shirts, hoodies, polo shirts, and caps. Orders start from just 10 pieces." },
+                { q: "What are your printing prices?", a: "Our custom t-shirt printing starts at ₹99 per piece for screen printing (50+ pieces). DTF printing starts at ₹149 per print. Corporate gifts, signage, and business cards have separate pricing. Contact us for a custom quote." },
+                { q: "Do you deliver to ITPL and Marathahalli?", a: "Yes, we deliver to Whitefield, ITPL, Brookefield, Marathahalli, Mahadevapura, and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders." },
+                { q: "What printing methods do you offer?", a: "We offer DTF (Direct-to-Film) printing for full-color designs, screen printing for bulk orders, and embroidery for premium corporate wear. We also do sublimation printing for mugs and gifts." },
+                { q: "Do you provide corporate gifting solutions?", a: "Yes, we are a leading corporate gifting company in Whitefield. We offer custom mugs, trophies, plaques, pens, bags, t-shirts, and more with your company logo. GST invoice provided for all orders." },
+                { q: "What is the minimum order quantity?", a: "For DTF printing, minimum order is 10 pieces. For screen printing, minimum is 50 pieces. For corporate gifts and trophies, there is no minimum — even single pieces are welcome." },
+              ].map((faq, idx) => (
+                <details key={idx} className="group bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
+                  <summary className="flex items-center justify-between p-5 cursor-pointer font-semibold text-slate-900 hover:text-purple-600 transition-colors">
+                    {faq.q}
+                    <svg className="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </summary>
+                  <div className="px-5 pb-5 text-slate-600 leading-relaxed">{faq.a}</div>
+                </details>
+              ))}
             </div>
           </div>
         </section>
