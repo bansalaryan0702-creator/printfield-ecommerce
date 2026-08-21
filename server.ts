@@ -3792,6 +3792,10 @@ ${linksArray.slice(0, 300).join('\n')}`;
         { path: '/', priority: '1.0', changefreq: 'daily' },
         { path: '/categories', priority: '0.9', changefreq: 'daily' },
         { path: '/custom-printing', priority: '0.8', changefreq: 'weekly' },
+        { path: '/printing-whitefield', priority: '0.9', changefreq: 'weekly' },
+        { path: '/printing-itpl', priority: '0.8', changefreq: 'weekly' },
+        { path: '/printing-brookefield', priority: '0.8', changefreq: 'weekly' },
+        { path: '/printing-marathahalli', priority: '0.8', changefreq: 'weekly' },
         { path: '/about', priority: '0.6', changefreq: 'monthly' },
         { path: '/faq', priority: '0.6', changefreq: 'monthly' },
         { path: '/contact', priority: '0.7', changefreq: 'monthly' },
@@ -3985,6 +3989,10 @@ ${linksArray.slice(0, 300).join('\n')}`;
       '/terms': { title: 'Terms of Service - Printfield', description: 'Terms and conditions for using Printfield online printing services.', canonical: '/terms' },
       '/privacy': { title: 'Privacy Policy - Printfield', description: 'Printfield privacy policy. How we collect, use, and protect your personal information.', canonical: '/privacy' },
       '/custom-printing': { title: 'Custom Printing Services in Whitefield Bangalore | Printfield', description: 'Professional custom printing services in Whitefield, Bangalore. T-shirts, mugs, trophies, corporate gifts, signage & more.', canonical: '/custom-printing' },
+      '/printing-whitefield': { title: 'Custom T-Shirt Printing in Whitefield Bangalore | Printfield', description: 'Best custom t-shirt printing, corporate gifting & promotional products in Whitefield, Bengaluru 560066. Fast delivery, bulk orders, free design studio.', canonical: '/printing-whitefield' },
+      '/printing-itpl': { title: 'Custom T-Shirt Printing near ITPL Bangalore | Printfield', description: 'Custom t-shirt printing & corporate gifting near ITPL, Whitefield, Bengaluru. Fast delivery to ITPL Tech Park and surrounding areas.', canonical: '/printing-itpl' },
+      '/printing-brookefield': { title: 'Custom T-Shirt Printing in Brookefield Bangalore | Printfield', description: 'Best custom t-shirt printing services in Brookefield, Bengaluru. Corporate gifting, promotional products & bulk apparel printing.', canonical: '/printing-brookefield' },
+      '/printing-marathahalli': { title: 'Custom T-Shirt Printing in Marathahalli Bangalore | Printfield', description: 'Custom t-shirt printing, corporate gifting & promotional products in Marathahalli, Bengaluru. Bulk orders, fast delivery.', canonical: '/printing-marathahalli' },
       '/categories': { title: 'All Categories - Printfield Printing Services', description: 'Browse all printing categories at Printfield. Trophies, apparel, corporate gifts, signage, photo prints & more.', canonical: '/categories' },
       '/checkout': { title: 'Checkout - Printfield', description: 'Complete your order at Printfield.', canonical: '/checkout' },
       '/login': { title: 'Login - Printfield', description: 'Login to your Printfield account.', canonical: '/login' },
@@ -3997,7 +4005,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
 
     const notFoundPage = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Page Not Found - Printfield</title><meta name="robots" content="noindex"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1f2937}.card{background:#fff;border-radius:16px;padding:48px;max-width:480px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}h1{font-size:64px;color:#f59e0b;margin-bottom:8px}p{color:#6b7280;margin:12px 0 24px;line-height:1.6}a{display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;transition:background .2s}a:hover{background:#d97706}</style></head><body><div class="card"><h1>404</h1><p>The page you're looking for doesn't exist or has been moved.</p><a href="/">Go to Homepage</a></div></body></html>`;
 
-    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
+    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/printing-whitefield', '/printing-itpl', '/printing-brookefield', '/printing-marathahalli', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
     const invalidExtensions = /\.(php|asp|aspx|jsp|cgi|pl|py|rb|do|action|xml|json|txt|csv|doc|docx|pdf|xls|xlsx|zip|rar|exe|dmg|apk)(\?|$)/i;
     const spamPrefixes = ['/xiomi', '/alanwalker', '/wp-admin', '/wp-content', '/wp-includes', '/wordpress'];
 

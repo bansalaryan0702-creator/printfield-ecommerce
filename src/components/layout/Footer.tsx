@@ -35,6 +35,16 @@ export function Footer() {
           </div>
 
           <div className="space-y-4">
+            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Locations</h3>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/printing-whitefield" className="hover:text-purple-400 transition-colors">Printing in Whitefield</Link></li>
+              <li><Link to="/printing-itpl" className="hover:text-purple-400 transition-colors">Printing in ITPL</Link></li>
+              <li><Link to="/printing-brookefield" className="hover:text-purple-400 transition-colors">Printing in Brookefield</Link></li>
+              <li><Link to="/printing-marathahalli" className="hover:text-purple-400 transition-colors">Printing in Marathahalli</Link></li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
             <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Company</h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/custom-printing" className="hover:text-purple-400 transition-colors">Business Printing Solutions</Link></li>

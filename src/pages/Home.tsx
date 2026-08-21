@@ -828,6 +828,45 @@ export function Home() {
           </div>
         </section>
 
+        {/* AREAS WE SERVE */}
+        <section className="py-16 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 mb-4">
+                Custom Printing <span className="text-purple-600">Near You</span>
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                We deliver to Whitefield and all nearby areas in Bengaluru. Find your location below.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+              {[
+                { name: "Whitefield", slug: "whitefield", desc: "Borewell Road, ITPL Road" },
+                { name: "ITPL", slug: "itpl", desc: "Tech Park, Wipro SEZ" },
+                { name: "Brookefield", slug: "brookefield", desc: "Main Road, AECS Layout" },
+                { name: "Marathahalli", slug: "marathahalli", desc: "ORR, Silva Section" },
+              ].map((loc) => (
+                <Link
+                  key={loc.slug}
+                  to={`/printing-${loc.slug}`}
+                  className="group p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-purple-200 hover:bg-purple-50 transition-all text-center"
+                >
+                  <div className="w-12 h-12 bg-purple-100 group-hover:bg-purple-200 rounded-xl flex items-center justify-center mx-auto mb-3 transition-colors">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  </div>
+                  <h3 className="font-bold text-slate-900 group-hover:text-purple-600 transition-colors">{loc.name}</h3>
+                  <p className="text-sm text-slate-500 mt-1">{loc.desc}</p>
+                </Link>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Link to="/custom-printing" className="text-purple-600 font-semibold hover:text-purple-700 inline-flex items-center gap-1">
+                View All Areas <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* GUARANTEE SECTION */}
         <section className="py-16 bg-slate-50">
           <div className="max-w-5xl mx-auto px-6 text-center">
