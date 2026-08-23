@@ -11,7 +11,7 @@ interface SEOProps {
   robots?: string;
 }
 
-const DEFAULT_OG_IMAGE = 'https://printfieldonline.com/logo.png';
+const DEFAULT_OG_IMAGE = 'https://www.printfieldonline.com/logo.png';
 
 export const SEO: React.FC<SEOProps> = ({ 
   title, 

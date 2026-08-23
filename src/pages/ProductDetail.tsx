@@ -1771,7 +1771,7 @@ export function ProductDetail() {
             "priceCurrency": "INR",
             "priceValidUntil": "2026-12-31",
             "validFrom": "2026-01-01",
-            "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://printfieldonline.com/product/${product?.slug || product?.id}`,
+            "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://www.printfieldonline.com/product/${product?.slug || product?.id}`,
             "itemCondition": "https://schema.org/NewCondition",
             "availability": product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
             "seller": {

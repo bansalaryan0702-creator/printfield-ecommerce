@@ -1118,14 +1118,14 @@ async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
 const PORT = 3000;
-const SITE_URL = 'https://printfieldonline.com';
+const SITE_URL = 'https://www.printfieldonline.com';
 
   app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   }));
   app.use(cors({
-    origin: ['https://printfieldonline.com', 'http://localhost:3000', 'http://localhost:5173'],
+    origin: ['https://www.printfieldonline.com', 'https://printfieldonline.com', 'http://localhost:3000', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -3843,8 +3843,8 @@ ${linksArray.slice(0, 300).join('\n')}`;
         const desc = product.metaDescription || product.cardDescription || product.description || `Buy custom printed ${product.name} at Printfield. Premium quality, customizable designs, and fast shipping.`;
         const img = product.image || '';
         const canonicalSlug = product.slug || product.id;
-        const canonicalUrl = `https://printfieldonline.com/product/${encodeURIComponent(canonicalSlug)}`;
-        const ogImageUrl = img.startsWith('http') ? img : `https://printfieldonline.com${img}`;
+        const canonicalUrl = `${baseUrl}/product/${encodeURIComponent(canonicalSlug)}`;
+        const ogImageUrl = img.startsWith('http') ? img : `${baseUrl}${img}`;
 
         const distPath = path.join(process.cwd(), 'dist');
         const indexPath = path.join(distPath, 'index.html');
@@ -3933,7 +3933,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const canonicalCat = validCategories.find(c => c.toLowerCase() === decodedCat.toLowerCase()) || decodedCat;
       const catTitle = `${canonicalCat} - Custom Printing in Whitefield Bangalore | Printfield`;
       const catDesc = `Buy custom ${canonicalCat.toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${canonicalCat.toLowerCase()} with fast delivery. Order online at Printfield.`;
-      const canonicalUrl = `https://printfieldonline.com/category/${encodeURIComponent(canonicalCat)}`;
+      const canonicalUrl = `${SITE_URL}/category/${encodeURIComponent(canonicalCat)}`;
 
       const distPath = path.join(process.cwd(), 'dist');
       const indexPath = path.join(distPath, 'index.html');
@@ -4040,7 +4040,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
         if (fsSync.existsSync(indexPath)) {
           let html = fsSync.readFileSync(indexPath, 'utf8');
           function escapeAttr(str: string) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-          const canonicalUrl = `https://printfieldonline.com${meta.canonical}`;
+          const canonicalUrl = `${SITE_URL}${meta.canonical}`;
           const pageMetaTags = `
     <title>${escapeAttr(meta.title)}</title>
     <meta name="description" content="${escapeAttr(meta.description)}" />

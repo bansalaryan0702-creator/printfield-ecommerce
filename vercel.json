@@ -3,6 +3,24 @@
   "buildCommand": "npm run build && npm prune --omit=dev",
   "outputDirectory": "dist",
   "framework": null,
+  "redirects": [
+    { "source": "/categories/", "destination": "/categories", "permanent": true },
+    { "source": "/about/", "destination": "/about", "permanent": true },
+    { "source": "/faq/", "destination": "/faq", "permanent": true },
+    { "source": "/contact/", "destination": "/contact", "permanent": true },
+    { "source": "/rating/", "destination": "/rating", "permanent": true },
+    { "source": "/custom-printing/", "destination": "/custom-printing", "permanent": true },
+    { "source": "/printing-whitefield/", "destination": "/printing-whitefield", "permanent": true },
+    { "source": "/printing-itpl/", "destination": "/printing-itpl", "permanent": true },
+    { "source": "/printing-brookefield/", "destination": "/printing-brookefield", "permanent": true },
+    { "source": "/printing-marathahalli/", "destination": "/printing-marathahalli", "permanent": true },
+    { "source": "/terms/", "destination": "/terms", "permanent": true },
+    { "source": "/privacy/", "destination": "/privacy", "permanent": true },
+    { "source": "/checkout/", "destination": "/checkout", "permanent": true },
+    { "source": "/login/", "destination": "/login", "permanent": true },
+    { "source": "/forgot-password/", "destination": "/forgot-password", "permanent": true },
+    { "source": "/index.html", "destination": "/", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/uploads/(.*)", "destination": "/api" },
     { "source": "/api/(.*)", "destination": "/api" },
@@ -37,5 +55,15 @@
     { "source": "/forgot-password", "destination": "/index.html" },
     { "source": "/reset-password", "destination": "/index.html" },
     { "source": "/admin", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
   ]
 }

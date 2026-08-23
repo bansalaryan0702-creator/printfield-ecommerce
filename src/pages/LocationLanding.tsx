@@ -143,8 +143,8 @@ export const LocationLanding: React.FC = () => {
     "@type": "LocalBusiness",
     "name": `Printfield - Custom Printing ${location.area}`,
     "description": location.metaDescription,
-    "url": typeof window !== 'undefined' ? window.location.href : `https://printfieldonline.com/printing-${locationSlug}`,
-    "image": "https://printfieldonline.com/logo.png",
+    "url": typeof window !== 'undefined' ? window.location.href : `https://www.printfieldonline.com/printing-${locationSlug}`,
+    "image": "https://www.printfieldonline.com/logo.png",
     "telephone": "+919606371222",
     "address": {
       "@type": "PostalAddress",
@@ -183,8 +183,8 @@ export const LocationLanding: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://printfieldonline.com/"},
-      {"@type": "ListItem", "position": 2, "name": `Printing in ${location.area}`, "item": `https://printfieldonline.com/printing-${locationSlug}`}
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.printfieldonline.com/"},
+      {"@type": "ListItem", "position": 2, "name": `Printing in ${location.area}`, "item": `https://www.printfieldonline.com/printing-${locationSlug}`}
     ]
   });
 
