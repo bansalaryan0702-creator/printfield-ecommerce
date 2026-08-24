@@ -37,6 +37,7 @@ import { PDFDocument } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 import { DesignEditor } from "../components/DesignEditor";
+import { PoloTshirtPreview } from "../components/PoloTshirtPreview";
 
 import { googleProvider, signInWithGoogle, getGoogleAccessToken } from '../lib/firebase';
 import { getColorStyle, isColorCategory } from "@/src/utils/colorUtils";
@@ -1352,6 +1353,7 @@ export function ProductDetail() {
   }
 
   const isApparel = ["Apparel", "Clothing & Bags", "Custom Apparel", "T-Shirts", "Corporate Uniforms"].includes(product?.category) || (product?.name && (String(product?.name || '').toLowerCase().includes("t-shirt") || String(product?.name || '').toLowerCase().includes("polo") || String(product?.name || '').toLowerCase().includes("hoodie")));
+  const isPolo = Boolean(product?.name && String(product?.name || '').toLowerCase().includes("polo"));
   const isMug = Boolean(String(product?.name || '').toLowerCase().includes("mug") || String(product?.category || '').toLowerCase().includes("mug"));
   const isCap = Boolean(String(product?.name || '').toLowerCase().includes("cap") || String(product?.category || '').toLowerCase().includes("cap"));
 
@@ -1844,6 +1846,17 @@ export function ProductDetail() {
               }`}>
                 <div className="w-full aspect-[4/3] max-h-[380px] sm:max-h-none relative bg-white overflow-hidden flex items-center justify-center">
                   
+                   {/* Polo T-Shirt Live Preview */}
+                   {isPolo && selectedColor && (
+                     <div className="absolute inset-0 z-30 flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
+                       <PoloTshirtPreview
+                         color={typeof selectedColor === 'object' ? (selectedColor?.hex || selectedColor?.name || '#6b6b6b') : (selectedColor || '#6b6b6b')}
+                         className="w-full h-full p-6 sm:p-8"
+                         designImage={artworks?.['front-chest']?.previewUrl || artworks?.['front-full']?.previewUrl || null}
+                       />
+                     </div>
+                   )}
+
                    {/* Base Transparent Mockup */}
                                     {!displayImage || brokenImages[displayImage] ? (
                     <div className="w-full h-full flex flex-col items-center justify-center p-6 sm:p-8 bg-gray-50 text-gray-400 relative z-10">
