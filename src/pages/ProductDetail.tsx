@@ -2804,6 +2804,29 @@ export function ProductDetail() {
         </div>
       )}
 
+      {/* Product FAQ */}
+      <div className="max-w-4xl mx-auto px-4 md:px-6 py-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">
+          Frequently Asked Questions about {product?.name}
+        </h2>
+        <div className="space-y-3">
+          {[
+            { q: `What is the price of ${product?.name}?`, a: `The price for ${product?.name} is available on request. Contact us at +91 96063 71222 for bulk pricing and custom orders.` },
+            { q: `Can I customize ${product?.name}?`, a: `Yes, all our products are fully customizable. You can add your logo, text, or custom design to ${product?.name}. We offer DTF printing, screen printing, and embroidery options.` },
+            { q: `What is the minimum order quantity?`, a: `For most products, minimum order is 10 pieces. For bulk screen printing, minimum is 50 pieces. Contact us for specific requirements.` },
+            { q: `Do you deliver to Whitefield and nearby areas?`, a: `Yes, we deliver to Whitefield, ITPL, Brookefield, Marathahalli, and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders.` },
+          ].map((faq, idx) => (
+            <details key={idx} className="group bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-5 cursor-pointer font-semibold text-gray-900 hover:text-purple-600 transition-colors">
+                {faq.q}
+                <svg className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </summary>
+              <div className="px-5 pb-5 text-gray-600 leading-relaxed">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+
       <div className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 text-center">
           <div className="mb-12">
