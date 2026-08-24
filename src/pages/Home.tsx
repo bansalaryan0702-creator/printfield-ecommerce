@@ -330,7 +330,7 @@ export function Home() {
           <div className="absolute inset-0 z-0">
             <img 
               referrerPolicy="no-referrer"
-              src="/api/proxy-image/1La7Wt1--ZaCPxI45PaIyuU0mQJCEEPMn?w=1920" 
+              src="/api/proxy-image/1La7Wt1--ZaCPxI45PaIyuU0mQJCEEPMn?w=1376" 
               alt="You Think It, We Ink It Brand Presentation Backdrop" 
               className="w-full h-full object-cover object-center lg:object-[center_right]"
               fetchPriority="high"
