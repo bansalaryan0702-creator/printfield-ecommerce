@@ -3,55 +3,84 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-function PoloModel({ color }: { color: string }) {
+function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) {
   const { scene } = useGLTF('/polo3d/polo.glb', true);
   const groupRef = useRef<THREE.Group>(null);
+  const applied = useRef(false);
 
   useEffect(() => {
-    if (!scene) return;
+    if (!scene || applied.current) return;
+    applied.current = true;
 
     const targetColor = new THREE.Color(color);
 
+    // Apply color to all materials
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
-
-        if (child.material) {
-          const mats = Array.isArray(child.material) ? child.material : [child.material];
-          mats.forEach((mat: THREE.Material) => {
-            if (mat instanceof THREE.MeshStandardMaterial) {
-              // Set color directly — no multiplication with texture
-              mat.color.copy(targetColor);
-              mat.roughness = 0.75;
-              mat.metalness = 0.0;
-              mat.needsUpdate = true;
-            } else if (mat instanceof THREE.MeshPhongMaterial) {
-              mat.color.copy(targetColor);
-              mat.specular.set(0x222222);
-              mat.shininess = 10;
-              mat.needsUpdate = true;
-            }
-          });
-        }
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat: THREE.Material) => {
+          if (mat instanceof THREE.MeshStandardMaterial) {
+            mat.color.copy(targetColor);
+            mat.roughness = 0.75;
+            mat.metalness = 0.0;
+            mat.needsUpdate = true;
+          } else if (mat instanceof THREE.MeshPhongMaterial) {
+            mat.color.copy(targetColor);
+            mat.specular.set(0x222222);
+            mat.shininess = 10;
+            mat.needsUpdate = true;
+          }
+        });
       }
     });
 
-    // Center model
+    // Force world matrix update
+    scene.updateMatrixWorld(true);
+
+    // Compute bounds
     const box = new THREE.Box3().setFromObject(scene);
-    const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    // Scale to fit nicely in view
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 3 / maxDim;
+    const scale = 3.5 / maxDim;
     scene.scale.setScalar(scale);
-    const scaledBox = new THREE.Box3().setFromObject(scene);
-    const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
-    scene.position.set(-scaledCenter.x, -scaledBox.min.y, -scaledCenter.z);
+
+    // Re-update after scale
+    scene.updateMatrixWorld(true);
+    const newBox = new THREE.Box3().setFromObject(scene);
+    const newCenter = newBox.getCenter(new THREE.Vector3());
+    const newMin = newBox.min;
+
+    // Center horizontally, sit on ground
+    scene.position.set(-newCenter.x, -newMin.y, -newCenter.z);
+
+    onReady?.();
+  }, [scene, color, onReady]);
+
+  // Update color on subsequent color changes
+  useEffect(() => {
+    if (!scene || !applied.current) return;
+    const targetColor = new THREE.Color(color);
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat: THREE.Material) => {
+          if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
+            (mat as any).color.copy(targetColor);
+            mat.needsUpdate = true;
+          }
+        });
+      }
+    });
   }, [scene, color]);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.15 + 0.2;
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.15 + 0.3;
     }
   });
 
@@ -60,15 +89,6 @@ function PoloModel({ color }: { color: string }) {
       <primitive object={scene} />
     </group>
   );
-}
-
-function CameraSetup() {
-  const { camera } = useThree();
-  useEffect(() => {
-    camera.position.set(0, 1.5, 5);
-    camera.lookAt(0, 1, 0);
-  }, [camera]);
-  return null;
 }
 
 export function Polo3DPreview({ color, className = '' }: { color: string; className?: string }) {
@@ -81,34 +101,33 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
     <div className={`relative ${className}`}>
       <Canvas
         shadows
-        camera={{ position: [0, 1.5, 5], fov: 35 }}
+        camera={{ position: [0, 1.5, 6], fov: 32 }}
         gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
-        style={{ background: 'linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #f5f5f5 0%, #e5e5e5 100%)' }}
         onCreated={() => setLoaded(true)}
         onError={() => setError(true)}
       >
-        <CameraSetup />
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
         <directionalLight position={[-5, 5, -5]} intensity={0.4} />
         <pointLight position={[0, 3, 4]} intensity={0.5} />
         <hemisphereLight args={['#ffffff', '#e0e0e0', 0.3]} />
         <Suspense fallback={null}>
-          <PoloModel color={resolvedColor} />
+          <PoloModel color={resolvedColor} onReady={() => setLoaded(true)} />
         </Suspense>
         <OrbitControls
           enablePan={false}
           enableZoom={true}
-          minDistance={2.5}
-          maxDistance={10}
+          minDistance={3}
+          maxDistance={12}
           minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 1.5}
-          target={[0, 1, 0]}
+          target={[0, 1.2, 0]}
         />
       </Canvas>
 
       {!loaded && !error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm rounded-2xl z-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm z-10">
           <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin mb-3" />
           <p className="text-sm font-medium text-gray-600">Loading 3D Preview...</p>
           <p className="text-xs text-gray-400 mt-1">First load may take 10-15 seconds</p>
@@ -116,10 +135,10 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
       )}
 
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-2xl">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
           <div className="text-center">
             <p className="text-sm text-gray-500 mb-2">3D preview could not load</p>
-            <button onClick={() => { setError(false); setLoaded(false); }} className="text-xs text-purple-600 hover:text-purple-700 font-medium">Retry</button>
+            <button onClick={() => { setError(false); setLoaded(false); window.location.reload(); }} className="text-xs text-purple-600 hover:text-purple-700 font-medium">Retry</button>
           </div>
         </div>
       )}
