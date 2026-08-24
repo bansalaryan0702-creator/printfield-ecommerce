@@ -6,12 +6,12 @@ import * as THREE from 'three';
 function PoloModel({ color }: { color: string }) {
   const { scene } = useGLTF('/polo3d/polo.glb', true);
   const groupRef = useRef<THREE.Group>(null);
-  const initialColor = useRef<Map<THREE.Material, THREE.Color>>(new Map());
 
   useEffect(() => {
     if (!scene) return;
 
-    // Store original textures, apply color tint
+    const targetColor = new THREE.Color(color);
+
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
@@ -20,15 +20,16 @@ function PoloModel({ color }: { color: string }) {
         if (child.material) {
           const mats = Array.isArray(child.material) ? child.material : [child.material];
           mats.forEach((mat: THREE.Material) => {
-            if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-              // Store original color
-              if (!initialColor.current.has(mat)) {
-                initialColor.current.set(mat, mat.color.clone());
-              }
-              // Multiply original texture color with selected color
-              const targetColor = new THREE.Color(color);
-              const originalColor = initialColor.current.get(mat) || new THREE.Color(1, 1, 1);
-              mat.color = originalColor.clone().multiply(targetColor);
+            if (mat instanceof THREE.MeshStandardMaterial) {
+              // Set color directly — no multiplication with texture
+              mat.color.copy(targetColor);
+              mat.roughness = 0.75;
+              mat.metalness = 0.0;
+              mat.needsUpdate = true;
+            } else if (mat instanceof THREE.MeshPhongMaterial) {
+              mat.color.copy(targetColor);
+              mat.specular.set(0x222222);
+              mat.shininess = 10;
               mat.needsUpdate = true;
             }
           });
@@ -36,42 +37,20 @@ function PoloModel({ color }: { color: string }) {
       }
     });
 
-    // Compute bounding box and center model
+    // Center model
     const box = new THREE.Box3().setFromObject(scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    const targetHeight = 3;
-    const scale = targetHeight / maxDim;
-
+    const scale = 3 / maxDim;
     scene.scale.setScalar(scale);
-    // Recompute after scaling
     const scaledBox = new THREE.Box3().setFromObject(scene);
     const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
     scene.position.set(-scaledCenter.x, -scaledBox.min.y, -scaledCenter.z);
-  }, [scene]);
-
-  // Update color when it changes
-  useEffect(() => {
-    if (!scene) return;
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.material) {
-        const mats = Array.isArray(child.material) ? child.material : [child.material];
-        mats.forEach((mat: THREE.Material) => {
-          if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-            const targetColor = new THREE.Color(color);
-            const originalColor = initialColor.current.get(mat) || new THREE.Color(1, 1, 1);
-            mat.color = originalColor.clone().multiply(targetColor);
-            mat.needsUpdate = true;
-          }
-        });
-      }
-    });
   }, [scene, color]);
 
   useFrame((state) => {
     if (groupRef.current) {
-      // Gentle auto-rotation
       groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.15 + 0.2;
     }
   });
@@ -96,7 +75,6 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
-  // Accept hex directly — no name mapping needed
   const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
 
   return (
@@ -110,7 +88,6 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
         onError={() => setError(true)}
       >
         <CameraSetup />
-        {/* Key light */}
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
         <directionalLight position={[-5, 5, -5]} intensity={0.4} />
