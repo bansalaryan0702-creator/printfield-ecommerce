@@ -22,13 +22,17 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial) {
+            mat.map = null;
+            mat.normalMap = null;
+            mat.aoMap = null;
+            mat.emissiveMap = null;
             mat.color.copy(targetColor);
-            mat.roughness = 1.0;
+            mat.roughness = 0.85;
             mat.metalness = 0.0;
-            mat.envMapIntensity = 0;
-            mat.flatShading = false;
             mat.needsUpdate = true;
           } else if (mat instanceof THREE.MeshPhongMaterial) {
+            mat.map = null;
+            mat.normalMap = null;
             mat.color.copy(targetColor);
             mat.specular.set(0x111111);
             mat.shininess = 5;
