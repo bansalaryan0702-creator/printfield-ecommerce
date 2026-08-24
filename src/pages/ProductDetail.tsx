@@ -416,41 +416,6 @@ export function ProductDetail() {
     return deduplicatedFiltered;
   }, [product, brokenImages]);
 
-  // Preload only the current display image + thumbnails on mount
-  useEffect(() => {
-    if (!validImages || validImages.length === 0) return;
-
-    // Preload the current display image at full size
-    if (displayImage) {
-      const opt = getOptimizedImage(displayImage, 1000) || displayImage;
-      const img = new Image();
-      img.src = opt;
-      img.onload = () => setLoadedImages(prev => ({ ...prev, [displayImage]: true, [opt]: true }));
-    }
-
-    // Preload thumbnails only (small size)
-    validImages.forEach(imgUrl => {
-      if (!imgUrl || imgUrl === displayImage) return;
-      const thumb = getOptimizedImage(imgUrl, 150) || imgUrl;
-      const img = new Image();
-      img.src = thumb;
-    });
-  }, [validImages, displayImage, product]);
-
-  // Preload adjacent images when hovering gallery thumbnails
-  const preloadAdjacent = useCallback((index: number) => {
-    if (!validImages || validImages.length === 0) return;
-    [index - 1, index, index + 1].forEach(i => {
-      if (i >= 0 && i < validImages.length) {
-        const imgUrl = validImages[i];
-        const opt = getOptimizedImage(imgUrl, 1000) || imgUrl;
-        const img = new Image();
-        img.src = opt;
-        img.onload = () => setLoadedImages(prev => ({ ...prev, [imgUrl]: true, [opt]: true }));
-      }
-    });
-  }, [validImages]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (productGalleryLightboxIndex === null || !validImages || validImages.length === 0) return;
@@ -569,6 +534,41 @@ export function ProductDetail() {
     }
     return getFallbackImage(product);
   }, [rawDisplayImage, brokenImages, validImages, product]);
+
+  // Preload only the current display image + thumbnails on mount
+  useEffect(() => {
+    if (!validImages || validImages.length === 0) return;
+
+    // Preload the current display image at full size
+    if (displayImage) {
+      const opt = getOptimizedImage(displayImage, 1000) || displayImage;
+      const img = new Image();
+      img.src = opt;
+      img.onload = () => setLoadedImages(prev => ({ ...prev, [displayImage]: true, [opt]: true }));
+    }
+
+    // Preload thumbnails only (small size)
+    validImages.forEach(imgUrl => {
+      if (!imgUrl || imgUrl === displayImage) return;
+      const thumb = getOptimizedImage(imgUrl, 150) || imgUrl;
+      const img = new Image();
+      img.src = thumb;
+    });
+  }, [validImages, displayImage, product]);
+
+  // Preload adjacent images when hovering gallery thumbnails
+  const preloadAdjacent = useCallback((index: number) => {
+    if (!validImages || validImages.length === 0) return;
+    [index - 1, index, index + 1].forEach(i => {
+      if (i >= 0 && i < validImages.length) {
+        const imgUrl = validImages[i];
+        const opt = getOptimizedImage(imgUrl, 1000) || imgUrl;
+        const img = new Image();
+        img.src = opt;
+        img.onload = () => setLoadedImages(prev => ({ ...prev, [imgUrl]: true, [opt]: true }));
+      }
+    });
+  }, [validImages]);
 
   const active3DColor = useMemo(() => {
     const activeColor = hoveredColor || selectedColor;
