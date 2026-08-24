@@ -13,8 +13,9 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     applied.current = true;
 
     const targetColor = new THREE.Color(color);
+    const white = new THREE.Color(1, 1, 1);
 
-    // Apply color to all materials
+    // Step 1: Reset ALL materials to white base, keep textures for fabric detail
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
@@ -22,55 +23,80 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial) {
-            mat.color.copy(targetColor);
+            // Store original texture map if any
+            const origMap = mat.map;
+            const origNormalMap = mat.normalMap;
+            // Reset to white
+            mat.color.copy(white);
+            mat.emissive.copy(white);
+            mat.emissiveIntensity = 0;
             mat.roughness = 0.75;
             mat.metalness = 0.0;
+            // Keep texture maps for fabric detail
+            mat.map = origMap;
+            mat.normalMap = origNormalMap;
             mat.needsUpdate = true;
           } else if (mat instanceof THREE.MeshPhongMaterial) {
-            mat.color.copy(targetColor);
+            const origMap = mat.map;
+            const origNormalMap = mat.normalMap;
+            mat.color.copy(white);
+            mat.emissive.copy(white);
+            mat.emissiveIntensity = 0;
             mat.specular.set(0x222222);
             mat.shininess = 10;
+            mat.map = origMap;
+            mat.normalMap = origNormalMap;
             mat.needsUpdate = true;
           }
         });
       }
     });
 
-    // Force world matrix update
-    scene.updateMatrixWorld(true);
-
-    // Compute bounds
-    const box = new THREE.Box3().setFromObject(scene);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-
-    // Scale to fit nicely in view
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 3.5 / maxDim;
-    scene.scale.setScalar(scale);
-
-    // Re-update after scale
-    scene.updateMatrixWorld(true);
-    const newBox = new THREE.Box3().setFromObject(scene);
-    const newCenter = newBox.getCenter(new THREE.Vector3());
-    const newMin = newBox.min;
-
-    // Center horizontally, sit on ground
-    scene.position.set(-newCenter.x, -newMin.y, -newCenter.z);
-
-    onReady?.();
-  }, [scene, color, onReady]);
-
-  // Update color on subsequent color changes
-  useEffect(() => {
-    if (!scene || !applied.current) return;
-    const targetColor = new THREE.Color(color);
+    // Step 2: Apply target color on top of white base
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-            (mat as any).color.copy(targetColor);
+            // White * targetColor = targetColor (clean result)
+            (mat as any).color.multiply(targetColor);
+            mat.needsUpdate = true;
+          }
+        });
+      }
+    });
+
+    // Center model
+    scene.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 3.5 / maxDim;
+    scene.scale.setScalar(scale);
+    scene.updateMatrixWorld(true);
+    const newBox = new THREE.Box3().setFromObject(scene);
+    const newCenter = newBox.getCenter(new THREE.Vector3());
+    const newMin = newBox.min;
+    scene.position.set(-newCenter.x, -newMin.y, -newCenter.z);
+
+    onReady?.();
+  }, [scene]);
+
+  // Update color on changes
+  useEffect(() => {
+    if (!scene || !applied.current) return;
+    const targetColor = new THREE.Color(color);
+    const white = new THREE.Color(1, 1, 1);
+
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat: THREE.Material) => {
+          if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
+            // Reset to white, then multiply by target
+            (mat as any).color.copy(white);
+            (mat as any).color.multiply(targetColor);
             mat.needsUpdate = true;
           }
         });
@@ -107,11 +133,11 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
         onCreated={() => setLoaded(true)}
         onError={() => setError(true)}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
-        <directionalLight position={[-5, 5, -5]} intensity={0.4} />
-        <pointLight position={[0, 3, 4]} intensity={0.5} />
-        <hemisphereLight args={['#ffffff', '#e0e0e0', 0.3]} />
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 8, 5]} intensity={1.5} castShadow />
+        <directionalLight position={[-5, 5, -5]} intensity={0.5} />
+        <pointLight position={[0, 3, 4]} intensity={0.6} />
+        <hemisphereLight args={['#ffffff', '#e0e0e0', 0.4]} />
         <Suspense fallback={null}>
           <PoloModel color={resolvedColor} onReady={() => setLoaded(true)} />
         </Suspense>
