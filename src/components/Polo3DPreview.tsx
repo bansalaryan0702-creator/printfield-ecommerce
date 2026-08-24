@@ -1,12 +1,28 @@
-import React, { useRef, useEffect, useState, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import React, { useRef, useEffect, useState, Suspense, useMemo } from 'react';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) {
+function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
   const { scene } = useGLTF('/polo3d/polo.glb', true);
   const groupRef = useRef<THREE.Group>(null);
   const applied = useRef(false);
+  const artworkMeshRef = useRef<THREE.Mesh | null>(null);
+
+  // Load artwork texture
+  const artworkTexture = useLoader(THREE.TextureLoader, designImage || undefined);
+
+  // Placement positions on the 3D model (normalized coordinates relative to model bounds)
+  const PLACEMENT_3D: Record<string, { position: [number, number, number]; rotation: [number, number, number]; scale: number }> = {
+    'front-chest': { position: [-0.12, 0.25, 0.52], rotation: [0, 0, 0], scale: 0.25 },
+    'front-full': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
+    'back-full': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
+    'sleeve-left': { position: [-0.45, 0.3, 0.05], rotation: [0, -Math.PI / 2, -0.15], scale: 0.18 },
+    'sleeve-right': { position: [0.45, 0.3, 0.05], rotation: [0, Math.PI / 2, 0.15], scale: 0.18 },
+    'front': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
+    'back': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
+    'generic': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
+  };
 
   useEffect(() => {
     if (!scene || applied.current) return;
@@ -15,7 +31,7 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     const targetColor = new THREE.Color(color);
     const white = new THREE.Color(1, 1, 1);
 
-    // First pass: identify button meshes (small meshes near top of model)
+    // First pass: identify button meshes
     const bodyBox = new THREE.Box3().setFromObject(scene);
     const bodySize = bodyBox.getSize(new THREE.Vector3());
     const bodyVolume = bodySize.x * bodySize.y * bodySize.z;
@@ -37,7 +53,7 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
       }
     });
 
-    // Apply color
+    // Apply color to body, white to buttons
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = false;
@@ -66,10 +82,8 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
       }
     });
 
-    // Center model - robust centering
+    // Center model
     scene.updateMatrixWorld(true);
-    
-    // Compute bounds of all meshes in the scene
     const box = new THREE.Box3();
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -81,25 +95,14 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
         }
       }
     });
-    
-    // Fallback if no meshes found
-    if (box.isEmpty()) {
-      box.setFromObject(scene);
-    }
-    
+    if (box.isEmpty()) box.setFromObject(scene);
+
     const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const min = box.min;
-    
-    // Scale to fit nicely
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = 3.5 / maxDim;
     scene.scale.setScalar(scale);
-    
-    // Update world matrix after scaling
     scene.updateMatrixWorld(true);
-    
-    // Recompute bounds after scaling
+
     const newBox = new THREE.Box3();
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -111,21 +114,42 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
         }
       }
     });
-    
-    if (newBox.isEmpty()) {
-      newBox.setFromObject(scene);
-    }
-    
+    if (newBox.isEmpty()) newBox.setFromObject(scene);
+
     const newCenter = newBox.getCenter(new THREE.Vector3());
     const newMin = newBox.min;
-    
-    // Center horizontally, sit on ground (y=0)
     scene.position.set(-newCenter.x, -newMin.y, -newCenter.z);
 
-    onReady?.();
-  }, [scene]);
+    // Create artwork mesh if designImage provided
+    if (designImage && artworkTexture) {
+      const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
+      
+      // Create plane geometry for artwork
+      const planeGeo = new THREE.PlaneGeometry(place.scale, place.scale);
+      const planeMat = new THREE.MeshStandardMaterial({
+        map: artworkTexture,
+        transparent: true,
+        alphaTest: 0.01,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        roughness: 0.9,
+        metalness: 0.0,
+      });
+      
+      const artworkMesh = new THREE.Mesh(planeGeo, planeMat);
+      artworkMesh.position.set(...place.position);
+      artworkMesh.rotation.set(...place.rotation);
+      artworkMesh.renderOrder = 1; // Render on top of polo
+      
+      // Add to scene
+      scene.add(artworkMesh);
+      artworkMeshRef.current = artworkMesh;
+    }
 
-  // Update color on changes (keep buttons white)
+    onReady?.();
+  }, [scene, color, designImage, placement, artworkTexture, onReady]);
+
+  // Update color on changes
   useEffect(() => {
     if (!scene || !applied.current) return;
     const targetColor = new THREE.Color(color);
@@ -136,24 +160,28 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     const bodyVolume = bodySize.x * bodySize.y * bodySize.z;
 
     scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        const childBox = new THREE.Box3().setFromObject(child);
-        const childSize = childBox.getSize(new THREE.Vector3());
-        const childVolume = childSize.x * childSize.y * childSize.z;
-        const isSmall = childVolume < bodyVolume * 0.005;
-        const isNearTop = childBox.min.y > bodyBox.max.y - bodySize.y * 0.35;
-        const isButton = isSmall && isNearTop;
-
+      if (child instanceof THREE.Mesh && !buttonMeshes.has(child)) {
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-            (mat as any).color.copy(isButton ? white : targetColor);
+            (mat as any).color.copy(targetColor);
             mat.needsUpdate = true;
           }
         });
       }
     });
   }, [scene, color]);
+
+  // Update artwork texture when it changes
+  useEffect(() => {
+    if (artworkMeshRef.current && artworkTexture) {
+      (artworkMeshRef.current.material as THREE.MeshStandardMaterial).map = artworkTexture;
+      (artworkMeshRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
+      artworkMeshRef.current.visible = !!designImage;
+    } else if (artworkMeshRef.current) {
+      artworkMeshRef.current.visible = false;
+    }
+  }, [artworkTexture, designImage]);
 
   useFrame((state) => {
     if (groupRef.current) {
@@ -168,7 +196,7 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
   );
 }
 
-export function Polo3DPreview({ color, className = '' }: { color: string; className?: string }) {
+export function Polo3DPreview({ color, designImage, placement, className = '' }: { color: string; designImage?: string | null; placement?: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
@@ -183,13 +211,12 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
         onCreated={() => setLoaded(true)}
         onError={() => setError(true)}
       >
-        {/* Flat even lighting — no shadows, no tone mapping */}
         <ambientLight intensity={1.0} />
         <directionalLight position={[3, 5, 5]} intensity={0.6} />
         <directionalLight position={[-3, 3, -3]} intensity={0.3} />
 
         <Suspense fallback={null}>
-          <PoloModel color={resolvedColor} onReady={() => setLoaded(true)} />
+          <PoloModel color={resolvedColor} designImage={designImage} placement={placement} onReady={() => setLoaded(true)} />
         </Suspense>
         <OrbitControls
           enablePan={false}
