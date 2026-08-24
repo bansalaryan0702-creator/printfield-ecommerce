@@ -299,6 +299,7 @@ export function ProductDetail() {
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [show3D, setShow3D] = useState(false);
+  const [showStandardImages, setShowStandardImages] = useState(false);
 
   const handleImageLoaded = (imgUrl: string) => {
     if (!imgUrl) return;
@@ -1850,7 +1851,7 @@ export function ProductDetail() {
                 <div className="w-full aspect-[4/3] max-h-[380px] sm:max-h-none relative bg-white overflow-hidden flex items-center justify-center">
                   
                    {/* Polo T-Shirt Live Preview */}
-                   {isPolo && selectedColor && !show3D && (
+                   {isPolo && selectedColor && !show3D && !showStandardImages && (
                      <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
                        <PoloTshirtPreview
                          color={selectedColor}
@@ -1863,7 +1864,7 @@ export function ProductDetail() {
                    )}
 
                    {/* 3D Preview */}
-                   {isPolo && show3D && (
+                   {isPolo && show3D && !showStandardImages && (
                      <div className="absolute inset-0 z-30 bg-white">
                        <React.Suspense fallback={
                          <div className="w-full h-full flex flex-col items-center justify-center bg-white">
@@ -1951,6 +1952,8 @@ export function ProductDetail() {
                     }}
                     onClick={() => {
                       setSelectedImage(img);
+                      setShowStandardImages(true);
+                      setShow3D(false);
                       if (product?.colors && product?.colors.length > 0) {
                         const matchedCol = product?.colors.find((c: any) => {
                           const cName = typeof c === 'string' ? c : (c?.name || '');
@@ -1994,22 +1997,31 @@ export function ProductDetail() {
             {isPolo && selectedColor && (
               <div className="flex gap-2 mt-2">
                 <button
-                  onClick={() => setShow3D(false)}
+                  onClick={() => { setShow3D(false); setShowStandardImages(false); }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    !show3D ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    !show3D && !showStandardImages ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
                   <ImageIcon className="w-3.5 h-3.5" />
                   Photo
                 </button>
                 <button
-                  onClick={() => setShow3D(true)}
+                  onClick={() => { setShow3D(true); setShowStandardImages(false); }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     show3D ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                   3D View
+                </button>
+                <button
+                  onClick={() => { setShowStandardImages(true); setShow3D(false); }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    showStandardImages ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  Images
                 </button>
               </div>
             )}
@@ -2169,6 +2181,8 @@ export function ProductDetail() {
                         type="button"
                         onClick={() => {
                           setSelectedColor(color); 
+                          setShowStandardImages(false);
+                          setShow3D(false);
                           const matchImg = colorImage || getColorMatchingImage(colorName);
                           if (matchImg) {
                             setSelectedImage(matchImg);
