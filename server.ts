@@ -3,8 +3,6 @@ import axios from 'axios';
 import express from 'express';
 import * as fsSync from 'fs';
 import crypto from 'crypto';
-import sharpLib from 'sharp';
-const sharp = sharpLib;
 
 if (!process.env.DATA_ENC_KEY) {
   console.error('FATAL: DATA_ENC_KEY environment variable is not set. Refusing to start without encryption.');
@@ -3484,35 +3482,12 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const { id } = req.params;
       if (!id) return res.status(400).send('Image ID required');
       const w = parseInt(req.query.w as string) || 0;
-      const imageUrl = `https://lh3.googleusercontent.com/d/${id}`;
+      const suffix = w > 0 && w <= 2000 ? `=w${w}` : '';
+      const imageUrl = `https://lh3.googleusercontent.com/d/${id}${suffix}`;
       const response = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 10000 });
-      const inputBuffer = Buffer.from(response.data);
-      const accept = req.headers.accept || '';
-      const wantsWebP = accept.includes('image/webp');
-      const wantsAVIF = accept.includes('image/avif');
-      if (w > 0 && w <= 2000 && sharp) {
-        try {
-          let pipeline = sharp(inputBuffer).resize({ width: w, withoutEnlargement: true });
-          if (wantsAVIF) {
-            pipeline = pipeline.avif({ quality: 75 });
-            res.setHeader('Content-Type', 'image/avif');
-          } else if (wantsWebP) {
-            pipeline = pipeline.webp({ quality: 80 });
-            res.setHeader('Content-Type', 'image/webp');
-          } else {
-            pipeline = pipeline.jpeg({ quality: 82, progressive: true });
-            res.setHeader('Content-Type', 'image/jpeg');
-          }
-          const optimized = await pipeline.toBuffer();
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-          return res.send(optimized);
-        } catch (sharpErr) {
-          console.warn('Sharp processing failed, serving original:', sharpErr);
-        }
-      }
       res.setHeader('Content-Type', response.headers['content-type'] || 'image/jpeg');
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      return res.send(inputBuffer);
+      return res.send(Buffer.from(response.data));
     } catch (err) {
       return res.redirect(`https://lh3.googleusercontent.com/d/${req.params.id}`);
     }
