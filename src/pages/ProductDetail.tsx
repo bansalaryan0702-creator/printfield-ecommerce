@@ -1848,10 +1848,12 @@ export function ProductDetail() {
                   
                    {/* Polo T-Shirt Live Preview */}
                    {isPolo && selectedColor && (
-                     <div className="absolute inset-0 z-30 flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
+                     <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
                        <PoloTshirtPreview
-                         color={typeof selectedColor === 'object' ? (selectedColor?.hex || selectedColor?.name || '#6b6b6b') : (selectedColor || '#6b6b6b')}
-                         className="w-full h-full p-6 sm:p-8"
+                         color={selectedColor}
+                         productImages={validImages}
+                         productColors={product?.colors || []}
+                         className="w-full h-full"
                          designImage={artworks?.['front-chest']?.previewUrl || artworks?.['front-full']?.previewUrl || null}
                        />
                      </div>
