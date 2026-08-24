@@ -39,6 +39,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs
 import { DesignEditor } from "../components/DesignEditor";
 import { PoloTshirtPreview } from "../components/PoloTshirtPreview";
 
+const Polo3DPreview = React.lazy(() => import("../components/Polo3DPreview").then(m => ({ default: m.Polo3DPreview })));
+
 import { googleProvider, signInWithGoogle, getGoogleAccessToken } from '../lib/firebase';
 import { getColorStyle, isColorCategory } from "@/src/utils/colorUtils";
 
@@ -296,6 +298,7 @@ export function ProductDetail() {
   const [selectedVariations, setSelectedVariations] = useState<Record<string, any>>({});
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const [show3D, setShow3D] = useState(false);
 
   const handleImageLoaded = (imgUrl: string) => {
     if (!imgUrl) return;
@@ -1847,7 +1850,7 @@ export function ProductDetail() {
                 <div className="w-full aspect-[4/3] max-h-[380px] sm:max-h-none relative bg-white overflow-hidden flex items-center justify-center">
                   
                    {/* Polo T-Shirt Live Preview */}
-                   {isPolo && selectedColor && (
+                   {isPolo && selectedColor && !show3D && (
                      <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
                        <PoloTshirtPreview
                          color={selectedColor}
@@ -1856,6 +1859,23 @@ export function ProductDetail() {
                          className="w-full h-full"
                          designImage={artworks?.['front-chest']?.previewUrl || artworks?.['front-full']?.previewUrl || null}
                        />
+                     </div>
+                   )}
+
+                   {/* 3D Preview */}
+                   {isPolo && show3D && (
+                     <div className="absolute inset-0 z-30 bg-white">
+                       <React.Suspense fallback={
+                         <div className="w-full h-full flex flex-col items-center justify-center bg-white">
+                           <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin mb-3" />
+                           <p className="text-sm font-medium text-gray-600">Loading 3D Preview...</p>
+                         </div>
+                       }>
+                         <Polo3DPreview
+                           color={typeof selectedColor === 'object' ? (selectedColor?.hex || selectedColor?.name || '#2962a3') : (selectedColor || '#2962a3')}
+                           className="w-full h-full"
+                         />
+                       </React.Suspense>
                      </div>
                    )}
 
@@ -1959,6 +1979,31 @@ export function ProductDetail() {
                 </div>
               )}
             </div>
+
+            {/* 3D Preview Toggle for Polo */}
+            {isPolo && selectedColor && (
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => setShow3D(false)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    !show3D ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  Photo
+                </button>
+                <button
+                  onClick={() => setShow3D(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    show3D ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                  3D View
+                </button>
+              </div>
+            )}
+
           </div>
 
           {/* Product Info */}

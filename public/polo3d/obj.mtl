@@ -1,0 +1,76 @@
+# MTL Exporter v1.0 by Seungwoo Oh at CLO - Virtual Fashion Inc.
+newmtl Rib_2X2_468gsm_FRONT_2720
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+map_bump obj_normal_1001.png
+newmtl Knit_Cotton_Jersey_FRONT_2709
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.088500 0.088500 0.088500
+Ns 46.477551
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+map_bump obj_normal_1001.png
+newmtl Material519893
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+map_bump obj_normal_1001.png
+newmtl Material2941
+Ka 0.102853 0.102853 0.102853
+Kd 0.327843 0.327843 0.327843
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+newmtl Material2941
+Ka 0.102853 0.102853 0.102853
+Kd 0.327843 0.327843 0.327843
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+newmtl Material2941
+Ka 0.102853 0.102853 0.102853
+Kd 0.327843 0.327843 0.327843
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+newmtl Material2941
+Ka 0.102853 0.102853 0.102853
+Kd 0.327843 0.327843 0.327843
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+newmtl Material2941
+Ka 0.102853 0.102853 0.102853
+Kd 0.327843 0.327843 0.327843
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
+newmtl Material2941
+Ka 0.102853 0.102853 0.102853
+Kd 0.327843 0.327843 0.327843
+Ks 0.075000 0.075000 0.075000
+Ns 28.763239
+illum 2
+map_Ka obj_diffuse_1001.png
+map_Kd obj_diffuse_1001.png
