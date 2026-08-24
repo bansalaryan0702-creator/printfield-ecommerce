@@ -2182,8 +2182,12 @@ export function ProductDetail() {
                         type="button"
                         onClick={() => {
                           setSelectedColor(color); 
-                          setShowStandardImages(false);
-                          setShow3D(false);
+                          // If in Standard Images view, switch to Photo to show new color's standard images
+                          // If in 3D View or Photo View, stay in that mode and just update color
+                          if (showStandardImages) {
+                            setShowStandardImages(false);
+                            setShow3D(false);
+                          }
                           const matchImg = colorImage || getColorMatchingImage(colorName);
                           if (matchImg) {
                             setSelectedImage(matchImg);
