@@ -66,17 +66,60 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
       }
     });
 
-    // Center model
+    // Center model - robust centering
     scene.updateMatrixWorld(true);
-    const box = new THREE.Box3().setFromObject(scene);
+    
+    // Compute bounds of all meshes in the scene
+    const box = new THREE.Box3();
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.geometry.computeBoundingBox();
+        if (child.geometry.boundingBox) {
+          const meshBox = child.geometry.boundingBox.clone();
+          meshBox.applyMatrix4(child.matrixWorld);
+          box.union(meshBox);
+        }
+      }
+    });
+    
+    // Fallback if no meshes found
+    if (box.isEmpty()) {
+      box.setFromObject(scene);
+    }
+    
     const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const min = box.min;
+    
+    // Scale to fit nicely
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = 3.5 / maxDim;
     scene.scale.setScalar(scale);
+    
+    // Update world matrix after scaling
     scene.updateMatrixWorld(true);
-    const newBox = new THREE.Box3().setFromObject(scene);
+    
+    // Recompute bounds after scaling
+    const newBox = new THREE.Box3();
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.geometry.computeBoundingBox();
+        if (child.geometry.boundingBox) {
+          const meshBox = child.geometry.boundingBox.clone();
+          meshBox.applyMatrix4(child.matrixWorld);
+          newBox.union(meshBox);
+        }
+      }
+    });
+    
+    if (newBox.isEmpty()) {
+      newBox.setFromObject(scene);
+    }
+    
     const newCenter = newBox.getCenter(new THREE.Vector3());
     const newMin = newBox.min;
+    
+    // Center horizontally, sit on ground (y=0)
     scene.position.set(-newCenter.x, -newMin.y, -newCenter.z);
 
     onReady?.();
