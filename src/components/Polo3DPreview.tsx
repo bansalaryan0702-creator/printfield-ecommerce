@@ -1,10 +1,16 @@
-import React, { useRef, useEffect, useState, Suspense } from 'react';
+import React, { useRef, useEffect, useState, Suspense, Component, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
+class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
+}
+
 function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
-  const { scene } = useGLTF('/polo3d/polo.glb', true);
+  const { scene, nodes, materials, animations } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
   const applied = useRef(false);
   const artworkMeshRef = useRef<THREE.Mesh | null>(null);
@@ -211,6 +217,14 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
 
   const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
 
+  // Timeout fallback if model takes too long
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!loaded && !error) setError(true);
+    }, 30000); // 30 seconds
+    return () => clearTimeout(timer);
+  }, [loaded, error]);
+
   return (
     <div className={`relative ${className}`}>
       <Canvas
@@ -218,14 +232,16 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
         gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
         style={{ background: 'linear-gradient(180deg, #f5f5f5 0%, #e5e5e5 100%)' }}
         onCreated={() => setLoaded(true)}
-        onError={() => setError(true)}
+        onError={(e) => { console.error('Canvas error:', e); setError(true); }}
       >
         <ambientLight intensity={1.0} />
         <directionalLight position={[3, 5, 5]} intensity={0.6} />
         <directionalLight position={[-3, 3, -3]} intensity={0.3} />
 
         <Suspense fallback={null}>
-          <PoloModel color={resolvedColor} designImage={designImage} placement={placement} onReady={() => setLoaded(true)} />
+          <ErrorBoundary fallback={null}>
+            <PoloModel color={resolvedColor} designImage={designImage} placement={placement} onReady={() => setLoaded(true)} />
+          </ErrorBoundary>
         </Suspense>
         <OrbitControls
           enablePan={false}
