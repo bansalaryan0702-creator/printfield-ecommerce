@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback, Suspense } from 'react';
+import React, { useRef, useEffect, useState, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -96,19 +96,8 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
-  const resolvedColor = useCallback(() => {
-    if (!color) return '#2962a3';
-    if (typeof color === 'string' && color.startsWith('#')) return color;
-    const name = typeof color === 'object' ? (color?.name || '') : color;
-    const map: Record<string, string> = {
-      'black': '#1a1a1a', 'white': '#e8e8e0', 'navy blue': '#1a2744', 'navy': '#1a2744',
-      'royal blue': '#2962a3', 'red': '#c62828', 'maroon': '#6b1d1d', 'green': '#2d5a27',
-      'grey': '#6b6b6b', 'gray': '#6b6b6b', 'orange': '#d84315', 'yellow': '#e8a800',
-      'pink': '#d81b60', 'purple': '#6a1b9a', 'brown': '#5d4037', 'teal': '#00695c',
-      'olive green': '#556b2f', 'mustard': '#c8a415', 'coral': '#e64a19',
-    };
-    return map[name.toLowerCase().trim()] || '#2962a3';
-  }, [color]);
+  // Accept hex directly — no name mapping needed
+  const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
 
   return (
     <div className={`relative ${className}`}>
@@ -128,7 +117,7 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
         <pointLight position={[0, 3, 4]} intensity={0.5} />
         <hemisphereLight args={['#ffffff', '#e0e0e0', 0.3]} />
         <Suspense fallback={null}>
-          <PoloModel color={resolvedColor()} />
+          <PoloModel color={resolvedColor} />
         </Suspense>
         <OrbitControls
           enablePan={false}

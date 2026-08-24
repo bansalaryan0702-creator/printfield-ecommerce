@@ -1872,9 +1872,19 @@ export function ProductDetail() {
                          </div>
                        }>
                          <Polo3DPreview
-                           color={typeof selectedColor === 'object' ? (selectedColor?.hex || selectedColor?.name || '#2962a3') : (selectedColor || '#2962a3')}
-                           className="w-full h-full"
-                         />
+                            color={(() => {
+                              if (!selectedColor) return '#2962a3';
+                              if (typeof selectedColor === 'object') {
+                                return selectedColor.hex || '#2962a3';
+                              }
+                              // If it's already a hex string
+                              if (typeof selectedColor === 'string' && selectedColor.startsWith('#')) return selectedColor;
+                              // Try to find hex from product colors by name
+                              const found = (product?.colors || []).find((c: any) => c.name?.toLowerCase() === String(selectedColor).toLowerCase());
+                              return found?.hex || '#2962a3';
+                            })()}
+                            className="w-full h-full"
+                          />
                        </React.Suspense>
                      </div>
                    )}
