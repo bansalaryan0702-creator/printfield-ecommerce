@@ -17,13 +17,11 @@ function adjustColor(hex: string, amount: number): string {
 }
 
 function lighten(hex: string, pct: number): string {
-  const amt = Math.round(255 * (pct / 100));
-  return adjustColor(hex, amt);
+  return adjustColor(hex, Math.round(255 * (pct / 100)));
 }
 
 function darken(hex: string, pct: number): string {
-  const amt = Math.round(255 * (pct / 100));
-  return adjustColor(hex, -amt);
+  return adjustColor(hex, -Math.round(255 * (pct / 100)));
 }
 
 export function PoloTshirtPreview({ color, className = '', designImage = null }: PoloTshirtPreviewProps) {
@@ -31,225 +29,185 @@ export function PoloTshirtPreview({ color, className = '', designImage = null }:
     if (!color) return '#2d5a27';
     if (color.startsWith('#')) return color;
     const map: Record<string, string> = {
-      'black': '#1a1a1a', 'white': '#f5f5f0', 'navy blue': '#1a2744', 'navy': '#1a2744',
+      'black': '#1a1a1a', 'white': '#f0f0ea', 'navy blue': '#1a2744', 'navy': '#1a2744',
       'royal blue': '#2962a3', 'red': '#c62828', 'maroon': '#6b1d1d', 'green': '#2d5a27',
       'grey': '#6b6b6b', 'gray': '#6b6b6b', 'orange': '#d84315', 'yellow': '#f9a825',
       'pink': '#d81b60', 'purple': '#6a1b9a', 'brown': '#5d4037', 'beige': '#d7ccc8',
       'olive green': '#556b2f', 'forest green': '#1b5e20', 'teal': '#00695c',
       'mustard': '#c8a415', 'coral': '#e64a19', 'lavender': '#9575cd',
       'chocolate': '#4e342e', 'cream': '#fff8e1', 'wine': '#722f37',
-      'royal blue with white tipping': '#2962a3', 'black with white tipping': '#1a1a1a',
     };
     const key = color.toLowerCase().trim();
     return map[key] || '#6b6b6b';
   }, [color]);
 
-  const mainFill = hex;
-  const shadowFill = darken(hex, 18);
-  const deepShadow = darken(hex, 32);
-  const highlightFill = lighten(hex, 14);
-  const foldShadow = darken(hex, 10);
-  const seamColor = darken(hex, 22);
-  const collarInner = darken(hex, 8);
-  const buttonColor = lighten(hex, 30);
+  const m = useMemo(() => ({
+    main: hex,
+    dark: darken(hex, 15),
+    deep: darken(hex, 28),
+    light: lighten(hex, 12),
+    fold: darken(hex, 10),
+    seam: darken(hex, 20),
+    collarInner: darken(hex, 6),
+    btn: lighten(hex, 25),
+    btnHole: darken(hex, 30),
+    cuff: darken(hex, 12),
+    hemLine: darken(hex, 8),
+  }), [hex]);
 
-  const filterId = useMemo(() => `polo-fabric-${Math.random().toString(36).slice(2, 8)}`, []);
+  const id = useMemo(() => `p${Math.random().toString(36).slice(2,7)}`, []);
 
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
-      <svg
-        viewBox="0 0 500 600"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full max-h-[520px]"
-        style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))' }}
-      >
+      <svg viewBox="0 0 400 480" xmlns="http://www.w3.org/2000/svg" className="w-full h-full max-h-[500px]" style={{ filter: 'drop-shadow(0 6px 20px rgba(0,0,0,0.10))' }}>
         <defs>
-          {/* Fabric texture filter */}
-          <filter id={`${filterId}-fabric`} x="0%" y="0%" width="100%" height="100%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" seed="2" result="noise" />
-            <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
-            <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="textured" />
-            <feComponentTransfer in="textured">
-              <feFuncA type="linear" slope="1" />
-            </feComponentTransfer>
+          <filter id={`${id}-tex`} x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="3" seed="5" result="n" />
+            <feColorMatrix type="saturate" values="0" in="n" result="gn" />
+            <feBlend in="SourceGraphic" in2="gn" mode="multiply" />
           </filter>
-
-          {/* Subtle shadow for depth */}
-          <filter id={`${filterId}-shadow`}>
-            <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
-            <feOffset dx="2" dy="3" result="shadow" />
-            <feFlood floodColor="#000" floodOpacity="0.15" />
-            <feComposite in2="shadow" operator="in" />
-            <feMerge>
-              <feMergeNode />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
-          {/* Gradient for collar fold */}
-          <linearGradient id={`${filterId}-collarGrad`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={highlightFill} />
-            <stop offset="40%" stopColor={mainFill} />
-            <stop offset="100%" stopColor={shadowFill} />
+          <linearGradient id={`${id}-body`} x1="0.3" y1="0" x2="0.8" y2="1">
+            <stop offset="0%" stopColor={m.light} />
+            <stop offset="45%" stopColor={m.main} />
+            <stop offset="100%" stopColor={m.dark} />
           </linearGradient>
-
-          {/* Gradient for body */}
-          <linearGradient id={`${filterId}-bodyGrad`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={highlightFill} />
-            <stop offset="50%" stopColor={mainFill} />
-            <stop offset="100%" stopColor={shadowFill} />
+          <linearGradient id={`${id}-sleeveL`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={m.light} />
+            <stop offset="100%" stopColor={m.dark} />
           </linearGradient>
-
-          {/* Placket shadow gradient */}
-          <linearGradient id={`${filterId}-placketGrad`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={shadowFill} />
-            <stop offset="30%" stopColor={mainFill} />
-            <stop offset="70%" stopColor={mainFill} />
-            <stop offset="100%" stopColor={shadowFill} />
+          <linearGradient id={`${id}-sleeveR`} x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={m.light} />
+            <stop offset="100%" stopColor={m.dark} />
           </linearGradient>
-
-          {/* Sleeve gradient */}
-          <linearGradient id={`${filterId}-sleeveLeftGrad`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={highlightFill} />
-            <stop offset="100%" stopColor={shadowFill} />
+          <linearGradient id={`${id}-collar`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={m.light} />
+            <stop offset="60%" stopColor={m.main} />
+            <stop offset="100%" stopColor={m.dark} />
           </linearGradient>
-          <linearGradient id={`${filterId}-sleeveRightGrad`} x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={highlightFill} />
-            <stop offset="100%" stopColor={shadowFill} />
-          </linearGradient>
-
-          {/* Subtle light reflection */}
-          <radialGradient id={`${filterId}-light`} cx="0.35" cy="0.25" r="0.6">
-            <stop offset="0%" stopColor="white" stopOpacity="0.08" />
+          <radialGradient id={`${id}-sheen`} cx="0.38" cy="0.3" r="0.55">
+            <stop offset="0%" stopColor="white" stopOpacity="0.06" />
             <stop offset="100%" stopColor="white" stopOpacity="0" />
           </radialGradient>
-
-          {/* Clip for body */}
-          <clipPath id={`${filterId}-bodyClip`}>
-            <path d="M155,135 L155,520 Q155,540 175,545 L325,545 Q345,540 345,520 L345,135 Q345,120 335,115 L285,100 Q270,96 260,110 L250,130 L240,110 Q230,96 215,100 L165,115 Q155,120 155,135 Z" />
+          <clipPath id={`${id}-clip`}>
+            <rect x="100" y="58" width="200" height="380" rx="8" />
           </clipPath>
         </defs>
 
-        {/* === BACK SHADOW (behind the shirt) === */}
-        <ellipse cx="250" cy="555" rx="95" ry="12" fill="rgba(0,0,0,0.06)" />
+        {/* Floor shadow */}
+        <ellipse cx="200" cy="468" rx="80" ry="8" fill="rgba(0,0,0,0.05)" />
 
         {/* === LEFT SLEEVE === */}
+        {/* Sleeve body - natural droop from shoulder */}
         <path
-          d="M155,135 L95,155 Q75,162 70,180 L65,240 Q63,255 75,260 L105,265 Q115,267 120,255 L135,200 Q140,185 148,175 L155,165"
-          fill={`url(#${filterId}-sleeveLeftGrad)`}
-          filter={`url(#${filterId}-fabric)`}
+          d="M118,108 L72,118 C58,122 48,138 50,160 L56,198 C58,210 68,216 78,212 L112,196 C118,194 122,186 120,178"
+          fill={`url(#${id}-sleeveL)`}
+          filter={`url(#${id}-tex)`}
         />
-        {/* Sleeve cuff band */}
+        {/* Cuff band */}
         <path
-          d="M65,240 Q63,255 75,260 L105,265 Q115,267 120,255 L122,248 Q100,252 80,248 L65,240Z"
-          fill={shadowFill}
-          opacity="0.6"
+          d="M56,192 C58,204 66,212 76,210 L110,196 C116,194 118,188 116,182"
+          fill={m.cuff}
+          opacity="0.5"
         />
         {/* Shoulder seam */}
-        <path d="M155,135 L135,145" stroke={seamColor} strokeWidth="0.8" fill="none" opacity="0.5" />
-        {/* Sleeve crease */}
-        <path d="M100,190 Q120,210 110,245" stroke={foldShadow} strokeWidth="0.6" fill="none" opacity="0.4" />
+        <path d="M118,108 C115,112 112,116 110,118" stroke={m.seam} strokeWidth="0.7" fill="none" opacity="0.4" />
+        {/* Sleeve fold */}
+        <path d="M72,145 C82,160 78,185 68,200" stroke={m.fold} strokeWidth="0.5" fill="none" opacity="0.3" />
 
         {/* === RIGHT SLEEVE === */}
         <path
-          d="M345,135 L405,155 Q425,162 430,180 L435,240 Q437,255 425,260 L395,265 Q385,267 380,255 L365,200 Q360,185 352,175 L345,165"
-          fill={`url(#${filterId}-sleeveRightGrad)`}
-          filter={`url(#${filterId}-fabric)`}
+          d="M282,108 L328,118 C342,122 352,138 350,160 L344,198 C342,210 332,216 322,212 L288,196 C282,194 278,186 280,178"
+          fill={`url(#${id}-sleeveR)`}
+          filter={`url(#${id}-tex)`}
         />
-        {/* Sleeve cuff band */}
+        {/* Cuff band */}
         <path
-          d="M435,240 Q437,255 425,260 L395,265 Q385,267 380,255 L378,248 Q400,252 420,248 L435,240Z"
-          fill={shadowFill}
-          opacity="0.6"
+          d="M344,192 C342,204 334,212 324,210 L290,196 C284,194 282,188 284,182"
+          fill={m.cuff}
+          opacity="0.5"
         />
         {/* Shoulder seam */}
-        <path d="M345,135 L365,145" stroke={seamColor} strokeWidth="0.8" fill="none" opacity="0.5" />
-        {/* Sleeve crease */}
-        <path d="M400,190 Q380,210 390,245" stroke={foldShadow} strokeWidth="0.6" fill="none" opacity="0.4" />
+        <path d="M282,108 C285,112 288,116 290,118" stroke={m.seam} strokeWidth="0.7" fill="none" opacity="0.4" />
+        {/* Sleeve fold */}
+        <path d="M328,145 C318,160 322,185 332,200" stroke={m.fold} strokeWidth="0.5" fill="none" opacity="0.3" />
 
         {/* === MAIN BODY === */}
         <path
-          d="M155,135 L155,520 Q155,540 175,545 L325,545 Q345,540 345,520 L345,135 Q345,120 335,115 L285,100 Q270,96 260,110 L250,130 L240,110 Q230,96 215,100 L165,115 Q155,120 155,135 Z"
-          fill={`url(#${filterId}-bodyGrad)`}
-          filter={`url(#${filterId}-fabric)`}
+          d="M120,108 L120,430 C120,445 130,455 145,458 L255,458 C270,455 280,445 280,430 L280,108 C280,98 270,90 258,88 L218,80 C210,78 204,86 200,96 L196,86 C192,78 186,78 178,80 L142,88 C130,90 120,98 120,108 Z"
+          fill={`url(#${id}-body)`}
+          filter={`url(#${id}-tex)`}
+          clipPath={`url(#${id}-clip)`}
         />
-        {/* Light reflection on body */}
+        {/* Sheen */}
         <path
-          d="M155,135 L155,520 Q155,540 175,545 L325,545 Q345,540 345,520 L345,135 Q345,120 335,115 L285,100 Q270,96 260,110 L250,130 L240,110 Q230,96 215,100 L165,115 Q155,120 155,135 Z"
-          fill={`url(#${filterId}-light)`}
+          d="M120,108 L120,430 C120,445 130,455 145,458 L255,458 C270,455 280,445 280,430 L280,108 C280,98 270,90 258,88 L218,80 C210,78 204,86 200,96 L196,86 C192,78 186,78 178,80 L142,88 C130,90 120,98 120,108 Z"
+          fill={`url(#${id}-sheen)`}
         />
 
-        {/* === BODY FOLD CREASES === */}
-        <path d="M200,200 Q210,300 205,420" stroke={foldShadow} strokeWidth="0.7" fill="none" opacity="0.3" />
-        <path d="M300,200 Q290,300 295,420" stroke={foldShadow} strokeWidth="0.7" fill="none" opacity="0.3" />
-        <path d="M250,180 Q248,280 250,380" stroke={foldShadow} strokeWidth="0.5" fill="none" opacity="0.2" />
+        {/* Body fold creases */}
+        <path d="M165,160 C168,240 166,330 167,420" stroke={m.fold} strokeWidth="0.5" fill="none" opacity="0.2" />
+        <path d="M235,160 C232,240 234,330 233,420" stroke={m.fold} strokeWidth="0.5" fill="none" opacity="0.2" />
+        <path d="M200,140 C199,220 200,320 200,400" stroke={m.fold} strokeWidth="0.4" fill="none" opacity="0.15" />
 
-        {/* === HEM STITCHING === */}
-        <path d="M160,530 Q250,538 340,530" stroke={seamColor} strokeWidth="0.6" fill="none" opacity="0.4" strokeDasharray="4,3" />
-        {/* Bottom hem fold */}
-        <path d="M158,535 Q250,545 342,535" stroke={deepShadow} strokeWidth="1" fill="none" opacity="0.15" />
+        {/* Bottom hem line */}
+        <path d="M125,445 C200,452 275,445 275,445" stroke={m.hemLine} strokeWidth="0.6" fill="none" opacity="0.3" />
+        {/* Hem fold shadow */}
+        <path d="M125,450 C200,457 275,450 275,450" stroke={m.deep} strokeWidth="0.8" fill="none" opacity="0.1" />
 
         {/* === COLLAR === */}
-        {/* Left collar flap */}
+        {/* Left collar leaf */}
         <path
-          d="M215,100 Q220,75 240,65 Q255,60 260,80 L260,110 Q250,115 240,110 L215,100Z"
-          fill={`url(#${filterId}-collarGrad)`}
-          filter={`url(#${filterId}-fabric)`}
+          d="M178,80 C175,62 182,48 196,44 C204,42 200,55 200,68 L200,86 C194,84 186,82 178,80Z"
+          fill={`url(#${id}-collar)`}
+          filter={`url(#${id}-tex)`}
         />
-        {/* Right collar flap */}
+        {/* Right collar leaf */}
         <path
-          d="M285,100 Q280,75 260,65 Q245,60 240,80 L240,110 Q250,115 260,110 L285,100Z"
-          fill={`url(#${filterId}-collarGrad)`}
-          filter={`url(#${filterId}-fabric)`}
+          d="M222,80 C225,62 218,48 204,44 C196,42 200,55 200,68 L200,86 C206,84 214,82 222,80Z"
+          fill={`url(#${id}-collar)`}
+          filter={`url(#${id}-tex)`}
         />
-        {/* Collar inner shadow */}
+        {/* Collar shadow underneath */}
         <path
-          d="M230,85 Q250,72 270,85 L260,105 Q250,98 240,105 Z"
-          fill={collarInner}
-          opacity="0.4"
+          d="M185,72 C195,62 205,62 215,72 L208,82 C204,78 196,78 192,82 Z"
+          fill={m.collarInner}
+          opacity="0.35"
         />
-        {/* Collar fold line */}
-        <path d="M225,90 Q250,78 275,90" stroke={seamColor} strokeWidth="0.6" fill="none" opacity="0.5" />
-        {/* Collar tip shadows */}
-        <path d="M218,100 Q220,95 225,92" stroke={deepShadow} strokeWidth="0.8" fill="none" opacity="0.3" />
-        <path d="M282,100 Q280,95 275,92" stroke={deepShadow} strokeWidth="0.8" fill="none" opacity="0.3" />
+        {/* Collar fold edge */}
+        <path d="M182,76 C192,66 208,66 218,76" stroke={m.seam} strokeWidth="0.5" fill="none" opacity="0.4" />
 
         {/* === PLACKET === */}
         <path
-          d="M240,110 L238,200 Q238,205 242,208 L250,210 L258,208 Q262,205 262,200 L260,110"
-          fill={`url(#${filterId}-placketGrad)`}
-          filter={`url(#${filterId}-fabric)`}
+          d="M193,86 L191,180 Q191,186 196,188 L200,190 L204,188 Q209,186 209,180 L207,86"
+          fill={m.dark}
+          opacity="0.25"
         />
         {/* Placket center line */}
-        <line x1="250" y1="115" x2="250" y2="205" stroke={seamColor} strokeWidth="0.6" opacity="0.5" />
-        {/* Placket edge shadows */}
-        <line x1="240" y1="112" x2="238" y2="200" stroke={deepShadow} strokeWidth="0.8" opacity="0.25" />
-        <line x1="260" y1="112" x2="262" y2="200" stroke={deepShadow} strokeWidth="0.8" opacity="0.25" />
+        <line x1="200" y1="90" x2="200" y2="184" stroke={m.seam} strokeWidth="0.5" opacity="0.4" />
 
         {/* === BUTTONS === */}
-        <circle cx="250" cy="128" r="3.5" fill={buttonColor} stroke={shadowFill} strokeWidth="0.5" />
-        <circle cx="250" cy="128" r="1.2" fill={deepShadow} opacity="0.4" />
-        <circle cx="250" cy="153" r="3.5" fill={buttonColor} stroke={shadowFill} strokeWidth="0.5" />
-        <circle cx="250" cy="153" r="1.2" fill={deepShadow} opacity="0.4" />
-        <circle cx="250" cy="178" r="3.5" fill={buttonColor} stroke={shadowFill} strokeWidth="0.5" />
-        <circle cx="250" cy="178" r="1.2" fill={deepShadow} opacity="0.4" />
+        <circle cx="200" cy="104" r="3" fill={m.btn} stroke={m.dark} strokeWidth="0.4" />
+        <circle cx="200" cy="104" r="1" fill={m.btnHole} opacity="0.5" />
+        <circle cx="200" cy="130" r="3" fill={m.btn} stroke={m.dark} strokeWidth="0.4" />
+        <circle cx="200" cy="130" r="1" fill={m.btnHole} opacity="0.5" />
+        <circle cx="200" cy="156" r="3" fill={m.btn} stroke={m.dark} strokeWidth="0.4" />
+        <circle cx="200" cy="156" r="1" fill={m.btnHole} opacity="0.5" />
 
-        {/* === LEFT CHEST POCKET (subtle) === */}
-        <rect x="170" y="200" width="40" height="45" rx="2" fill="none" stroke={seamColor} strokeWidth="0.5" opacity="0.25" />
-        {/* Pocket top hem */}
-        <line x1="170" y1="200" x2="210" y2="200" stroke={seamColor} strokeWidth="0.7" opacity="0.3" />
+        {/* === LEFT CHEST POCKET === */}
+        <rect x="138" y="195" width="32" height="38" rx="1.5" fill="none" stroke={m.seam} strokeWidth="0.4" opacity="0.22" />
+        <line x1="138" y1="195" x2="170" y2="195" stroke={m.seam} strokeWidth="0.5" opacity="0.25" />
 
-        {/* === CUSTOM DESIGN OVERLAY === */}
+        {/* === CUSTOM DESIGN === */}
         {designImage && (
           <image
             href={designImage}
-            x="175"
-            y="180"
-            width="150"
-            height="150"
+            x="145"
+            y="195"
+            width="110"
+            height="110"
             preserveAspectRatio="xMidYMid meet"
-            opacity="0.9"
-            style={{ mixBlendMode: 'multiply' }}
+            opacity="0.85"
+            style={{ mixBlendMode: 'multiply' } as React.CSSProperties}
           />
         )}
       </svg>
