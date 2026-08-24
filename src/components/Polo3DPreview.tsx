@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState, Suspense, useMemo } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import React, { useRef, useEffect, useState, Suspense } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -8,9 +8,6 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
   const groupRef = useRef<THREE.Group>(null);
   const applied = useRef(false);
   const artworkMeshRef = useRef<THREE.Mesh | null>(null);
-
-  // Load artwork texture
-  const artworkTexture = useLoader(THREE.TextureLoader, designImage || undefined);
 
   // Placement positions on the 3D model (normalized coordinates relative to model bounds)
   const PLACEMENT_3D: Record<string, { position: [number, number, number]; rotation: [number, number, number]; scale: number }> = {
@@ -121,33 +118,39 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     scene.position.set(-newCenter.x, -newMin.y, -newCenter.z);
 
     // Create artwork mesh if designImage provided
-    if (designImage && artworkTexture) {
+    if (designImage) {
       const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
       
-      // Create plane geometry for artwork
-      const planeGeo = new THREE.PlaneGeometry(place.scale, place.scale);
-      const planeMat = new THREE.MeshStandardMaterial({
-        map: artworkTexture,
-        transparent: true,
-        alphaTest: 0.01,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-        roughness: 0.9,
-        metalness: 0.0,
+      // Load texture and create artwork mesh
+      const loader = new THREE.TextureLoader();
+      loader.load(designImage, (texture) => {
+        // Create plane geometry for artwork
+        const planeGeo = new THREE.PlaneGeometry(place.scale, place.scale);
+        const planeMat = new THREE.MeshStandardMaterial({
+          map: texture,
+          transparent: true,
+          alphaTest: 0.01,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+          roughness: 0.9,
+          metalness: 0.0,
+        });
+        
+        const artworkMesh = new THREE.Mesh(planeGeo, planeMat);
+        artworkMesh.position.set(...place.position);
+        artworkMesh.rotation.set(...place.rotation);
+        artworkMesh.renderOrder = 1; // Render on top of polo
+        
+        // Add to scene
+        scene.add(artworkMesh);
+        artworkMeshRef.current = artworkMesh;
+      }, undefined, (err) => {
+        console.warn('Failed to load artwork texture:', err);
       });
-      
-      const artworkMesh = new THREE.Mesh(planeGeo, planeMat);
-      artworkMesh.position.set(...place.position);
-      artworkMesh.rotation.set(...place.rotation);
-      artworkMesh.renderOrder = 1; // Render on top of polo
-      
-      // Add to scene
-      scene.add(artworkMesh);
-      artworkMeshRef.current = artworkMesh;
     }
 
     onReady?.();
-  }, [scene, color, designImage, placement, artworkTexture, onReady]);
+  }, [scene, color, designImage, placement, onReady]);
 
   // Update color on changes
   useEffect(() => {
@@ -174,14 +177,20 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
 
   // Update artwork texture when it changes
   useEffect(() => {
-    if (artworkMeshRef.current && artworkTexture) {
-      (artworkMeshRef.current.material as THREE.MeshStandardMaterial).map = artworkTexture;
-      (artworkMeshRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
-      artworkMeshRef.current.visible = !!designImage;
+    if (designImage && artworkMeshRef.current) {
+      const loader = new THREE.TextureLoader();
+      loader.load(designImage, (texture) => {
+        (artworkMeshRef.current!.material as THREE.MeshStandardMaterial).map = texture;
+        (artworkMeshRef.current!.material as THREE.MeshStandardMaterial).needsUpdate = true;
+        artworkMeshRef.current!.visible = true;
+      }, undefined, (err) => {
+        console.warn('Failed to load artwork texture:', err);
+        if (artworkMeshRef.current) artworkMeshRef.current.visible = false;
+      });
     } else if (artworkMeshRef.current) {
       artworkMeshRef.current.visible = false;
     }
-  }, [artworkTexture, designImage]);
+  }, [designImage]);
 
   useFrame((state) => {
     if (groupRef.current) {
