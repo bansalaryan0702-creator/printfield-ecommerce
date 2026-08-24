@@ -13,12 +13,36 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     applied.current = true;
 
     const targetColor = new THREE.Color(color);
+    const white = new THREE.Color(1, 1, 1);
 
-    // Reset to white, then apply exact target color
+    // First pass: identify button meshes (small meshes near top of model)
+    const bodyBox = new THREE.Box3().setFromObject(scene);
+    const bodySize = bodyBox.getSize(new THREE.Vector3());
+    const bodyVolume = bodySize.x * bodySize.y * bodySize.z;
+    const buttonNames = ['button', 'Button', 'buttons', 'Buttons', 'btn', 'Btn', 'button01', 'button02'];
+
+    const buttonMeshes = new Set<THREE.Mesh>();
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const name = child.name || '';
+        const childBox = new THREE.Box3().setFromObject(child);
+        const childSize = childBox.getSize(new THREE.Vector3());
+        const childVolume = childSize.x * childSize.y * childSize.z;
+        const isSmall = childVolume < bodyVolume * 0.005;
+        const isByName = buttonNames.some(n => name.toLowerCase().includes(n.toLowerCase()));
+        const isNearTop = childBox.min.y > bodyBox.max.y - bodySize.y * 0.35;
+        if (isByName || (isSmall && isNearTop)) {
+          buttonMeshes.add(child);
+        }
+      }
+    });
+
+    // Apply color
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = false;
         child.receiveShadow = false;
+        const isButton = buttonMeshes.has(child);
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial) {
@@ -26,16 +50,16 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
             mat.normalMap = null;
             mat.aoMap = null;
             mat.emissiveMap = null;
-            mat.color.copy(targetColor);
-            mat.roughness = 0.85;
-            mat.metalness = 0.0;
+            mat.color.copy(isButton ? white : targetColor);
+            mat.roughness = isButton ? 0.3 : 0.85;
+            mat.metalness = isButton ? 0.1 : 0.0;
             mat.needsUpdate = true;
           } else if (mat instanceof THREE.MeshPhongMaterial) {
             mat.map = null;
             mat.normalMap = null;
-            mat.color.copy(targetColor);
-            mat.specular.set(0x111111);
-            mat.shininess = 5;
+            mat.color.copy(isButton ? white : targetColor);
+            mat.specular.set(isButton ? 0x444444 : 0x111111);
+            mat.shininess = isButton ? 30 : 5;
             mat.needsUpdate = true;
           }
         });
@@ -58,16 +82,29 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     onReady?.();
   }, [scene]);
 
-  // Update color on changes
+  // Update color on changes (keep buttons white)
   useEffect(() => {
     if (!scene || !applied.current) return;
     const targetColor = new THREE.Color(color);
+    const white = new THREE.Color(1, 1, 1);
+
+    const bodyBox = new THREE.Box3().setFromObject(scene);
+    const bodySize = bodyBox.getSize(new THREE.Vector3());
+    const bodyVolume = bodySize.x * bodySize.y * bodySize.z;
+
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
+        const childBox = new THREE.Box3().setFromObject(child);
+        const childSize = childBox.getSize(new THREE.Vector3());
+        const childVolume = childSize.x * childSize.y * childSize.z;
+        const isSmall = childVolume < bodyVolume * 0.005;
+        const isNearTop = childBox.min.y > bodyBox.max.y - bodySize.y * 0.35;
+        const isButton = isSmall && isNearTop;
+
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-            (mat as any).color.copy(targetColor);
+            (mat as any).color.copy(isButton ? white : targetColor);
             mat.needsUpdate = true;
           }
         });
