@@ -1830,12 +1830,13 @@ export function ProductDetail() {
       <Layout>
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 border-b border-gray-100 mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-purple-600 transition-colors font-medium"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2"  /> Back
-          </Link>
+          <nav className="flex items-center text-sm text-gray-500" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-purple-600 transition-colors">Home</Link>
+            <span className="mx-2">/</span>
+            <Link to={`/category/${encodeURIComponent(product?.category || '')}`} className="hover:text-purple-600 transition-colors">{product?.category}</Link>
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 font-medium truncate max-w-[200px]">{product?.name}</span>
+          </nav>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 pb-24 grid md:grid-cols-2 gap-6 md:gap-12 lg:gap-20">

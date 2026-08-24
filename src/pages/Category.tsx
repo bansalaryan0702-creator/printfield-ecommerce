@@ -101,9 +101,17 @@ export function CategoryPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
         
         <div className="absolute inset-0 flex flex-col justify-end max-w-7xl mx-auto px-4 md:px-6 pb-10 z-10">
-          <Link to="/" className="inline-flex items-center text-slate-300 hover:text-white mb-4 transition-colors text-sm font-medium">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
-          </Link>
+          <nav className="flex items-center text-sm text-slate-400 mb-4" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-white transition-colors">Home</Link>
+            <span className="mx-2">/</span>
+            {normalizedCategoryId && normalizedCategoryId !== 'all' && (
+              <>
+                <Link to="/categories" className="hover:text-white transition-colors">Categories</Link>
+                <span className="mx-2">/</span>
+              </>
+            )}
+            <span className="text-white font-medium">{category.name}</span>
+          </nav>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-2 drop-shadow-sm">
             {category.name}
           </h1>

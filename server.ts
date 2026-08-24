@@ -3957,6 +3957,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeAttr(catTitle)}" />
     <meta name="twitter:description" content="${escapeAttr(catDesc)}" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE_URL}/"},{"@type":"ListItem","position":2,"name":"${escapeAttr(canonicalCat)}","item":"${canonicalUrl}"}]}</script>
 `;
         html = html.replace(/<title>.*?<\/title>/gi, '');
         html = html.replace('</head>', `${metaTags}\n</head>`);

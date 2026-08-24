@@ -538,6 +538,45 @@ export function Home() {
           </div>
         </section>
 
+        {/* BROWSE BY CATEGORY */}
+        <section className="py-16 md:py-24 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-4">
+                Browse by <span className="text-purple-600">Category</span>
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                Explore our full range of custom printing services across 13+ categories.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[
+                { name: "Drinkware", slug: "Drinkware", icon: "🥤" },
+                { name: "Corporate Gifts", slug: "Corporate%20Gifts", icon: "🎁" },
+                { name: "Business Stationery", slug: "Business%20Stationery", icon: "📋" },
+                { name: "Apparel", slug: "Apparel", icon: "👕" },
+                { name: "Signages & Banners", slug: "Signages%20%26%20Banners", icon: "🪧" },
+                { name: "Personalised Gifts", slug: "Personalised%20Gifts", icon: "✨" },
+                { name: "Photo Prints", slug: "Photo%20Prints", icon: "📷" },
+                { name: "Photo Mugs", slug: "Photo%20Mugs", icon: "☕" },
+                { name: "Rubber Stamps", slug: "Rubber%20Stamps", icon: "🔴" },
+                { name: "Trophies", slug: "Trophies", icon: "🏆" },
+                { name: "Menu Covers", slug: "Menu%20Covers", icon: "📖" },
+                { name: "Printing Service", slug: "Printing%20Service", icon: "🖨️" },
+              ].map((cat) => (
+                <Link
+                  key={cat.slug}
+                  to={`/category/${cat.slug}`}
+                  className="group p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:border-purple-200 hover:bg-purple-50 transition-all text-center"
+                >
+                  <div className="text-3xl mb-2">{cat.icon}</div>
+                  <h3 className="font-bold text-sm text-slate-900 group-hover:text-purple-600 transition-colors">{cat.name}</h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CATERED BY INDUSTRY SHOWROOM */}
         <section className="py-16 md:py-24 bg-slate-50 border-t border-slate-100">
           <div className="max-w-7xl mx-auto px-6">
