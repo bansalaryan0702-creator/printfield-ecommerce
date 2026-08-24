@@ -9,10 +9,13 @@ import { CartDrawer } from "../../components/CartDrawer";
 // Local high quality products list for category dropdowns if database doesn't have them
 const LOCAL_PRODUCTS_BY_CATEGORY: Record<string, any[]> = {
   "apparel": [
-    { id: "custom-tshirts", name: "Custom Round Neck T-Shirts", image: "", description: "Premium bio-washed cotton t-shirts with durable custom prints." },
     { id: "custom-polos", name: "Custom Polo T-Shirts", image: "", description: "Professional collared polo shirts, perfect for corporate teams." },
+    { id: "custom-roundneck", name: "Custom Round Neck T-Shirts", image: "", description: "Premium bio-washed cotton t-shirts with durable custom prints." },
+    { id: "custom-dryfit", name: "Custom Dryfit T-Shirts", image: "", description: "Moisture-wicking performance dryfit t-shirts for sports & outdoor." },
+    { id: "custom-zipjackets", name: "Custom Zippered Jackets", image: "", description: "Full-zip hooded jackets with premium embroidery or print." },
     { id: "custom-hoodies", name: "Custom Hoodies & Sweatshirts", image: "", description: "Cozy custom hoodies with premium embroidery or print." },
-    { id: "tote-bags", name: "Custom Canvas Tote Bags", image: "", description: "Eco-friendly branded canvas bags for events and retail." }
+    { id: "custom-caps", name: "Custom Caps & Hats", image: "", description: "Embroidered caps and hats for brand promotion." },
+    { id: "custom-backpacks", name: "Custom Backpacks", image: "", description: "Branded backpacks with durable construction." }
   ],
   "gifts": [
     { id: "personalized-mugs", name: "Personalized Ceramic Mugs", image: "", description: "Custom printed ceramic mugs. Perfect for corporate gifting." },
@@ -38,7 +41,7 @@ const DEFAULT_CATEGORIES_DATA: { name: string; subCategories: string[] }[] = [
   },
   {
     name: "Apparel",
-    subCategories: ["Custom T-Shirts", "Polo T-Shirts", "Hoodies & Sweatshirts", "Caps & Hats", "Backpacks"]
+    subCategories: ["Polo T-Shirts", "Round Neck T-Shirts", "Dryfit T-Shirts", "Zippered Jackets", "Hoodies & Sweatshirts", "Caps & Hats", "Backpacks"]
   },
   {
     name: "Personalised Gifts",
@@ -409,56 +412,65 @@ export function Navbar() {
     allApparel.forEach(p => { if (p.id) uniqueMap.set(p.id, p); });
     const pool = Array.from(uniqueMap.values());
 
-    // 1. T-shirts
-    const tshirts = pool.filter((p: any) => {
+    // 1. Polo T-Shirts
+    const polos = pool.filter((p: any) => {
       const name = String(p.name || '').toLowerCase();
-      return (name.includes('round neck') || name.includes('t-shirt') || name.includes('tshirt') || name.includes('polo')) &&
-             !name.includes('popcorn') && !name.includes('m and s') && !name.includes('snitch');
+      return name.includes('polo');
     });
-    const defaultTshirts = tshirts;
+    const defaultPolos = polos;
 
-    // 2. Branded T-shirts
-    const brandedTshirts = pool.filter((p: any) => {
+    // 2. Round Neck T-Shirts
+    const roundNecks = pool.filter((p: any) => {
       const name = String(p.name || '').toLowerCase();
-      return name.includes('popcorn') || name.includes('m and s') || name.includes('snitch') || name.includes('signature') || name.includes('branded');
+      return (name.includes('round neck') || name.includes('roundneck')) && !name.includes('polo');
     });
-    const defaultBrandedTshirts = brandedTshirts;
+    const defaultRoundNecks = roundNecks;
 
-    // 3. Sweatshirts & Hoodies
+    // 3. Dryfit T-Shirts
+    const dryfits = pool.filter((p: any) => {
+      const name = String(p.name || '').toLowerCase();
+      return name.includes('dryfit') || name.includes('dry fit') || name.includes('performance') || name.includes('sports tee');
+    });
+    const defaultDryfits = dryfits;
+
+    // 4. Zippered Jackets
+    const zipperedJackets = pool.filter((p: any) => {
+      const name = String(p.name || '').toLowerCase();
+      return (name.includes('zipper') || name.includes('zippered') || name.includes('zip up')) && 
+             (name.includes('jacket') || name.includes('hoodie'));
+    });
+    const defaultZipperedJackets = zipperedJackets;
+
+    // 5. Hoodies & Sweatshirts
     const hoodies = pool.filter((p: any) => {
       const name = String(p.name || '').toLowerCase();
-      return name.includes('hoodie') || name.includes('sweatshirt') || name.includes('jacket');
+      return (name.includes('hoodie') || name.includes('sweatshirt')) && 
+             !name.includes('zipper') && !name.includes('zippered') && !name.includes('zip up');
     });
     const defaultHoodies = hoodies;
 
-    // 4. Backpacks
-    const backpacks = pool.filter((p: any) => {
-      const name = String(p.name || '').toLowerCase();
-      return name.includes('bag') || name.includes('backpack') || name.includes('sleeve') || name.includes('supasac');
-    });
-    const defaultBackpacks = backpacks;
-
-    // 5. Caps
+    // 6. Caps & Hats
     const caps = pool.filter((p: any) => {
       const name = String(p.name || '').toLowerCase();
       return name.includes('cap') || name.includes('hat');
     });
     const defaultCaps = caps;
 
-    // 6. Umbrellas & Raincoats
-    const umbrellas = pool.filter((p: any) => {
+    // 7. Backpacks
+    const backpacks = pool.filter((p: any) => {
       const name = String(p.name || '').toLowerCase();
-      return name.includes('umbrella') || name.includes('raincoat') || name.includes('rainsuit');
+      return name.includes('bag') || name.includes('backpack') || name.includes('sleeve') || name.includes('supasac');
     });
-    const defaultUmbrellas = umbrellas;
+    const defaultBackpacks = backpacks;
 
     return {
-      tshirts: defaultTshirts.slice(0, 5),
-      brandedTshirts: defaultBrandedTshirts.slice(0, 5),
+      polos: defaultPolos.slice(0, 5),
+      roundNecks: defaultRoundNecks.slice(0, 5),
+      dryfits: defaultDryfits.slice(0, 5),
+      zipperedJackets: defaultZipperedJackets.slice(0, 5),
       hoodies: defaultHoodies.slice(0, 5),
-      backpacks: defaultBackpacks.slice(0, 5),
       caps: defaultCaps.slice(0, 5),
-      umbrellas: defaultUmbrellas.slice(0, 5)
+      backpacks: defaultBackpacks.slice(0, 5)
     };
   };
 
