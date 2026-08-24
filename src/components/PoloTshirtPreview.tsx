@@ -7,9 +7,40 @@ interface PoloTshirtPreviewProps {
   productColors: any[];
   className?: string;
   designImage?: string | null;
+  placement?: string;
 }
 
-export function PoloTshirtPreview({ color, productImages, productColors, className = '', designImage = null }: PoloTshirtPreviewProps) {
+// Placement positions as percentage-based coordinates on the polo image
+const PLACEMENT_POSITIONS: Record<string, { top: string; left: string; width: string; height: string; transform?: string }> = {
+  'front-chest': {
+    top: '28%', left: '18%', width: '22%', height: '25%',
+  },
+  'front-full': {
+    top: '25%', left: '22%', width: '56%', height: '50%',
+  },
+  'back-full': {
+    top: '25%', left: '22%', width: '56%', height: '50%',
+  },
+  'sleeve-left': {
+    top: '18%', left: '-5%', width: '22%', height: '20%',
+    transform: 'rotate(-10deg)',
+  },
+  'sleeve-right': {
+    top: '18%', left: '83%', width: '22%', height: '20%',
+    transform: 'rotate(10deg)',
+  },
+  'front': {
+    top: '25%', left: '22%', width: '56%', height: '50%',
+  },
+  'back': {
+    top: '25%', left: '22%', width: '56%', height: '50%',
+  },
+  'generic': {
+    top: '25%', left: '22%', width: '56%', height: '50%',
+  },
+};
+
+export function PoloTshirtPreview({ color, productImages, productColors, className = '', designImage = null, placement = 'front-full' }: PoloTshirtPreviewProps) {
   // Find the best image for the selected color
   const colorImage = useMemo(() => {
     if (!color || !productColors) return null;
@@ -73,10 +104,11 @@ export function PoloTshirtPreview({ color, productImages, productColors, classNa
         <div
           className="absolute"
           style={{
-            top: '28%',
-            left: '25%',
-            width: '50%',
-            height: '40%',
+            top: PLACEMENT_POSITIONS[placement]?.top || '25%',
+            left: PLACEMENT_POSITIONS[placement]?.left || '22%',
+            width: PLACEMENT_POSITIONS[placement]?.width || '56%',
+            height: PLACEMENT_POSITIONS[placement]?.height || '50%',
+            transform: PLACEMENT_POSITIONS[placement]?.transform || 'none',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

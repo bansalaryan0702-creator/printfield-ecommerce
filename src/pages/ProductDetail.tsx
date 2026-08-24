@@ -1853,13 +1853,14 @@ export function ProductDetail() {
                    {/* Polo T-Shirt Live Preview */}
                    {isPolo && selectedColor && !show3D && !showStandardImages && (
                      <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
-                       <PoloTshirtPreview
-                         color={selectedColor}
-                         productImages={validImages}
-                         productColors={product?.colors || []}
-                         className="w-full h-full"
-                         designImage={artworks?.['front-chest']?.previewUrl || artworks?.['front-full']?.previewUrl || null}
-                       />
+                        <PoloTshirtPreview
+                          color={selectedColor}
+                          productImages={validImages}
+                          productColors={product?.colors || []}
+                          className="w-full h-full"
+                          designImage={artworks?.[activePlacement]?.previewUrl || null}
+                          placement={activePlacement}
+                        />
                      </div>
                    )}
 
