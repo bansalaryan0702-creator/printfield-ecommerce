@@ -3,64 +3,76 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-interface Polo3DPreviewProps {
-  color: string;
-  className?: string;
-}
-
 function PoloModel({ color }: { color: string }) {
   const { scene } = useGLTF('/polo3d/polo.glb', true);
   const groupRef = useRef<THREE.Group>(null);
-  const [ready, setReady] = useState(false);
+  const initialColor = useRef<Map<THREE.Material, THREE.Color>>(new Map());
 
   useEffect(() => {
     if (!scene) return;
 
-    // Apply color tint to all meshes
+    // Store original textures, apply color tint
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
 
         if (child.material) {
-          const mat = child.material as THREE.MeshStandardMaterial;
-          // Tint the diffuse texture with the selected color
-          const baseColor = new THREE.Color(color);
-          mat.color = baseColor;
-          mat.needsUpdate = true;
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          mats.forEach((mat: THREE.Material) => {
+            if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
+              // Store original color
+              if (!initialColor.current.has(mat)) {
+                initialColor.current.set(mat, mat.color.clone());
+              }
+              // Multiply original texture color with selected color
+              const targetColor = new THREE.Color(color);
+              const originalColor = initialColor.current.get(mat) || new THREE.Color(1, 1, 1);
+              mat.color = originalColor.clone().multiply(targetColor);
+              mat.needsUpdate = true;
+            }
+          });
         }
       }
     });
 
-    // Center and scale the model
+    // Compute bounding box and center model
     const box = new THREE.Box3().setFromObject(scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2.5 / maxDim;
+    const targetHeight = 3;
+    const scale = targetHeight / maxDim;
 
-    scene.position.sub(center);
     scene.scale.setScalar(scale);
-    scene.position.y += size.y * scale * 0.1;
-
-    setReady(true);
-  }, [scene, color]);
+    // Recompute after scaling
+    const scaledBox = new THREE.Box3().setFromObject(scene);
+    const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+    scene.position.set(-scaledCenter.x, -scaledBox.min.y, -scaledCenter.z);
+  }, [scene]);
 
   // Update color when it changes
   useEffect(() => {
     if (!scene) return;
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
-        const mat = child.material as THREE.MeshStandardMaterial;
-        mat.color = new THREE.Color(color);
-        mat.needsUpdate = true;
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat: THREE.Material) => {
+          if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
+            const targetColor = new THREE.Color(color);
+            const originalColor = initialColor.current.get(mat) || new THREE.Color(1, 1, 1);
+            mat.color = originalColor.clone().multiply(targetColor);
+            mat.needsUpdate = true;
+          }
+        });
       }
     });
   }, [scene, color]);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.1 + 0.3;
+      // Gentle auto-rotation
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.15 + 0.2;
     }
   });
 
@@ -74,13 +86,13 @@ function PoloModel({ color }: { color: string }) {
 function CameraSetup() {
   const { camera } = useThree();
   useEffect(() => {
-    camera.position.set(0, 0.3, 4);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 1.5, 5);
+    camera.lookAt(0, 1, 0);
   }, [camera]);
   return null;
 }
 
-export function Polo3DPreview({ color, className = '' }: Polo3DPreviewProps) {
+export function Polo3DPreview({ color, className = '' }: { color: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
@@ -102,49 +114,52 @@ export function Polo3DPreview({ color, className = '' }: Polo3DPreviewProps) {
     <div className={`relative ${className}`}>
       <Canvas
         shadows
-        camera={{ position: [0, 0.3, 4], fov: 35 }}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent' }}
+        camera={{ position: [0, 1.5, 5], fov: 35 }}
+        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
+        style={{ background: 'linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%)' }}
         onCreated={() => setLoaded(true)}
         onError={() => setError(true)}
       >
         <CameraSetup />
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
-        <directionalLight position={[-3, 3, -3]} intensity={0.4} />
-        <pointLight position={[0, 2, 3]} intensity={0.3} />
+        {/* Key light */}
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
+        <directionalLight position={[-5, 5, -5]} intensity={0.4} />
+        <pointLight position={[0, 3, 4]} intensity={0.5} />
+        <hemisphereLight args={['#ffffff', '#e0e0e0', 0.3]} />
         <Suspense fallback={null}>
           <PoloModel color={resolvedColor()} />
         </Suspense>
         <OrbitControls
           enablePan={false}
           enableZoom={true}
-          minDistance={2}
-          maxDistance={8}
-          minPolarAngle={Math.PI / 4}
+          minDistance={2.5}
+          maxDistance={10}
+          minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 1.5}
-          autoRotate={false}
+          target={[0, 1, 0]}
         />
       </Canvas>
 
-      {/* Loading overlay */}
       {!loaded && !error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-2xl z-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm rounded-2xl z-10">
           <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin mb-3" />
           <p className="text-sm font-medium text-gray-600">Loading 3D Preview...</p>
-          <p className="text-xs text-gray-400 mt-1">This may take a moment</p>
+          <p className="text-xs text-gray-400 mt-1">First load may take 10-15 seconds</p>
         </div>
       )}
 
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-2xl">
-          <p className="text-sm text-gray-400">3D preview unavailable</p>
+          <div className="text-center">
+            <p className="text-sm text-gray-500 mb-2">3D preview could not load</p>
+            <button onClick={() => { setError(false); setLoaded(false); }} className="text-xs text-purple-600 hover:text-purple-700 font-medium">Retry</button>
+          </div>
         </div>
       )}
 
-      {/* Controls hint */}
       {loaded && !error && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
           Drag to rotate • Scroll to zoom
         </div>
       )}
