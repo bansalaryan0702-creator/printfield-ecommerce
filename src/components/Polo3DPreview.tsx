@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, Suspense } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -13,53 +13,25 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     applied.current = true;
 
     const targetColor = new THREE.Color(color);
-    const white = new THREE.Color(1, 1, 1);
 
-    // Step 1: Reset ALL materials to white base, keep textures for fabric detail
+    // Reset to white, then apply exact target color
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
+        child.castShadow = false;
+        child.receiveShadow = false;
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial) {
-            // Store original texture map if any
-            const origMap = mat.map;
-            const origNormalMap = mat.normalMap;
-            // Reset to white
-            mat.color.copy(white);
-            mat.emissive.copy(white);
-            mat.emissiveIntensity = 0;
-            mat.roughness = 0.75;
+            mat.color.copy(targetColor);
+            mat.roughness = 1.0;
             mat.metalness = 0.0;
-            // Keep texture maps for fabric detail
-            mat.map = origMap;
-            mat.normalMap = origNormalMap;
+            mat.envMapIntensity = 0;
+            mat.flatShading = false;
             mat.needsUpdate = true;
           } else if (mat instanceof THREE.MeshPhongMaterial) {
-            const origMap = mat.map;
-            const origNormalMap = mat.normalMap;
-            mat.color.copy(white);
-            mat.emissive.copy(white);
-            mat.emissiveIntensity = 0;
-            mat.specular.set(0x222222);
-            mat.shininess = 10;
-            mat.map = origMap;
-            mat.normalMap = origNormalMap;
-            mat.needsUpdate = true;
-          }
-        });
-      }
-    });
-
-    // Step 2: Apply target color on top of white base
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        const mats = Array.isArray(child.material) ? child.material : [child.material];
-        mats.forEach((mat: THREE.Material) => {
-          if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-            // White * targetColor = targetColor (clean result)
-            (mat as any).color.multiply(targetColor);
+            mat.color.copy(targetColor);
+            mat.specular.set(0x111111);
+            mat.shininess = 5;
             mat.needsUpdate = true;
           }
         });
@@ -70,7 +42,6 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     scene.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = 3.5 / maxDim;
     scene.scale.setScalar(scale);
@@ -87,16 +58,12 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
   useEffect(() => {
     if (!scene || !applied.current) return;
     const targetColor = new THREE.Color(color);
-    const white = new THREE.Color(1, 1, 1);
-
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat: THREE.Material) => {
           if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-            // Reset to white, then multiply by target
-            (mat as any).color.copy(white);
-            (mat as any).color.multiply(targetColor);
+            (mat as any).color.copy(targetColor);
             mat.needsUpdate = true;
           }
         });
@@ -126,18 +93,17 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
   return (
     <div className={`relative ${className}`}>
       <Canvas
-        shadows
         camera={{ position: [0, 1.5, 6], fov: 32 }}
-        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
+        gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
         style={{ background: 'linear-gradient(180deg, #f5f5f5 0%, #e5e5e5 100%)' }}
         onCreated={() => setLoaded(true)}
         onError={() => setError(true)}
       >
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[5, 8, 5]} intensity={1.5} castShadow />
-        <directionalLight position={[-5, 5, -5]} intensity={0.5} />
-        <pointLight position={[0, 3, 4]} intensity={0.6} />
-        <hemisphereLight args={['#ffffff', '#e0e0e0', 0.4]} />
+        {/* Flat even lighting — no shadows, no tone mapping */}
+        <ambientLight intensity={1.0} />
+        <directionalLight position={[3, 5, 5]} intensity={0.6} />
+        <directionalLight position={[-3, 3, -3]} intensity={0.3} />
+
         <Suspense fallback={null}>
           <PoloModel color={resolvedColor} onReady={() => setLoaded(true)} />
         </Suspense>
