@@ -221,11 +221,14 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
         <OrbitControls
           enablePan={false}
           enableZoom={true}
-          minDistance={3}
-          maxDistance={12}
+          minDistance={4}
+          maxDistance={7}
           minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 1.5}
           target={[0, 1.2, 0]}
+          autoRotate={false}
+          enableDamping={true}
+          dampingFactor={0.05}
         />
       </Canvas>
 
