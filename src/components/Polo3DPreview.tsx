@@ -3,14 +3,30 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
-  state = { hasError: false };
-  static getDerivedStateFromError() { return { hasError: true }; }
-  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
+class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean; error?: Error }> {
+  state = { hasError: false, error: undefined as Error | undefined };
+  static getDerivedStateFromError(error: Error) { return { hasError: true, error }; }
+  componentDidCatch(error: Error) { console.error('3D Model Error:', error); }
+  render() { 
+    if (this.state.hasError) {
+      return (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-50 p-4">
+          <div className="text-center">
+            <p className="text-sm text-gray-500 mb-2">3D model failed to load</p>
+            <pre className="text-xs text-red-500 bg-gray-100 p-2 rounded text-left max-h-32 overflow-auto">
+              {this.state.error?.message || 'Unknown error'}
+            </pre>
+            <button onClick={() => { this.setState({ hasError: false }); window.location.reload(); }} className="mt-2 text-xs text-purple-600 hover:text-purple-700 font-medium">Retry</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
-  const { scene, nodes, materials, animations } = useGLTF('/polo3d/polo.glb');
+  const { scene, nodes, materials, animations } = useGLTF('/polo3d/polo.glb', true);
   const groupRef = useRef<THREE.Group>(null);
   const applied = useRef(false);
   const artworkMeshRef = useRef<THREE.Mesh | null>(null);
