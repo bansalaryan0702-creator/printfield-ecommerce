@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, Suspense, Component, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean; error?: Error }> {
@@ -25,128 +25,122 @@ class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode
   }
 }
 
+// Procedural polo shirt made from Three.js primitives - ~50KB, never crashes
 function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
-  const { scene, nodes, materials, animations } = useGLTF('/polo3d/polo.glb', true);
   const groupRef = useRef<THREE.Group>(null);
-  const applied = useRef(false);
+  const poloGroupRef = useRef<THREE.Group>(null);
   const artworkMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Placement positions on the 3D model (normalized coordinates relative to model bounds)
+  const targetColor = new THREE.Color(color);
+  const white = new THREE.Color(1, 1, 1);
+
+  // Placement positions
   const PLACEMENT_3D: Record<string, { position: [number, number, number]; rotation: [number, number, number]; scale: number }> = {
-    'front-chest': { position: [-0.12, 0.25, 0.52], rotation: [0, 0, 0], scale: 0.25 },
-    'front-full': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
-    'back-full': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
-    'sleeve-left': { position: [-0.45, 0.3, 0.05], rotation: [0, -Math.PI / 2, -0.15], scale: 0.18 },
-    'sleeve-right': { position: [0.45, 0.3, 0.05], rotation: [0, Math.PI / 2, 0.15], scale: 0.18 },
-    'front': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
-    'back': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
-    'generic': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
+    'front-chest': { position: [-0.25, 0.15, 0.42], rotation: [0, 0, 0], scale: 0.3 },
+    'front-full': { position: [0, 0.05, 0.4], rotation: [0, 0, 0], scale: 0.6 },
+    'back-full': { position: [0, 0.05, -0.4], rotation: [0, Math.PI, 0], scale: 0.6 },
+    'sleeve-left': { position: [-0.5, 0.3, 0], rotation: [0, -Math.PI / 2, -0.15], scale: 0.22 },
+    'sleeve-right': { position: [0.5, 0.3, 0], rotation: [0, Math.PI / 2, 0.15], scale: 0.22 },
+    'front': { position: [0, 0.05, 0.4], rotation: [0, 0, 0], scale: 0.6 },
+    'back': { position: [0, 0.05, -0.4], rotation: [0, Math.PI, 0], scale: 0.6 },
+    'generic': { position: [0, 0.05, 0.4], rotation: [0, 0, 0], scale: 0.6 },
   };
 
   useEffect(() => {
-    if (!scene || applied.current) return;
-    applied.current = true;
-
-    const targetColor = new THREE.Color(color);
-    const white = new THREE.Color(1, 1, 1);
-
-    // First pass: identify button meshes
-    const bodyBox = new THREE.Box3().setFromObject(scene);
-    const bodySize = bodyBox.getSize(new THREE.Vector3());
-    const bodyVolume = bodySize.x * bodySize.y * bodySize.z;
-    const buttonNames = ['button', 'Button', 'buttons', 'Buttons', 'btn', 'Btn', 'button01', 'button02'];
-
-    const buttonMeshes = new Set<THREE.Mesh>();
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        const name = child.name || '';
-        const childBox = new THREE.Box3().setFromObject(child);
-        const childSize = childBox.getSize(new THREE.Vector3());
-        const childVolume = childSize.x * childSize.y * childSize.z;
-        const isSmall = childVolume < bodyVolume * 0.005;
-        const isByName = buttonNames.some(n => name.toLowerCase().includes(n.toLowerCase()));
-        const isNearTop = childBox.min.y > bodyBox.max.y - bodySize.y * 0.35;
-        if (isByName || (isSmall && isNearTop)) {
-          buttonMeshes.add(child);
-        }
-      }
+    const group = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({
+      color: targetColor,
+      roughness: 0.85,
+      metalness: 0.0,
     });
 
-    // Apply color to body, white to buttons
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.castShadow = false;
-        child.receiveShadow = false;
-        const isButton = buttonMeshes.has(child);
-        const mats = Array.isArray(child.material) ? child.material : [child.material];
-        mats.forEach((mat: THREE.Material) => {
-          if (mat instanceof THREE.MeshStandardMaterial) {
-            mat.map = null;
-            mat.normalMap = null;
-            mat.aoMap = null;
-            mat.emissiveMap = null;
-            mat.color.copy(isButton ? white : targetColor);
-            mat.roughness = isButton ? 0.3 : 0.85;
-            mat.metalness = isButton ? 0.1 : 0.0;
-            mat.needsUpdate = true;
-          } else if (mat instanceof THREE.MeshPhongMaterial) {
-            mat.map = null;
-            mat.normalMap = null;
-            mat.color.copy(isButton ? white : targetColor);
-            mat.specular.set(isButton ? 0x444444 : 0x111111);
-            mat.shininess = isButton ? 30 : 5;
-            mat.needsUpdate = true;
-          }
-        });
-      }
+    const buttonMat = new THREE.MeshStandardMaterial({
+      color: white,
+      roughness: 0.3,
+      metalness: 0.1,
     });
 
-    // Center model
-    scene.updateMatrixWorld(true);
-    const box = new THREE.Box3();
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.geometry.computeBoundingBox();
-        if (child.geometry.boundingBox) {
-          const meshBox = child.geometry.boundingBox.clone();
-          meshBox.applyMatrix4(child.matrixWorld);
-          box.union(meshBox);
-        }
-      }
-    });
-    if (box.isEmpty()) box.setFromObject(scene);
+    // Main body (torso)
+    const bodyGeo = new THREE.CylinderGeometry(0.55, 0.45, 1.2, 32);
+    const body = new THREE.Mesh(bodyGeo, mat);
+    body.position.y = 0.1;
+    body.castShadow = true;
+    body.receiveShadow = true;
+    group.add(body);
 
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 3.5 / maxDim;
-    scene.scale.setScalar(scale);
-    scene.updateMatrixWorld(true);
+    // Collar
+    const collarGeo = new THREE.TorusGeometry(0.18, 0.035, 16, 32, Math.PI * 2);
+    const collar = new THREE.Mesh(collarGeo, mat);
+    collar.position.y = 0.72;
+    collar.rotation.x = -Math.PI / 2;
+    collar.scale.set(1, 1, 0.8);
+    collar.castShadow = true;
+    group.add(collar);
 
-    const newBox = new THREE.Box3();
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.geometry.computeBoundingBox();
-        if (child.geometry.boundingBox) {
-          const meshBox = child.geometry.boundingBox.clone();
-          meshBox.applyMatrix4(child.matrixWorld);
-          newBox.union(meshBox);
-        }
-      }
-    });
-    if (newBox.isEmpty()) newBox.setFromObject(scene);
+    // Collar front opening
+    const collarFrontGeo = new THREE.BoxGeometry(0.12, 0.18, 0.02);
+    const collarFront = new THREE.Mesh(collarFrontGeo, mat);
+    collarFront.position.set(0, 0.6, 0.42);
+    collarFront.castShadow = true;
+    group.add(collarFront);
 
-    const newCenter = newBox.getCenter(new THREE.Vector3());
-    const newMin = newBox.min;
-    scene.position.set(-newCenter.x, -newMin.y, -newCenter.z);
+    // Left sleeve
+    const leftSleeveGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.45, 16);
+    const leftSleeve = new THREE.Mesh(leftSleeveGeo, mat);
+    leftSleeve.position.set(-0.55, 0.45, 0);
+    leftSleeve.rotation.z = Math.PI / 2;
+    leftSleeve.castShadow = true;
+    group.add(leftSleeve);
 
-    // Create artwork mesh if designImage provided
+    // Right sleeve
+    const rightSleeveGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.45, 16);
+    const rightSleeve = new THREE.Mesh(rightSleeveGeo, mat);
+    rightSleeve.position.set(0.55, 0.45, 0);
+    rightSleeve.rotation.z = -Math.PI / 2;
+    rightSleeve.castShadow = true;
+    group.add(rightSleeve);
+
+    // Sleeve cuffs
+    const cuffGeo = new THREE.TorusGeometry(0.12, 0.015, 8, 16);
+    const leftCuff = new THREE.Mesh(cuffGeo, mat);
+    leftCuff.position.set(-0.78, 0.45, 0);
+    leftCuff.rotation.x = Math.PI / 2;
+    leftCuff.castShadow = true;
+    group.add(leftCuff);
+
+    const rightCuff = new THREE.Mesh(cuffGeo, mat);
+    rightCuff.position.set(0.78, 0.45, 0);
+    rightCuff.rotation.x = Math.PI / 2;
+    rightCuff.castShadow = true;
+    group.add(rightCuff);
+
+    // Buttons (3 on collar)
+    for (let i = 0; i < 3; i++) {
+      const btnGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.01, 16);
+      const btn = new THREE.Mesh(btnGeo, buttonMat);
+      btn.position.set(0.02, 0.65 - i * 0.05, 0.43);
+      btn.rotation.x = Math.PI / 2;
+      btn.castShadow = true;
+      group.add(btn);
+    }
+
+    // Bottom hem
+    const hemGeo = new THREE.TorusGeometry(0.5, 0.012, 16, 32);
+    const hem = new THREE.Mesh(hemGeo, mat);
+    hem.position.y = -0.5;
+    hem.rotation.x = -Math.PI / 2;
+    hem.castShadow = true;
+    group.add(hem);
+
+    poloGroupRef.current = group;
+    groupRef.current.add(group);
+    onReady?.();
+
+    // Create artwork if provided
     if (designImage) {
       const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
-      
-      // Load texture and create artwork mesh
       const loader = new THREE.TextureLoader();
       loader.load(designImage, (texture) => {
-        // Create plane geometry for artwork
         const planeGeo = new THREE.PlaneGeometry(place.scale, place.scale);
         const planeMat = new THREE.MeshStandardMaterial({
           map: texture,
@@ -157,47 +151,33 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
           roughness: 0.9,
           metalness: 0.0,
         });
-        
         const artworkMesh = new THREE.Mesh(planeGeo, planeMat);
         artworkMesh.position.set(...place.position);
         artworkMesh.rotation.set(...place.rotation);
-        artworkMesh.renderOrder = 1; // Render on top of polo
-        
-        // Add to scene
-        scene.add(artworkMesh);
+        artworkMesh.renderOrder = 1;
+        group.add(artworkMesh);
         artworkMeshRef.current = artworkMesh;
       }, undefined, (err) => {
         console.warn('Failed to load artwork texture:', err);
       });
     }
+  }, [color, designImage, placement, onReady]);
 
-    onReady?.();
-  }, [scene, color, designImage, placement, onReady]);
-
-  // Update color on changes
+  // Update color
   useEffect(() => {
-    if (!scene || !applied.current) return;
+    if (!poloGroupRef.current) return;
     const targetColor = new THREE.Color(color);
-    const white = new THREE.Color(1, 1, 1);
-
-    const bodyBox = new THREE.Box3().setFromObject(scene);
-    const bodySize = bodyBox.getSize(new THREE.Vector3());
-    const bodyVolume = bodySize.x * bodySize.y * bodySize.z;
-
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh && !buttonMeshes.has(child)) {
-        const mats = Array.isArray(child.material) ? child.material : [child.material];
-        mats.forEach((mat: THREE.Material) => {
-          if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhongMaterial) {
-            (mat as any).color.copy(targetColor);
-            mat.needsUpdate = true;
-          }
-        });
+    poloGroupRef.current.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+        // Don't change button color
+        if (child.material.roughness === 0.3 && child.material.metalness === 0.1) return;
+        child.material.color.copy(targetColor);
+        child.material.needsUpdate = true;
       }
     });
-  }, [scene, color]);
+  }, [color]);
 
-  // Update artwork texture when it changes
+  // Update artwork
   useEffect(() => {
     if (designImage && artworkMeshRef.current) {
       const loader = new THREE.TextureLoader();
@@ -220,11 +200,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     }
   });
 
-  return (
-    <group ref={groupRef}>
-      <primitive object={scene} />
-    </group>
-  );
+  return <group ref={groupRef} />;
 }
 
 export function Polo3DPreview({ color, designImage, placement, className = '' }: { color: string; designImage?: string | null; placement?: string; className?: string }) {
@@ -233,18 +209,17 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
 
   const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
 
-  // Timeout fallback if model takes too long
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!loaded && !error) setError(true);
-    }, 30000); // 30 seconds
+    }, 10000);
     return () => clearTimeout(timer);
   }, [loaded, error]);
 
   return (
     <div className={`relative ${className}`}>
       <Canvas
-        camera={{ position: [0, 1.5, 6], fov: 32 }}
+        camera={{ position: [0, 0.2, 5], fov: 30 }}
         gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
         style={{ background: 'linear-gradient(180deg, #f5f5f5 0%, #e5e5e5 100%)' }}
         onCreated={() => setLoaded(true)}
@@ -262,11 +237,11 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
         <OrbitControls
           enablePan={false}
           enableZoom={true}
-          minDistance={4}
-          maxDistance={7}
+          minDistance={3.5}
+          maxDistance={6.5}
           minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 1.5}
-          target={[0, 1.2, 0]}
+          target={[0, 0.2, 0]}
           autoRotate={false}
           enableDamping={true}
           dampingFactor={0.05}
@@ -277,7 +252,6 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm z-10">
           <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin mb-3" />
           <p className="text-sm font-medium text-gray-600">Loading 3D Preview...</p>
-          <p className="text-xs text-gray-400 mt-1">First load may take 10-15 seconds</p>
         </div>
       )}
 
