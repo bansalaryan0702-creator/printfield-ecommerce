@@ -61,20 +61,30 @@ export function ProductCard({ product }: ProductCardProps) {
   // Preload color swatch images in background for instant hover responsiveness
   useEffect(() => {
     if (!availableColors || availableColors.length === 0) return;
-    availableColors.slice(0, 8).forEach(col => {
-      if (col.image) {
-        const opt = getOptimizedImage(col.image, 400) || col.image;
-        if (opt) {
-          const img = new Image();
-          img.src = opt;
-        }
+    const preloadCount = Math.min(availableColors.length, 2);
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) {
+        availableColors.slice(0, preloadCount).forEach(col => {
+          if (col.image) {
+            const opt = getOptimizedImage(col.image, 100) || col.image;
+            if (opt) {
+              const img = new Image();
+              img.src = opt;
+            }
+          }
+        });
+        observer.disconnect();
       }
-    });
-  }, [availableColors]);
+    }, { rootMargin: '200px' });
+    const el = document.querySelector(`[data-product-id="${product.id}"]`);
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, [availableColors, product.id]);
 
   return (
     <Link 
       to={`/product/${product.slug || product.id}${hoveredColorName ? `?color=${encodeURIComponent(hoveredColorName)}` : ''}`} 
+      data-product-id={product.id}
       className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
     >
       <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100 relative">

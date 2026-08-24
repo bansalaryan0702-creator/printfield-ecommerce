@@ -330,7 +330,7 @@ export function Home() {
           <div className="absolute inset-0 z-0">
             <img 
               referrerPolicy="no-referrer"
-              src="/api/proxy-image/1La7Wt1--ZaCPxI45PaIyuU0mQJCEEPMn" 
+              src="/api/proxy-image/1La7Wt1--ZaCPxI45PaIyuU0mQJCEEPMn?w=1920" 
               alt="You Think It, We Ink It Brand Presentation Backdrop" 
               className="w-full h-full object-cover object-center lg:object-[center_right]"
               fetchPriority="high"
@@ -437,28 +437,28 @@ export function Home() {
                 id: "promotional-materials",
                 name: "Promotional Materials",
                 displayName: "PROMOTIONAL MATERIALS",
-                image: "/api/proxy-image/1v3a0JHejsM-7YXyIyyQCqghoV-YLIv4O",
+                image: "/api/proxy-image/1v3a0JHejsM-7YXyIyyQCqghoV-YLIv4O?w=800",
                 gridClass: "md:col-span-2"
               },
               {
                 id: "apparel",
                 name: "Corporate Apparel",
                 displayName: "CORPORATE APPAREL",
-                image: "/api/proxy-image/16ZtTAEAnOgcY4FoheVizu_oiHSlwNDoK",
+                image: "/api/proxy-image/16ZtTAEAnOgcY4FoheVizu_oiHSlwNDoK?w=600",
                 gridClass: "md:col-span-1 md:row-span-2 h-full min-h-[400px] md:min-h-full"
               },
               {
                 id: "drinkware",
                 name: "Drinkware & Sippers",
                 displayName: "DRINKWARE & SIPPERS",
-                image: "/api/proxy-image/1To3eajzVf05oiEfAkarRx_H4_Sn98neU",
+                image: "/api/proxy-image/1To3eajzVf05oiEfAkarRx_H4_Sn98neU?w=800",
                 gridClass: "md:col-span-1"
               },
               {
                 id: "business-stationery",
                 name: "Business Stationery",
                 displayName: "BUSINESS STATIONERY",
-                image: "/api/proxy-image/1omKI3woeT0iM3E34ApSsp5WwGPqxSCfQ",
+                image: "/api/proxy-image/1omKI3woeT0iM3E34ApSsp5WwGPqxSCfQ?w=800",
                 gridClass: "md:col-span-1"
               }
             ].map((cat, i) => (

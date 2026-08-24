@@ -416,49 +416,40 @@ export function ProductDetail() {
     return deduplicatedFiltered;
   }, [product, brokenImages]);
 
-  // Preload all product gallery and color variant images in background for instant hover response
+  // Preload only the current display image + thumbnails on mount
   useEffect(() => {
     if (!validImages || validImages.length === 0) return;
 
-    validImages.forEach(imgUrl => {
-      if (!imgUrl) return;
-      const opt1000 = getOptimizedImage(imgUrl, 1000) || imgUrl;
-      const opt150 = getOptimizedImage(imgUrl, 150) || imgUrl;
-
+    // Preload the current display image at full size
+    if (displayImage) {
+      const opt = getOptimizedImage(displayImage, 1000) || displayImage;
       const img = new Image();
-      img.src = opt1000;
-      img.onload = () => {
-        setLoadedImages(prev => ({
-          ...prev,
-          [imgUrl]: true,
-          [opt1000]: true
-        }));
-      };
+      img.src = opt;
+      img.onload = () => setLoadedImages(prev => ({ ...prev, [displayImage]: true, [opt]: true }));
+    }
 
-      if (opt150 !== opt1000) {
-        const thumb = new Image();
-        thumb.src = opt150;
+    // Preload thumbnails only (small size)
+    validImages.forEach(imgUrl => {
+      if (!imgUrl || imgUrl === displayImage) return;
+      const thumb = getOptimizedImage(imgUrl, 150) || imgUrl;
+      const img = new Image();
+      img.src = thumb;
+    });
+  }, [validImages, displayImage, product]);
+
+  // Preload adjacent images when hovering gallery thumbnails
+  const preloadAdjacent = useCallback((index: number) => {
+    if (!validImages || validImages.length === 0) return;
+    [index - 1, index, index + 1].forEach(i => {
+      if (i >= 0 && i < validImages.length) {
+        const imgUrl = validImages[i];
+        const opt = getOptimizedImage(imgUrl, 1000) || imgUrl;
+        const img = new Image();
+        img.src = opt;
+        img.onload = () => setLoadedImages(prev => ({ ...prev, [imgUrl]: true, [opt]: true }));
       }
     });
-
-    if (product?.colors && Array.isArray(product?.colors)) {
-      product?.colors.forEach((c: any) => {
-        const cImg = typeof c === 'object' ? c?.image : null;
-        if (cImg) {
-          const opt1000 = getOptimizedImage(cImg, 1000) || cImg;
-          const img = new Image();
-          img.src = opt1000;
-          img.onload = () => {
-            setLoadedImages(prev => ({
-              ...prev,
-              [cImg]: true,
-              [opt1000]: true
-            }));
-          };
-        }
-      });
-    }
-  }, [validImages, product]);
+  }, [validImages]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1885,6 +1876,7 @@ export function ProductDetail() {
                             : "opacity-80"
                         } ${currentView === "back" ? "scale-x-[-1]" : ""}`}
                         loading="eager"
+                        fetchPriority="high"
                         width="1000"
                         height="1000"
                         />
@@ -1899,6 +1891,7 @@ export function ProductDetail() {
                   <div
                     key={i}
                     onMouseEnter={() => {
+                      preloadAdjacent(i);
                       setSelectedImage(img);
                       if (product?.colors && product?.colors.length > 0) {
                         const matchedCol = product?.colors.find((c: any) => {
