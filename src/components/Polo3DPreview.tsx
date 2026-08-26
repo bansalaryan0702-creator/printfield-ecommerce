@@ -137,42 +137,44 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
   const didCenter = useRef(false);
   const artworkRef = useRef<THREE.Mesh | null>(null);
 
-  // Placement anchor in WORLD space (model is normalized to ~3 units tall)
-  function getPlacementPos(place: string, bounds: THREE.Box3) {
-    const size = bounds.getSize(new THREE.Vector3());
-    const min = bounds.min;
-    const max = bounds.max;
-    const cx = (min.x + max.x) / 2;
-    const cy = min.y + size.y * 0.45; // Chest height
-    const cz = (min.z + max.z) / 2;
-    const frontZ = max.z;
-    const backZ = min.z;
-    const leftX = min.x;
-    const rightX = max.x;
-    const sleeveY = min.y + size.y * 0.7; // Shoulder height
-    const scale = Math.min(size.x, size.z) * 0.35;
-
-    switch (place) {
-      case 'front-chest':
-        return { position: [cx - size.x * 0.18, cy, frontZ + 0.008], rotation: [0, 0, 0], scale: scale * 0.6 };
-      case 'front-full':
-        return { position: [cx, cy - size.y * 0.05, frontZ + 0.008], rotation: [0, 0, 0], scale };
-      case 'back-full':
-        return { position: [cx, cy - size.y * 0.05, backZ - 0.008], rotation: [0, Math.PI, 0], scale };
-      case 'sleeve-left':
-        return { position: [leftX - 0.01, sleeveY, cz], rotation: [0, -Math.PI / 2, -0.15], scale: scale * 0.5 };
-      case 'sleeve-right':
-        return { position: [rightX + 0.01, sleeveY, cz], rotation: [0, Math.PI / 2, 0.15], scale: scale * 0.5 };
-      default:
-        return { position: [cx, cy - size.y * 0.05, frontZ + 0.008], rotation: [0, 0, 0], scale };
-    }
-  }
-
-  // Convert a world-space point into scene-local space.
-  // centerModel() applies scale+position on the scene itself, so children
-  // must be positioned in pre-transform local units.
   function toLocal(worldVec: THREE.Vector3) {
     return worldVec.clone().sub(scene.position).divideScalar(scene.scale.x || 1);
+  }
+
+  function getShirtMeshes(): THREE.Mesh[] {
+    const meshes: THREE.Mesh[] = [];
+    scene.traverse(c => { if (c instanceof THREE.Mesh && !(c as any).userData?.isArtwork) meshes.push(c); });
+    return meshes;
+  }
+
+  // Raycast onto the shirt surface and return exact hit point + outward normal
+  function raycastSurface(meshes: THREE.Mesh[], origin: THREE.Vector3, dir: THREE.Vector3) {
+    const rc = new THREE.Raycaster();
+    rc.set(origin, dir.normalize());
+    const hits = rc.intersectObjects(meshes, false);
+    if (hits.length === 0 || !hits[0].face) return null;
+    const normal = hits[0].face.normal.clone().transformDirection(hits[0].object.matrixWorld).normalize();
+    return { point: hits[0].point, normal };
+  }
+
+  // Raycast parameters per placement: cast from far away toward the model
+  function getPlacementRaycast(place: string, bounds: THREE.Box3) {
+    const sz = bounds.getSize(new THREE.Vector3());
+    const ctr = bounds.getCenter(new THREE.Vector3());
+    const depth = Math.min(sz.x, sz.z);
+    switch (place) {
+      case 'front-chest':
+        return { origin: new THREE.Vector3(ctr.x, bounds.min.y + sz.y * 0.55, bounds.max.z + 10), dir: new THREE.Vector3(0, 0, -1), scale: depth * 0.22 };
+      case 'back-full':
+        return { origin: new THREE.Vector3(ctr.x, bounds.min.y + sz.y * 0.45, bounds.min.z - 10), dir: new THREE.Vector3(0, 0, 1), scale: depth * 0.35 };
+      case 'sleeve-left':
+        return { origin: new THREE.Vector3(bounds.min.x - 10, bounds.min.y + sz.y * 0.7, ctr.z), dir: new THREE.Vector3(1, 0, 0), scale: depth * 0.18 };
+      case 'sleeve-right':
+        return { origin: new THREE.Vector3(bounds.max.x + 10, bounds.min.y + sz.y * 0.7, ctr.z), dir: new THREE.Vector3(-1, 0, 0), scale: depth * 0.18 };
+      case 'front-full':
+      default:
+        return { origin: new THREE.Vector3(ctr.x, bounds.min.y + sz.y * 0.45, bounds.max.z + 10), dir: new THREE.Vector3(0, 0, -1), scale: depth * 0.35 };
+    }
   }
 
   // Center on first load
@@ -190,7 +192,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     applyColor(scene, color);
   }, [scene, color]);
 
-  // Artwork overlay
+  // Artwork overlay — raycasts onto shirt surface
   useEffect(() => {
     if (!scene || !designImage || !didCenter.current) {
       if (artworkRef.current) artworkRef.current.visible = false;
@@ -198,75 +200,55 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     }
 
     const bounds = (scene as any).userData.bounds as THREE.Box3 | undefined;
-    const place = bounds ? getPlacementPos(placement || 'front-full', bounds) :
-      PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
+    if (!bounds) return;
+
+    const meshes = getShirtMeshes();
+    if (meshes.length === 0) return;
+
+    const { origin, dir, scale: planeWorldScale } = getPlacementRaycast(placement || 'front-full', bounds);
+    const hit = raycastSurface(meshes, origin, dir);
+    if (!hit) return;
+
+    // Tiny offset along outward normal so artwork sits ON the fabric
+    const worldPoint = hit.point.clone().add(hit.normal.clone().multiplyScalar(0.005));
+    const invScale = 1 / (scene.scale.x || 1);
 
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
 
-    loader.load(designImage, (texture) => {
-      createOrUpdateArtwork(texture);
-    }, undefined, () => {
-      const proxyUrl = `/api/proxy-image/${designImage.split('/').pop()}`;
-      loader.load(proxyUrl, (texture) => {
-        createOrUpdateArtwork(texture);
-      }, undefined, () => {
-        createPlaceholderArtwork();
-      });
+    loader.load(designImage, (tex) => applyArtwork(tex), undefined, () => {
+      loader.load(`/api/proxy-image/${designImage.split('/').pop()}`, (tex) => applyArtwork(tex), undefined, () => applyArtwork(null));
     });
 
-    function createOrUpdateArtwork(texture: THREE.Texture) {
-      if (!artworkRef.current) {
-        // Geometry lives in scene-local units -> divide desired world size by scene scale
-        const invScale = 1 / (scene.scale.x || 1);
-        const geoSize = place.scale * 1.2 * invScale;
-        const geo = createCurvedPlaneGeometry(geoSize, geoSize);
-        const mat = new THREE.MeshStandardMaterial({
-          map: texture, transparent: true, alphaTest: 0.01,
-          side: THREE.DoubleSide, depthWrite: true, roughness: 0.95, metalness: 0.0,
-          polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        (mesh as any).userData.isArtwork = true;
-        const worldPos = new THREE.Vector3(place.position[0], place.position[1], place.position[2]);
-        mesh.position.copy(toLocal(worldPos));
-        mesh.rotation.set(...place.rotation);
-        mesh.renderOrder = 10;
-        scene.add(mesh);
-        artworkRef.current = mesh;
-      } else {
-        (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
-        (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
+    function applyArtwork(texture: THREE.Texture | null) {
+      if (artworkRef.current) {
+        if (texture) {
+          (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
+          (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
+        }
         artworkRef.current.visible = true;
+        return;
       }
+      const geoSize = (texture ? planeWorldScale * 1.2 : 1) * invScale;
+      const geo = createCurvedPlaneGeometry(geoSize, geoSize);
+      const mat = new THREE.MeshStandardMaterial({
+        ...(texture ? { map: texture } : { color: 0xff0000 }),
+        transparent: true, alphaTest: texture ? 0.01 : 0,
+        side: THREE.DoubleSide, depthWrite: true, roughness: 0.95, metalness: 0.0,
+        polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+      });
+      if (!texture) { mat.opacity = 0.8; }
+      const mesh = new THREE.Mesh(geo, mat);
+      (mesh as any).userData.isArtwork = true;
+      mesh.position.copy(toLocal(worldPoint));
+      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), hit.normal);
+      mesh.quaternion.copy(q);
+      mesh.renderOrder = 10;
+      scene.add(mesh);
+      artworkRef.current = mesh;
     }
 
-    function createPlaceholderArtwork() {
-      if (!artworkRef.current) {
-        const invScale = 1 / (scene.scale.x || 1);
-        const geo = createCurvedPlaneGeometry(invScale, invScale);
-        const mat = new THREE.MeshStandardMaterial({
-          color: 0xff0000, transparent: true, opacity: 0.8,
-          side: THREE.DoubleSide, depthWrite: true,
-          polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        (mesh as any).userData.isArtwork = true;
-        const worldPos = new THREE.Vector3(place.position[0], place.position[1], place.position[2]);
-        mesh.position.copy(toLocal(worldPos));
-        mesh.rotation.set(...place.rotation);
-        mesh.renderOrder = 10;
-        scene.add(mesh);
-        artworkRef.current = mesh;
-      } else {
-        artworkRef.current.visible = true;
-      }
-    }
-
-    return () => {
-      if (artworkRef.current) scene.remove(artworkRef.current);
-      artworkRef.current = null;
-    };
+    return () => { if (artworkRef.current) scene.remove(artworkRef.current); artworkRef.current = null; };
   }, [scene, designImage, placement]);
 
   useFrame((state) => {
