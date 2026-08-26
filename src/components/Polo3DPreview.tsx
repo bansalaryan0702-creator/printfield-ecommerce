@@ -155,25 +155,54 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         createOrUpdateArtwork(texture);
       }, undefined, (err2) => {
         console.error('[3D] Both loads failed:', err2, 'original URL:', designImage);
-        if (artworkRef.current) artworkRef.current.visible = false;
+        // Fallback: show a visible placeholder so we know it's a texture issue
+        createPlaceholderArtwork();
       });
     });
+
+    function createPlaceholderArtwork() {
+      console.log('[3D] Creating placeholder artwork (texture failed)');
+      if (!artworkRef.current) {
+        const geo = new THREE.PlaneGeometry(1, 1);
+        const mat = new THREE.MeshStandardMaterial({
+          color: 0xff0000, // Bright red so we can see it
+          transparent: true, opacity: 0.8,
+          side: THREE.DoubleSide, depthWrite: true,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
+        const pos = [...place.position];
+        pos[2] += 0.03;
+        mesh.position.set(pos[0], pos[1], pos[2]);
+        mesh.rotation.set(...place.rotation);
+        mesh.renderOrder = 10;
+        scene.add(mesh);
+        artworkRef.current = mesh;
+        console.log('[3D] Placeholder (red square) created at:', mesh.position);
+      } else {
+        artworkRef.current.visible = true;
+      }
+    }
 
     function createOrUpdateArtwork(texture: THREE.Texture) {
       console.log('[3D] Creating/updating artwork mesh, place:', place);
       if (!artworkRef.current) {
-        const geo = new THREE.PlaneGeometry(place.scale, place.scale);
+        // Make it larger and slightly in front of the surface
+        const geo = new THREE.PlaneGeometry(place.scale * 1.2, place.scale * 1.2);
         const mat = new THREE.MeshStandardMaterial({
           map: texture, transparent: true, alphaTest: 0.01,
-          side: THREE.DoubleSide, depthWrite: false, roughness: 0.9, metalness: 0.0,
+          side: THREE.DoubleSide, depthWrite: true, roughness: 0.9, metalness: 0.0,
         });
         const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(...place.position);
+        // Move slightly forward from surface to avoid z-fighting
+        const pos = [...place.position];
+        pos[2] += 0.03; // 3cm forward
+        mesh.position.set(pos[0], pos[1], pos[2]);
         mesh.rotation.set(...place.rotation);
-        mesh.renderOrder = 1;
+        mesh.renderOrder = 10; // High render order
         scene.add(mesh);
         artworkRef.current = mesh;
-        console.log('[3D] Artwork mesh created at:', place.position, 'scale:', place.scale);
+        console.log('[3D] Artwork mesh created at:', mesh.position, 'scale:', place.scale * 1.2);
       } else {
         (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
         (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
