@@ -25,7 +25,8 @@
     "badge": "",
     "createdAt": 1786623242298,
     "updatedAt": 1786623242298,
-    "slug": "urban-gear-tritan"
+    "slug": "urban-gear-tritan",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-v2epe0j5f",
@@ -53,7 +54,8 @@
     "badge": "",
     "createdAt": 1786623241817,
     "updatedAt": 1786623241817,
-    "slug": "urban-gear-hydra"
+    "slug": "urban-gear-hydra",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-n6accpgt7",
@@ -81,7 +83,8 @@
     "badge": "",
     "createdAt": 1786623241328,
     "updatedAt": 1786623241328,
-    "slug": "urban-gear-carter"
+    "slug": "urban-gear-carter",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-m8fwtq6wr",
@@ -109,7 +112,8 @@
     "badge": "",
     "createdAt": 1786623240823,
     "updatedAt": 1786623240823,
-    "slug": "urban-gear-hydra-20"
+    "slug": "urban-gear-hydra-20",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-hbg1v2slb",
@@ -137,7 +141,8 @@
     "badge": "",
     "createdAt": 1786623240324,
     "updatedAt": 1786623240324,
-    "slug": "urban-gear-hydra-pro"
+    "slug": "urban-gear-hydra-pro",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-3jaq0lr3q",
@@ -165,7 +170,8 @@
     "badge": "",
     "createdAt": 1786623239824,
     "updatedAt": 1786623239824,
-    "slug": "urban-gear-bristro"
+    "slug": "urban-gear-bristro",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-n2ffrdsp3",
@@ -193,7 +199,8 @@
     "badge": "",
     "createdAt": 1786623238492,
     "updatedAt": 1786623238492,
-    "slug": "urban-gear-sip-on"
+    "slug": "urban-gear-sip-on",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-17aei7ab0",
@@ -221,7 +228,8 @@
     "badge": "",
     "createdAt": 1786623237970,
     "updatedAt": 1786623237970,
-    "slug": "urban-gear-mocca"
+    "slug": "urban-gear-mocca",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-tqzprnaem",
@@ -249,7 +257,8 @@
     "badge": "",
     "createdAt": 1786623237442,
     "updatedAt": 1786623237442,
-    "slug": "urban-gear-rustic"
+    "slug": "urban-gear-rustic",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-zzzjnb24y",
@@ -277,7 +286,8 @@
     "badge": "",
     "createdAt": 1786623236916,
     "updatedAt": 1786623236916,
-    "slug": "urban-gear-java"
+    "slug": "urban-gear-java",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-hfqw6ct8j",
@@ -305,7 +315,8 @@
     "badge": "",
     "createdAt": 1786623236426,
     "updatedAt": 1786623236426,
-    "slug": "urban-gear-lisbon"
+    "slug": "urban-gear-lisbon",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-tajnn074o",
@@ -333,7 +344,8 @@
     "badge": "",
     "createdAt": 1786623235877,
     "updatedAt": 1786623235877,
-    "slug": "urban-gear-lisbon-jr"
+    "slug": "urban-gear-lisbon-jr",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-apphawgsm",
@@ -361,7 +373,8 @@
     "badge": "",
     "createdAt": 1786623235338,
     "updatedAt": 1786623235338,
-    "slug": "urban-gear-lisbon-jr-colours"
+    "slug": "urban-gear-lisbon-jr-colours",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-h1aegbary",
@@ -389,7 +402,8 @@
     "badge": "",
     "createdAt": 1786623234820,
     "updatedAt": 1786623234820,
-    "slug": "urban-gear-ibamboo"
+    "slug": "urban-gear-ibamboo",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-po23oe8my",
@@ -417,7 +431,8 @@
     "badge": "",
     "createdAt": 1786623234294,
     "updatedAt": 1786623234294,
-    "slug": "urban-gear-cafe-bamboo"
+    "slug": "urban-gear-cafe-bamboo",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-8bz0nfy6q",
@@ -445,7 +460,8 @@
     "badge": "",
     "createdAt": 1786623233770,
     "updatedAt": 1786623233770,
-    "slug": "urban-gear-eco-brew"
+    "slug": "urban-gear-eco-brew",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-am4h6l4ms",
@@ -473,7 +489,8 @@
     "badge": "",
     "createdAt": 1786623233259,
     "updatedAt": 1786623233259,
-    "slug": "urban-gear-eco-cork"
+    "slug": "urban-gear-eco-cork",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-ob6no17zo",
@@ -501,7 +518,8 @@
     "badge": "",
     "createdAt": 1786623232724,
     "updatedAt": 1786623232724,
-    "slug": "urban-gear-natura"
+    "slug": "urban-gear-natura",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-zmg12xrzs",
@@ -529,7 +547,8 @@
     "badge": "",
     "createdAt": 1786623232243,
     "updatedAt": 1786623232243,
-    "slug": "urban-gear-wheat-mug"
+    "slug": "urban-gear-wheat-mug",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-qkzsd0lh4",
@@ -557,7 +576,8 @@
     "badge": "",
     "createdAt": 1786623231721,
     "updatedAt": 1786623231721,
-    "slug": "urban-gear-aspen"
+    "slug": "urban-gear-aspen",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-84yk1c643",
@@ -585,7 +605,8 @@
     "badge": "",
     "createdAt": 1786623231216,
     "updatedAt": 1786623231216,
-    "slug": "urban-gear-husky"
+    "slug": "urban-gear-husky",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-zz2pegs8m",
@@ -613,7 +634,8 @@
     "badge": "",
     "createdAt": 1786623230696,
     "updatedAt": 1786623230696,
-    "slug": "urban-gear-boro-cafe"
+    "slug": "urban-gear-boro-cafe",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-syowc7dnf",
@@ -641,7 +663,8 @@
     "badge": "",
     "createdAt": 1786623229758,
     "updatedAt": 1786623229758,
-    "slug": "urban-gear-corky"
+    "slug": "urban-gear-corky",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-ypydyygp4",
@@ -669,7 +692,8 @@
     "badge": "",
     "createdAt": 1786623229142,
     "updatedAt": 1786623229142,
-    "slug": "urban-gear-brew"
+    "slug": "urban-gear-brew",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-71q8ifucp",
@@ -697,7 +721,8 @@
     "badge": "",
     "createdAt": 1786623228611,
     "updatedAt": 1786623228611,
-    "slug": "urban-gear-remindr"
+    "slug": "urban-gear-remindr",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-nb16bzawg",
@@ -725,7 +750,8 @@
     "badge": "",
     "createdAt": 1786623227728,
     "updatedAt": 1786623227728,
-    "slug": "urban-gear-boro-flip"
+    "slug": "urban-gear-boro-flip",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-p2pohc7kt",
@@ -753,7 +779,8 @@
     "badge": "",
     "createdAt": 1786623226652,
     "updatedAt": 1786623226652,
-    "slug": "urban-gear-sili-bot"
+    "slug": "urban-gear-sili-bot",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-fj1dlax4w",
@@ -781,7 +808,8 @@
     "badge": "",
     "createdAt": 1786623225673,
     "updatedAt": 1786623225673,
-    "slug": "urban-gear-goblet"
+    "slug": "urban-gear-goblet",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-2bphc0mvx",
@@ -809,7 +837,8 @@
     "badge": "",
     "createdAt": 1786623224526,
     "updatedAt": 1786623224526,
-    "slug": "urban-gear-zeta"
+    "slug": "urban-gear-zeta",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-ct174kaxw",
@@ -837,7 +866,8 @@
     "badge": "",
     "createdAt": 1786623223467,
     "updatedAt": 1786623223467,
-    "slug": "urban-gear-flora"
+    "slug": "urban-gear-flora",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-o41upiojk",
@@ -865,7 +895,8 @@
     "badge": "",
     "createdAt": 1786623222156,
     "updatedAt": 1786623222156,
-    "slug": "urban-gear-sigma"
+    "slug": "urban-gear-sigma",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-x2q3oy2em",
@@ -893,7 +924,8 @@
     "badge": "",
     "createdAt": 1786623220704,
     "updatedAt": 1786623220704,
-    "slug": "urban-gear-omega"
+    "slug": "urban-gear-omega",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-p43ircath",
@@ -921,7 +953,8 @@
     "badge": "",
     "createdAt": 1786619227460,
     "updatedAt": 1786619227460,
-    "slug": "urban-gear-power-display-20"
+    "slug": "urban-gear-power-display-20",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-whk8o6ucn",
@@ -949,7 +982,8 @@
     "badge": "",
     "createdAt": 1786619226971,
     "updatedAt": 1786619226971,
-    "slug": "urban-gear-power-mag"
+    "slug": "urban-gear-power-mag",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-9meaemsuw",
@@ -977,7 +1011,8 @@
     "badge": "",
     "createdAt": 1786619226460,
     "updatedAt": 1786619226460,
-    "slug": "urban-gear-power-mag-20"
+    "slug": "urban-gear-power-mag-20",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-mpma7syit",
@@ -1005,7 +1040,8 @@
     "badge": "",
     "createdAt": 1786619225959,
     "updatedAt": 1786619225959,
-    "slug": "urban-gear-cdo"
+    "slug": "urban-gear-cdo",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-r0l4qly4n",
@@ -1033,7 +1069,8 @@
     "badge": "",
     "createdAt": 1786619225465,
     "updatedAt": 1786619225465,
-    "slug": "urban-gear-fidgety"
+    "slug": "urban-gear-fidgety",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-13tfghetw",
@@ -1061,7 +1098,8 @@
     "badge": "",
     "createdAt": 1786619224991,
     "updatedAt": 1786619224991,
-    "slug": "urban-gear-ecohub"
+    "slug": "urban-gear-ecohub",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-mijn6kcou",
@@ -1089,7 +1127,8 @@
     "badge": "",
     "createdAt": 1786619223568,
     "updatedAt": 1786619223568,
-    "slug": "urban-gear-icharge"
+    "slug": "urban-gear-icharge",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-vm6qh8how",
@@ -1117,7 +1156,8 @@
     "badge": "",
     "createdAt": 1786619222782,
     "updatedAt": 1786619222782,
-    "slug": "urban-gear-dazzle"
+    "slug": "urban-gear-dazzle",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-oabt1y4is",
@@ -1145,7 +1185,8 @@
     "badge": "",
     "createdAt": 1786619221969,
     "updatedAt": 1786619221969,
-    "slug": "urban-gear-chargemate"
+    "slug": "urban-gear-chargemate",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-iysjjkabv",
@@ -1173,7 +1214,8 @@
     "badge": "",
     "createdAt": 1786619221172,
     "updatedAt": 1786619221172,
-    "slug": "urban-gear-cablemate"
+    "slug": "urban-gear-cablemate",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-7ew7crpbh",
@@ -1201,7 +1243,8 @@
     "badge": "",
     "createdAt": 1786619220312,
     "updatedAt": 1786619220312,
-    "slug": "urban-gear-powermate"
+    "slug": "urban-gear-powermate",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-vhc65jhp3",
@@ -1229,7 +1272,8 @@
     "badge": "",
     "createdAt": 1786619219468,
     "updatedAt": 1786619219468,
-    "slug": "urban-gear-jinggle"
+    "slug": "urban-gear-jinggle",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-s6jw0slvj",
@@ -1257,7 +1301,8 @@
     "badge": "",
     "createdAt": 1786619218548,
     "updatedAt": 1786619218548,
-    "slug": "urban-gear-yoyo-c-pro"
+    "slug": "urban-gear-yoyo-c-pro",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-jsn9ou5e7",
@@ -1285,7 +1330,8 @@
     "badge": "",
     "createdAt": 1786619217590,
     "updatedAt": 1786619217590,
-    "slug": "urban-gear-yoyo-bolt"
+    "slug": "urban-gear-yoyo-bolt",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-cgry1418b",
@@ -1313,7 +1359,8 @@
     "badge": "",
     "createdAt": 1786619216617,
     "updatedAt": 1786619216617,
-    "slug": "urban-gear-glowchrg-pro"
+    "slug": "urban-gear-glowchrg-pro",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-69qewb7gz",
@@ -1341,7 +1388,8 @@
     "badge": "",
     "createdAt": 1786619215522,
     "updatedAt": 1786619215522,
-    "slug": "urban-gear-glowchrg"
+    "slug": "urban-gear-glowchrg",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-98hy90sha",
@@ -1369,7 +1417,8 @@
     "badge": "",
     "createdAt": 1786619214364,
     "updatedAt": 1786619214364,
-    "slug": "urban-gear-blitz"
+    "slug": "urban-gear-blitz",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-rhnsal081",
@@ -1397,7 +1446,8 @@
     "badge": "",
     "createdAt": 1786619212961,
     "updatedAt": 1786619212961,
-    "slug": "urban-gear-twin-20"
+    "slug": "urban-gear-twin-20",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-mp0z0vuqg",
@@ -1425,7 +1475,8 @@
     "badge": "",
     "createdAt": 1786619210191,
     "updatedAt": 1786619210191,
-    "slug": "urban-gear-cube-pro"
+    "slug": "urban-gear-cube-pro",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-0zekje7zs",
@@ -1453,7 +1504,8 @@
     "badge": "",
     "createdAt": 1786619205896,
     "updatedAt": 1786619205896,
-    "slug": "urban-gear-smiley"
+    "slug": "urban-gear-smiley",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-e3vplu2sr",
@@ -1481,7 +1533,8 @@
     "badge": "",
     "createdAt": 1786619205420,
     "updatedAt": 1786619205420,
-    "slug": "urban-gear-samba"
+    "slug": "urban-gear-samba",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-jq8mm9ah6",
@@ -1509,7 +1562,8 @@
     "badge": "",
     "createdAt": 1786619204897,
     "updatedAt": 1786619204897,
-    "slug": "urban-gear-tango"
+    "slug": "urban-gear-tango",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-yfsviecdv",
@@ -1537,7 +1591,8 @@
     "badge": "",
     "createdAt": 1786619204414,
     "updatedAt": 1786619204414,
-    "slug": "urban-gear-opal"
+    "slug": "urban-gear-opal",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-arwr7dbn7",
@@ -1565,7 +1620,8 @@
     "badge": "",
     "createdAt": 1786619203918,
     "updatedAt": 1786619203918,
-    "slug": "urban-gear-glo-beats-pro"
+    "slug": "urban-gear-glo-beats-pro",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-xxvx6y9i3",
@@ -1593,7 +1649,8 @@
     "badge": "",
     "createdAt": 1786619203433,
     "updatedAt": 1786619203433,
-    "slug": "urban-gear-tornado"
+    "slug": "urban-gear-tornado",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-b9kjm270e",
@@ -1621,7 +1678,8 @@
     "badge": "",
     "createdAt": 1786619202932,
     "updatedAt": 1786619202932,
-    "slug": "urban-gear-lightfold"
+    "slug": "urban-gear-lightfold",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-0glbp0xhs",
@@ -1649,7 +1707,8 @@
     "badge": "",
     "createdAt": 1786619202443,
     "updatedAt": 1786619202443,
-    "slug": "urban-gear-desklite-neo"
+    "slug": "urban-gear-desklite-neo",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-pubfcpy9s",
@@ -1677,7 +1736,8 @@
     "badge": "",
     "createdAt": 1786619201656,
     "updatedAt": 1786619201656,
-    "slug": "urban-gear-shroom"
+    "slug": "urban-gear-shroom",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-i952yuwmx",
@@ -1705,7 +1765,8 @@
     "badge": "",
     "createdAt": 1786619201011,
     "updatedAt": 1786619201011,
-    "slug": "urban-gear-multi-fuction-mouse-pad"
+    "slug": "urban-gear-multi-fuction-mouse-pad",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-dcwe587l4",
@@ -1733,7 +1794,8 @@
     "badge": "",
     "createdAt": 1786619200529,
     "updatedAt": 1786619200529,
-    "slug": "urban-gear-mooshi"
+    "slug": "urban-gear-mooshi",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-u8whvucms",
@@ -1761,7 +1823,8 @@
     "badge": "",
     "createdAt": 1786619200052,
     "updatedAt": 1786619200052,
-    "slug": "urban-gear-breeza"
+    "slug": "urban-gear-breeza",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-jc5q2oujh",
@@ -1789,7 +1852,8 @@
     "badge": "",
     "createdAt": 1786619198647,
     "updatedAt": 1786619198647,
-    "slug": "urban-gear-mag-grip"
+    "slug": "urban-gear-mag-grip",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-aj4m9b9hh",
@@ -1817,7 +1881,8 @@
     "badge": "",
     "createdAt": 1786614032207,
     "updatedAt": 1786733419275,
-    "slug": "urban-gear-flip"
+    "slug": "urban-gear-flip",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-05gcqn3z3",
@@ -1845,7 +1910,8 @@
     "badge": "",
     "createdAt": 1786614031735,
     "updatedAt": 1786614465861,
-    "slug": "urban-gear-fusion"
+    "slug": "urban-gear-fusion",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-5zpfndms8",
@@ -1873,7 +1939,8 @@
     "badge": "",
     "createdAt": 1786614031228,
     "updatedAt": 1786733419275,
-    "slug": "urban-gear-optima"
+    "slug": "urban-gear-optima",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-zosmps0r8",
@@ -1901,7 +1968,8 @@
     "badge": "",
     "createdAt": 1786614030722,
     "updatedAt": 1786733419275,
-    "slug": "urban-gear-primus"
+    "slug": "urban-gear-primus",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-flvcu9vmn",
@@ -1929,7 +1997,8 @@
     "badge": "",
     "createdAt": 1786614030243,
     "updatedAt": 1786733419275,
-    "slug": "urban-gear-wrinkle"
+    "slug": "urban-gear-wrinkle",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-x4r32nddv",
@@ -1957,7 +2026,8 @@
     "badge": "",
     "createdAt": 1786614029708,
     "updatedAt": 1786733462135,
-    "slug": "urban-gear-vetor"
+    "slug": "urban-gear-vetor",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-7jnw2n6a6",
@@ -1985,7 +2055,8 @@
     "badge": "",
     "createdAt": 1786614029215,
     "updatedAt": 1786733462135,
-    "slug": "urban-gear-kriss"
+    "slug": "urban-gear-kriss",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-5wje7vb6j",
@@ -2013,7 +2084,8 @@
     "badge": "",
     "createdAt": 1786614028724,
     "updatedAt": 1786733462135,
-    "slug": "urban-gear-roca"
+    "slug": "urban-gear-roca",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-rijf8heg6",
@@ -2041,7 +2113,8 @@
     "badge": "",
     "createdAt": 1786614028052,
     "updatedAt": 1786733462138,
-    "slug": "urban-gear-croco"
+    "slug": "urban-gear-croco",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-bq5867vm3",
@@ -2069,7 +2142,8 @@
     "badge": "",
     "createdAt": 1786614027574,
     "updatedAt": 1786733505461,
-    "slug": "urban-gear-zigy-pro"
+    "slug": "urban-gear-zigy-pro",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-8liwhhmx5",
@@ -2097,7 +2171,8 @@
     "badge": "",
     "createdAt": 1786614026966,
     "updatedAt": 1786733505461,
-    "slug": "urban-gear-slant"
+    "slug": "urban-gear-slant",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-vkdy0c3z0",
@@ -2125,7 +2200,8 @@
     "badge": "",
     "createdAt": 1786614026394,
     "updatedAt": 1786733505461,
-    "slug": "urban-gear-stripe"
+    "slug": "urban-gear-stripe",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-wc7vo90gs",
@@ -2153,7 +2229,8 @@
     "badge": "",
     "createdAt": 1786614025472,
     "updatedAt": 1786733505462,
-    "slug": "urban-gear-element-jute"
+    "slug": "urban-gear-element-jute",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-m19528myj",
@@ -2181,7 +2258,8 @@
     "badge": "",
     "createdAt": 1786614024750,
     "updatedAt": 1786733550291,
-    "slug": "urban-gear-element"
+    "slug": "urban-gear-element",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-zb9qhpsdx",
@@ -2209,7 +2287,8 @@
     "badge": "",
     "createdAt": 1786614024158,
     "updatedAt": 1786733550291,
-    "slug": "urban-gear-primo"
+    "slug": "urban-gear-primo",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-tv9r725q3",
@@ -2237,7 +2316,8 @@
     "badge": "",
     "createdAt": 1786614023631,
     "updatedAt": 1786733550291,
-    "slug": "urban-gear-hardy-premium"
+    "slug": "urban-gear-hardy-premium",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-3z2blzrzt",
@@ -2265,7 +2345,8 @@
     "badge": "",
     "createdAt": 1786614023054,
     "updatedAt": 1786733550291,
-    "slug": "urban-gear-athena"
+    "slug": "urban-gear-athena",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-znz12u3mm",
@@ -2293,7 +2374,8 @@
     "badge": "",
     "createdAt": 1786614022499,
     "updatedAt": 1786733594091,
-    "slug": "urban-gear-dual"
+    "slug": "urban-gear-dual",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-kpyuwitkn",
@@ -2321,7 +2403,8 @@
     "badge": "",
     "createdAt": 1786614021975,
     "updatedAt": 1786733594091,
-    "slug": "urban-gear-softy"
+    "slug": "urban-gear-softy",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-5aj69agv8",
@@ -2349,7 +2432,8 @@
     "badge": "",
     "createdAt": 1786614020625,
     "updatedAt": 1786733594091,
-    "slug": "urban-gear-basic"
+    "slug": "urban-gear-basic",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-7nzjhrzvo",
@@ -2377,7 +2461,8 @@
     "badge": "",
     "createdAt": 1786614020158,
     "updatedAt": 1786733594091,
-    "slug": "urban-gear-korsa-20"
+    "slug": "urban-gear-korsa-20",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-tky7xrkjt",
@@ -2405,7 +2490,8 @@
     "badge": "",
     "createdAt": 1786614019567,
     "updatedAt": 1786733639789,
-    "slug": "urban-gear-capri"
+    "slug": "urban-gear-capri",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-13h4djek7",
@@ -2433,7 +2519,8 @@
     "badge": "",
     "createdAt": 1786614019015,
     "updatedAt": 1786733639789,
-    "slug": "urban-gear-black"
+    "slug": "urban-gear-black",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-sdypkonem",
@@ -2461,7 +2548,8 @@
     "badge": "",
     "createdAt": 1786614018551,
     "updatedAt": 1786733639789,
-    "slug": "urban-gear-capri-rpet"
+    "slug": "urban-gear-capri-rpet",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-k9mc6fg8p",
@@ -2489,7 +2577,8 @@
     "badge": "",
     "createdAt": 1786614018050,
     "updatedAt": 1786733639789,
-    "slug": "urban-gear-rpet-spiral"
+    "slug": "urban-gear-rpet-spiral",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-wx7ajwviu",
@@ -2517,7 +2606,8 @@
     "badge": "",
     "createdAt": 1786614017577,
     "updatedAt": 1786733686572,
-    "slug": "urban-gear-kraft-spiral"
+    "slug": "urban-gear-kraft-spiral",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-4q7y18lav",
@@ -2545,7 +2635,8 @@
     "badge": "",
     "createdAt": 1786614017076,
     "updatedAt": 1786733686572,
-    "slug": "urban-gear-lumber-notes"
+    "slug": "urban-gear-lumber-notes",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-94a56l5y6",
@@ -2573,7 +2664,8 @@
     "badge": "",
     "createdAt": 1786614016625,
     "updatedAt": 1786733686572,
-    "slug": "urban-gear-bambu"
+    "slug": "urban-gear-bambu",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-gu3b8d7bn",
@@ -2601,7 +2693,8 @@
     "badge": "",
     "createdAt": 1786614016168,
     "updatedAt": 1786733686572,
-    "slug": "urban-gear-strap-cork"
+    "slug": "urban-gear-strap-cork",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-numjidm73",
@@ -2629,7 +2722,8 @@
     "badge": "",
     "createdAt": 1786614015706,
     "updatedAt": 1786733744454,
-    "slug": "urban-gear-eco-notes"
+    "slug": "urban-gear-eco-notes",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-ogt0bukqv",
@@ -2657,7 +2751,8 @@
     "badge": "",
     "createdAt": 1786614015223,
     "updatedAt": 1786733744454,
-    "slug": "urban-gear-eco-kraft-20"
+    "slug": "urban-gear-eco-kraft-20",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-6cp9337dx",
@@ -2685,7 +2780,8 @@
     "badge": "",
     "createdAt": 1786614014734,
     "updatedAt": 1786733744454,
-    "slug": "urban-gear-korki-notes"
+    "slug": "urban-gear-korki-notes",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-ncrsxhgci",
@@ -2713,7 +2809,8 @@
     "badge": "",
     "createdAt": 1786614014266,
     "updatedAt": 1786733744454,
-    "slug": "urban-gear-milky-spiral"
+    "slug": "urban-gear-milky-spiral",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-earkdq7rg",
@@ -2741,7 +2838,8 @@
     "badge": "",
     "createdAt": 1786614013793,
     "updatedAt": 1786733803348,
-    "slug": "urban-gear-milky"
+    "slug": "urban-gear-milky",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-hiqz96lbr",
@@ -2769,7 +2867,8 @@
     "badge": "",
     "createdAt": 1786614013304,
     "updatedAt": 1786733803348,
-    "slug": "urban-gear-sugar"
+    "slug": "urban-gear-sugar",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-p208fnxec",
@@ -2797,7 +2896,8 @@
     "badge": "",
     "createdAt": 1786614012838,
     "updatedAt": 1786733803348,
-    "slug": "urban-gear-champ"
+    "slug": "urban-gear-champ",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-kucjcnm8d",
@@ -2825,7 +2925,8 @@
     "badge": "",
     "createdAt": 1786614012327,
     "updatedAt": 1786733803348,
-    "slug": "urban-gear-traveller-20"
+    "slug": "urban-gear-traveller-20",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-m6kg6vcs7",
@@ -2853,7 +2954,8 @@
     "badge": "",
     "createdAt": 1786614011816,
     "updatedAt": 1786733863293,
-    "slug": "urban-gear-traveller"
+    "slug": "urban-gear-traveller",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-p4hvpc3f0",
@@ -2881,7 +2983,8 @@
     "badge": "",
     "createdAt": 1786614011372,
     "updatedAt": 1786733863293,
-    "slug": "urban-gear-mystic"
+    "slug": "urban-gear-mystic",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-ojkgoo7hs",
@@ -2909,7 +3012,8 @@
     "badge": "",
     "createdAt": 1786614010889,
     "updatedAt": 1786733863293,
-    "slug": "urban-gear-regal"
+    "slug": "urban-gear-regal",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-zi7q2aque",
@@ -2937,7 +3041,8 @@
     "badge": "",
     "createdAt": 1786614010402,
     "updatedAt": 1786733863293,
-    "slug": "urban-gear-elegant"
+    "slug": "urban-gear-elegant",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-xn2xr9x59",
@@ -2965,7 +3070,8 @@
     "badge": "",
     "createdAt": 1786614009914,
     "updatedAt": 1786733914798,
-    "slug": "urban-gear-classic"
+    "slug": "urban-gear-classic",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-d6rbb1kwp",
@@ -2993,7 +3099,8 @@
     "badge": "",
     "createdAt": 1786614009444,
     "updatedAt": 1786733914798,
-    "slug": "urban-gear-polygon"
+    "slug": "urban-gear-polygon",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-vh5a8bk4x",
@@ -3021,7 +3128,8 @@
     "badge": "",
     "createdAt": 1786614008969,
     "updatedAt": 1786733914798,
-    "slug": "urban-gear-senate"
+    "slug": "urban-gear-senate",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-774rjayff",
@@ -3049,7 +3157,8 @@
     "badge": "",
     "createdAt": 1786614007661,
     "updatedAt": 1786733914798,
-    "slug": "urban-gear-vogue"
+    "slug": "urban-gear-vogue",
+    "brand": "Urban Gear"
   },
   {
     "id": "printfield-em9fg8c3k",
@@ -4665,7 +4774,8 @@
     "createdAt": 1782887908903,
     "updatedAt": 1786102102053,
     "metaTitle": "Order Swiss Military Dynamic Dry Fit T-shirt - Branded.",
-    "metaDescription": "Swiss Military Dynamic Dry Fit T-shirt. Premium premium fabric. Bulk pricing. Buy online now!"
+    "metaDescription": "Swiss Military Dynamic Dry Fit T-shirt. Premium premium fabric. Bulk pricing. Buy online now!",
+    "brand": "Swiss Military"
   },
   {
     "id": "e2f5eaa3-a303-4076-bda2-f4ab567e483b",
@@ -5042,7 +5152,8 @@
     "createdAt": 1782802864302,
     "updatedAt": 1786102115698,
     "metaTitle": "Custom Swiss Military Dynamic Zipper Jacket With Hood.",
-    "metaDescription": "Order Swiss Military Dynamic Zipper Jacket With Hood. Comfortable premium fabric. All sizes. Buy now!"
+    "metaDescription": "Order Swiss Military Dynamic Zipper Jacket With Hood. Comfortable premium fabric. All sizes. Buy now!",
+    "brand": "Swiss Military"
   },
   {
     "id": "fe14d793-860f-4965-8598-2a6719aa452e",
@@ -5322,7 +5433,8 @@
     "createdAt": 1782828191765,
     "updatedAt": 1786102115698,
     "metaTitle": "Swiss Military Dynamic Round Neck T-shirt - Printing |.",
-    "metaDescription": "Custom Swiss Military Dynamic Round Neck T-shirt. Premium fabric. Fast. Get a free quote!"
+    "metaDescription": "Custom Swiss Military Dynamic Round Neck T-shirt. Premium fabric. Fast. Get a free quote!",
+    "brand": "Swiss Military"
   },
   {
     "id": "ebaa7b87-72e5-49d3-82ef-2412ee5a4113",
@@ -5566,7 +5678,8 @@
     "createdAt": 1782465603153,
     "updatedAt": 1786102132520,
     "metaTitle": "Buy Puma Ess Archive Polo T-shirt Bangalore | Printfield",
-    "metaDescription": "Order Puma Ess Archive Polo T-shirt. Comfortable cotton pique. All sizes. Shop at Printfield!"
+    "metaDescription": "Order Puma Ess Archive Polo T-shirt. Comfortable cotton pique. All sizes. Shop at Printfield!",
+    "brand": "Puma"
   },
   {
     "id": "505ad25f-b3d0-4545-b32e-fda76b5dfa34",
@@ -5799,7 +5912,8 @@
     "createdAt": 1782886353143,
     "updatedAt": 1786102132520,
     "metaTitle": "Custom Puma Dry Cell Ess Tee - Apparel | Printfield",
-    "metaDescription": "Custom Puma Dry Cell Ess Tee. Premium fabric. Fast. Shop now!"
+    "metaDescription": "Custom Puma Dry Cell Ess Tee. Premium fabric. Fast. Shop now!",
+    "brand": "Puma"
   },
   {
     "id": "4ab68f79-4493-4929-9331-1ee22a313805",
@@ -6001,7 +6115,8 @@
     "createdAt": 1782456522867,
     "updatedAt": 1786102143083,
     "metaTitle": "Order Swiss Military Supreme Polo T-shirt - Branded Apparel.",
-    "metaDescription": "Order Swiss Military Supreme Polo T-shirt. Comfortable cotton pique. All sizes. Buy online now!"
+    "metaDescription": "Order Swiss Military Supreme Polo T-shirt. Comfortable cotton pique. All sizes. Buy online now!",
+    "brand": "Swiss Military"
   },
   {
     "id": "80630edf-85df-44ed-8709-608054c7e9ba",
@@ -6127,7 +6242,8 @@
     "createdAt": 1782887365219,
     "updatedAt": 1786102143083,
     "metaTitle": "Buy Puma Poly Polo T-shirt Bangalore | Printfield",
-    "metaDescription": "Puma Poly Polo T-shirt. Premium cotton pique. Bulk pricing. Shop at Printfield!"
+    "metaDescription": "Puma Poly Polo T-shirt. Premium cotton pique. Bulk pricing. Shop at Printfield!",
+    "brand": "Puma"
   },
   {
     "id": "7840d8f7-335b-480c-9fa2-86e194fd0a1e",
@@ -6282,7 +6398,8 @@
     "createdAt": 1782747998931,
     "updatedAt": 1786102153198,
     "metaTitle": "Custom Puma Knitted Sweatshirt Whitefield | Printfield",
-    "metaDescription": "Puma Knitted Sweatshirt - premium fabric for team wear. Buy now!"
+    "metaDescription": "Puma Knitted Sweatshirt - premium fabric for team wear. Buy now!",
+    "brand": "Puma"
   },
   {
     "id": "4b85defc-7847-4b53-b2f6-c6e3990f7b79",
@@ -6561,7 +6678,8 @@
     "createdAt": 1782631551077,
     "updatedAt": 1786102153198,
     "metaTitle": "Custom Caslay Organic Polo T-shirt - Apparel | Printfield",
-    "metaDescription": "Buy Caslay Organic Polo T-shirt. Premium cotton pique for team wear. Print. Shop now!"
+    "metaDescription": "Buy Caslay Organic Polo T-shirt. Premium cotton pique for team wear. Print. Shop now!",
+    "brand": "Caslay"
   },
   {
     "id": "98a85faf-0458-4756-959c-aced16e5d90f",
@@ -6777,7 +6895,8 @@
     "createdAt": 1782484875072,
     "updatedAt": 1786102153198,
     "metaTitle": "Indian Terrain Classic Solid Polo T-shirt - Printing |.",
-    "metaDescription": "Shop Indian Terrain Classic Solid Polo T-shirt. Quality cotton pique. Logo print. Get a free quote!"
+    "metaDescription": "Shop Indian Terrain Classic Solid Polo T-shirt. Quality cotton pique. Logo print. Get a free quote!",
+    "brand": "Indian Terrain"
   },
   {
     "id": "a21a37c9-a937-4e70-82c5-e71e5f8fdaef",
@@ -6876,7 +6995,8 @@
     "createdAt": 1782618487326,
     "updatedAt": 1786102181396,
     "metaTitle": "Order Swiss Military Elite Polo Tshirt - Branded Apparel |.",
-    "metaDescription": "Swiss Military Elite Polo Tshirt. Premium cotton pique. Bulk pricing. Buy online now!"
+    "metaDescription": "Swiss Military Elite Polo Tshirt. Premium cotton pique. Bulk pricing. Buy online now!",
+    "brand": "Swiss Military"
   },
   {
     "id": "7d5970a0-49a2-46be-a468-01e5a0c13a38",
@@ -7011,7 +7131,8 @@
     "createdAt": 1782663945576,
     "updatedAt": 1786102181397,
     "metaTitle": "Caslay Recycled Poly-Cotton Polo T-shirt - Custom Printing.",
-    "metaDescription": "Custom Caslay Recycled Poly-Cotton Polo T-shirt. Cotton pique. Fast. Order now!"
+    "metaDescription": "Custom Caslay Recycled Poly-Cotton Polo T-shirt. Cotton pique. Fast. Order now!",
+    "brand": "Caslay"
   },
   {
     "id": "6866664d-ca64-4f5e-81ee-4a7fdc422e31",
@@ -7119,7 +7240,8 @@
     "createdAt": 1782717066171,
     "updatedAt": 1786102181397,
     "metaTitle": "Buy Caslay Zippered Hoodie Bangalore | Printfield",
-    "metaDescription": "Caslay Zippered Hoodie - fleece cotton for team wear. Shop at Printfield!"
+    "metaDescription": "Caslay Zippered Hoodie - fleece cotton for team wear. Shop at Printfield!",
+    "brand": "Caslay"
   },
   {
     "id": "a86fae94-55a6-497a-9ea2-e35bdf083956",
@@ -7209,7 +7331,8 @@
     "createdAt": 1782718033363,
     "updatedAt": 1786102181397,
     "metaTitle": "Indian Terrain Full Zipper Lycra Jacket - Team Wear |.",
-    "metaDescription": "Buy Indian Terrain Full Zipper Lycra Jacket. Premium premium fabric for team wear. Print. Place your order!"
+    "metaDescription": "Buy Indian Terrain Full Zipper Lycra Jacket. Premium premium fabric for team wear. Print. Place your order!",
+    "brand": "Indian Terrain"
   },
   {
     "id": "a426a21e-e8ff-4ae7-aef1-b2e340fd2559",
@@ -7307,7 +7430,8 @@
     "createdAt": 1782827275393,
     "updatedAt": 1786102181397,
     "metaTitle": "Custom Indian Terrain Classic Solid Crew Neck T-shirt.",
-    "metaDescription": "Order Indian Terrain Classic Solid Crew Neck T-shirt. Comfortable premium fabric. All sizes. Buy now!"
+    "metaDescription": "Order Indian Terrain Classic Solid Crew Neck T-shirt. Comfortable premium fabric. All sizes. Buy now!",
+    "brand": "Indian Terrain"
   },
   {
     "id": "86d89f3e-60d9-4836-b884-ea458bca16bb",
@@ -7451,7 +7575,8 @@
     "createdAt": 1782666476623,
     "updatedAt": 1786102220648,
     "metaTitle": "Custom Caslay Quick Dry Polo - Apparel | Printfield",
-    "metaDescription": "Shop Caslay Quick Dry Polo. Quality cotton pique. Logo print. Shop now!"
+    "metaDescription": "Shop Caslay Quick Dry Polo. Quality cotton pique. Logo print. Shop now!",
+    "brand": "Caslay"
   },
   {
     "id": "2ca9cd71-2b91-4745-bef7-ec35b924244e",
@@ -7550,7 +7675,8 @@
     "createdAt": 1782740863683,
     "updatedAt": 1786102220648,
     "metaTitle": "Buy Indian Terrain Bomber jacket Online | Printfield",
-    "metaDescription": "Indian Terrain Bomber jacket. Premium premium fabric. Bulk pricing. Order today!"
+    "metaDescription": "Indian Terrain Bomber jacket. Premium premium fabric. Bulk pricing. Order today!",
+    "brand": "Indian Terrain"
   },
   {
     "id": "17a18545-3dfc-4c48-8bbc-54daeff39878",
@@ -7679,7 +7805,8 @@
     "createdAt": 1782799630800,
     "updatedAt": 1786102220648,
     "metaTitle": "Order Puma Woven Track Jacket - Branded Apparel | Printfield",
-    "metaDescription": "Puma Woven Track Jacket - premium fabric for team wear. Buy online now!"
+    "metaDescription": "Puma Woven Track Jacket - premium fabric for team wear. Buy online now!",
+    "brand": "Puma"
   },
   {
     "id": "697b7928-e71d-4d35-a107-a97b17f2a48b",
@@ -7786,7 +7913,8 @@
     "createdAt": 1782821549101,
     "updatedAt": 1786102220648,
     "metaTitle": "Caslay Hoodie - Custom Printing | Printfield",
-    "metaDescription": "Buy Caslay Hoodie. Premium fleece cotton for team wear. Print. Order now!"
+    "metaDescription": "Buy Caslay Hoodie. Premium fleece cotton for team wear. Print. Order now!",
+    "brand": "Caslay"
   },
   {
     "id": "9b9328f2-1067-4ebc-ba10-f7c330c44825",
@@ -7875,7 +8003,8 @@
     "createdAt": 1782800591855,
     "updatedAt": 1786102235747,
     "metaTitle": "Buy Swiss Military Alpine Interlock Zipper Jacket Bangalore.",
-    "metaDescription": "Order Swiss Military Alpine Interlock Zipper Jacket. Comfortable premium fabric. All sizes. Shop at Printfield!"
+    "metaDescription": "Order Swiss Military Alpine Interlock Zipper Jacket. Comfortable premium fabric. All sizes. Shop at Printfield!",
+    "brand": "Swiss Military"
   },
   {
     "id": "143acc2f-4149-4bc5-8b1c-7af5dc6dc4df",
@@ -7955,7 +8084,8 @@
     "createdAt": 1782801914257,
     "updatedAt": 1786102235747,
     "metaTitle": "Swiss Military Dynamic Full Zipper jacket - Team Wear |.",
-    "metaDescription": "Shop Swiss Military Dynamic Full Zipper jacket. Quality premium fabric. Logo print. Place your order!"
+    "metaDescription": "Shop Swiss Military Dynamic Full Zipper jacket. Quality premium fabric. Logo print. Place your order!",
+    "brand": "Swiss Military"
   },
   {
     "id": "1794bd15-4aa1-45a5-bc10-d2a5dc5b6830",
@@ -8035,7 +8165,8 @@
     "createdAt": 1782826388399,
     "updatedAt": 1786102235747,
     "metaTitle": "Custom Swiss Military Dynamic Hoodie Whitefield | Printfield",
-    "metaDescription": "Swiss Military Dynamic Hoodie. Premium fleece cotton. Bulk pricing. Buy now!"
+    "metaDescription": "Swiss Military Dynamic Hoodie. Premium fleece cotton. Bulk pricing. Buy now!",
+    "brand": "Swiss Military"
   },
   {
     "id": "e72c7258-81e8-4bea-baf4-78d45994f338",
@@ -8133,7 +8264,8 @@
     "createdAt": 1782822093588,
     "updatedAt": 1786102235747,
     "metaTitle": "Custom Puma Premium Zippered Hoodie - Apparel | Printfield",
-    "metaDescription": "Custom Puma Premium Zippered Hoodie. Fleece cotton. Fast. Shop now!"
+    "metaDescription": "Custom Puma Premium Zippered Hoodie. Fleece cotton. Fast. Shop now!",
+    "brand": "Puma"
   },
   {
     "id": "53a3ce85-eb13-42ae-a7c4-b25f2e936953",
@@ -8249,7 +8381,8 @@
     "createdAt": 1782910345793,
     "updatedAt": 1786102235747,
     "metaTitle": "Buy Adidas Dry-Fit Polo T-shirt With Strips Online |.",
-    "metaDescription": "Adidas Dry-Fit Polo T-shirt With Strips - cotton pique for team wear. Order today!"
+    "metaDescription": "Adidas Dry-Fit Polo T-shirt With Strips - cotton pique for team wear. Order today!",
+    "brand": "Adidas"
   },
   {
     "id": "53bd1e85-41a4-4997-b421-15662dc30025",
@@ -8356,7 +8489,8 @@
     "createdAt": 1782914201731,
     "updatedAt": 1786102255956,
     "metaTitle": "Adidas Round Neck T-shirt - Printing | Printfield",
-    "metaDescription": "Buy Adidas Round Neck T-shirt. Premium premium fabric for team wear. Print. Get a free quote!"
+    "metaDescription": "Buy Adidas Round Neck T-shirt. Premium premium fabric for team wear. Print. Get a free quote!",
+    "brand": "Adidas"
   },
   {
     "id": "e9f996a5-f786-4db7-8fb3-22e066782be9",
@@ -8490,7 +8624,8 @@
     "createdAt": 1782889442958,
     "updatedAt": 1786102255957,
     "metaTitle": "Order Adidas Dry-Fit Polo T-shirt - Branded Apparel |.",
-    "metaDescription": "Order Adidas Dry-Fit Polo T-shirt. Comfortable cotton pique. All sizes. Buy online now!"
+    "metaDescription": "Order Adidas Dry-Fit Polo T-shirt. Comfortable cotton pique. All sizes. Buy online now!",
+    "brand": "Adidas"
   },
   {
     "id": "ddc4e78f-7e1a-4778-9698-998ff340ac15",
@@ -8645,7 +8780,8 @@
     "createdAt": 1782888493010,
     "updatedAt": 1786102255957,
     "metaTitle": "Buy Adidas Clima Lite Polo T-shirt Bangalore | Printfield",
-    "metaDescription": "Adidas Clima Lite Polo T-shirt. Premium cotton pique. Bulk pricing. Shop at Printfield!"
+    "metaDescription": "Adidas Clima Lite Polo T-shirt. Premium cotton pique. Bulk pricing. Shop at Printfield!",
+    "brand": "Adidas"
   },
   {
     "id": "05ca311f-a79d-4a6e-bde5-c5e819f7d3e1",
@@ -8762,7 +8898,8 @@
     "createdAt": 1782915593471,
     "updatedAt": 1786102274877,
     "metaTitle": "Custom Caslay Halfway Jacket Whitefield | Printfield",
-    "metaDescription": "Caslay Halfway Jacket - premium fabric for team wear. Buy now!"
+    "metaDescription": "Caslay Halfway Jacket - premium fabric for team wear. Buy now!",
+    "brand": "Caslay"
   },
   {
     "id": "e54de654-fc8e-45a8-9ca2-cad5c9efd266",
@@ -8992,7 +9129,8 @@
     "createdAt": 1782481282698,
     "updatedAt": 1786734259077,
     "metaTitle": "Order Puma Pique Tipping Polo T-shirt - Branded Apparel |.",
-    "metaDescription": "Puma Pique Tipping Polo T-shirt. Premium cotton pique. Bulk pricing. Buy online now!"
+    "metaDescription": "Puma Pique Tipping Polo T-shirt. Premium cotton pique. Bulk pricing. Buy online now!",
+    "brand": "Puma"
   },
   {
     "id": "cf1e70e8-e62c-4e81-9224-64fa0ae16bc1",
@@ -9617,7 +9755,8 @@
     "createdAt": 1782917063367,
     "updatedAt": 1786102329883,
     "metaTitle": "Buy Adidas Cotton T-shirt With Tipping Online | Printfield",
-    "metaDescription": "Adidas Cotton T-shirt With Tipping - premium fabric Bengaluru 560066 for team wear.  Express Bengaluru delivery. Order today!"
+    "metaDescription": "Adidas Cotton T-shirt With Tipping - premium fabric Bengaluru 560066 for team wear.  Express Bengaluru delivery. Order today!",
+    "brand": "Adidas"
   },
   {
     "id": "0fc29546-34a7-4dda-9b7b-ea4a34a8059e",
@@ -17762,7 +17901,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749749926,
-    "slug": "crick-118b-bowler"
+    "slug": "crick-118b-bowler",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-718068",
@@ -17803,7 +17943,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749824540,
-    "slug": "crick-118f-fielder"
+    "slug": "crick-118f-fielder",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-495705",
@@ -17844,7 +17985,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749824540,
-    "slug": "crick-118k-batsman"
+    "slug": "crick-118k-batsman",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-329629",
@@ -17870,7 +18012,8 @@
     "variations": [],
     "createdAt": 1786719065527,
     "updatedAt": 1786749749926,
-    "slug": "crick-233b-bowler"
+    "slug": "crick-233b-bowler",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-051468",
@@ -17896,7 +18039,8 @@
     "variations": [],
     "createdAt": 1786719065527,
     "updatedAt": 1786749749926,
-    "slug": "crick-233k-batsman"
+    "slug": "crick-233k-batsman",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-659098",
@@ -17937,7 +18081,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749679188,
-    "slug": "crick-234b-bowler"
+    "slug": "crick-234b-bowler",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-862880",
@@ -17978,7 +18123,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749887003,
-    "slug": "crick-234f-fielder"
+    "slug": "crick-234f-fielder",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-083168",
@@ -18019,7 +18165,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749749926,
-    "slug": "crick-234k-batsman"
+    "slug": "crick-234k-batsman",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-075526",
@@ -18064,7 +18211,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749824540,
-    "slug": "crick-235b-bowler"
+    "slug": "crick-235b-bowler",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-730016",
@@ -18105,7 +18253,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749824540,
-    "slug": "crick-235f-fielder"
+    "slug": "crick-235f-fielder",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-683320",
@@ -18146,7 +18295,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749679188,
-    "slug": "crick-235k-beba"
+    "slug": "crick-235k-beba",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-747382",
@@ -18187,7 +18337,8 @@
     ],
     "createdAt": 1786719065527,
     "updatedAt": 1786749887003,
-    "slug": "crick-umpire"
+    "slug": "crick-umpire",
+    "brand": "CRICK"
   },
   {
     "id": "printfield-trophy-658711",
@@ -22478,7 +22629,8 @@
     ],
     "createdAt": 1786719065526,
     "updatedAt": 1786769109495,
-    "slug": "steambeech-5198"
+    "slug": "steambeech-5198",
+    "brand": "Steambeech"
   },
   {
     "id": "printfield-trophy-396741",
@@ -22519,7 +22671,8 @@
     ],
     "createdAt": 1786719065526,
     "updatedAt": 1786769109495,
-    "slug": "steambeech-5198-on-order"
+    "slug": "steambeech-5198-on-order",
+    "brand": "Steambeech"
   },
   {
     "id": "printfield-trophy-871825",
@@ -22545,7 +22698,8 @@
     "variations": [],
     "createdAt": 1786719065526,
     "updatedAt": 1786769026324,
-    "slug": "steambeech-heart-wd-02"
+    "slug": "steambeech-heart-wd-02",
+    "brand": "Steambeech"
   },
   {
     "id": "printfield-trophy-262682",
@@ -22571,7 +22725,8 @@
     "variations": [],
     "createdAt": 1786719065526,
     "updatedAt": 1786769026324,
-    "slug": "steambeech-heart-wd-03"
+    "slug": "steambeech-heart-wd-03",
+    "brand": "Steambeech"
   },
   {
     "id": "printfield-trophy-365741",
