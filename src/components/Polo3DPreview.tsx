@@ -105,6 +105,12 @@ function centerModel(scene: THREE.Group) {
   const nc = nb.getCenter(new THREE.Vector3());
   const nm = nb.min;
   scene.position.set(-nc.x, -nm.y, -nc.z);
+
+  // Store bounds for artwork placement
+  scene.updateMatrixWorld(true);
+  const finalBox = new THREE.Box3().setFromObject(scene);
+  (scene as any).userData.bounds = finalBox;
+  (scene as any).userData.size = finalBox.getSize(new THREE.Vector3());
 }
 
 function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
@@ -113,6 +119,59 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
   const groupRef = useRef<THREE.Group>(null);
   const didCenter = useRef(false);
   const artworkRef = useRef<THREE.Mesh | null>(null);
+
+  // Compute placement positions from model bounds
+  function getPlacementPos(place: string, bounds: THREE.Box3) {
+    const size = bounds.getSize(new THREE.Vector3());
+    const min = bounds.min;
+    const max = bounds.max;
+    const cx = (min.x + max.x) / 2;
+    const cy = min.y + size.y * 0.45; // Chest height
+    const cz = (min.z + max.z) / 2;
+    const frontZ = max.z;
+    const backZ = min.z;
+    const leftX = min.x;
+    const rightX = max.x;
+    const sleeveY = min.y + size.y * 0.7; // Shoulder height
+    const scale = Math.min(size.x, size.z) * 0.35;
+
+    switch (place) {
+      case 'front-chest':
+        return { position: [cx - size.x * 0.18, cy, frontZ + 0.02], rotation: [0, 0, 0], scale: scale * 0.6 };
+      case 'front-full':
+        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
+      case 'back-full':
+        return { position: [cx, cy - size.y * 0.05, backZ - 0.02], rotation: [0, Math.PI, 0], scale };
+      case 'sleeve-left':
+        return { position: [leftX - 0.02, sleeveY, cz], rotation: [0, -Math.PI / 2, -0.15], scale: scale * 0.5 };
+      case 'sleeve-right':
+        return { position: [rightX + 0.02, sleeveY, cz], rotation: [0, Math.PI / 2, 0.15], scale: scale * 0.5 };
+      default:
+        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
+    }
+  }
+    const frontZ = max.z;
+    const backZ = min.z;
+    const leftX = min.x;
+    const rightX = max.x;
+    const sleeveY = min.y + size.y * 0.7; // Shoulder height
+    const scale = Math.min(size.x, size.z) * 0.35;
+
+    switch (place) {
+      case 'front-chest':
+        return { position: [cx - size.x * 0.18, cy, frontZ + 0.02], rotation: [0, 0, 0], scale: scale * 0.6 };
+      case 'front-full':
+        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
+      case 'back-full':
+        return { position: [cx, cy - size.y * 0.05, backZ - 0.02], rotation: [0, Math.PI, 0], scale };
+      case 'sleeve-left':
+        return { position: [leftX - 0.02, sleeveY, cz], rotation: [0, -Math.PI / 2, -0.15], scale: scale * 0.5 };
+      case 'sleeve-right':
+        return { position: [rightX + 0.02, sleeveY, cz], rotation: [0, Math.PI / 2, 0.15], scale: scale * 0.5 };
+      default:
+        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
+    }
+  }
 
   // Center on first load + TEST MESH
   useEffect(() => {
@@ -128,7 +187,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
       side: THREE.DoubleSide, depthWrite: true,
     });
     const testMesh = new THREE.Mesh(testGeo, testMat);
-    testMesh.position.set(0, 0.2, 0.5); // Front chest area
+    testMesh.position.set(0, 0.2, 0.5);
     testMesh.renderOrder = 10;
     scene.add(testMesh);
     console.log('[3D] TEST MESH (bright green) created at front chest');
@@ -150,7 +209,9 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     }
 
     console.log('[3D] Loading artwork:', designImage, 'for placement:', placement);
-    const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
+    const bounds = (scene as any).userData.bounds;
+    const place = bounds ? getPlacementPos(placement || 'front-full', bounds) : 
+      PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
 
