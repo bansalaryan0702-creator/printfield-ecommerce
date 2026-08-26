@@ -109,6 +109,7 @@ function centerModel(scene: THREE.Group) {
 }
 
 function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
+  console.log('[3D] PoloModel render - designImage:', designImage, 'placement:', placement);
   const { scene } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
   const didCenter = useRef(false);
@@ -153,12 +154,13 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         console.log('[3D] Artwork loaded via proxy');
         createOrUpdateArtwork(texture);
       }, undefined, (err2) => {
-        console.error('[3D] Both loads failed:', err2);
+        console.error('[3D] Both loads failed:', err2, 'original URL:', designImage);
         if (artworkRef.current) artworkRef.current.visible = false;
       });
     });
 
     function createOrUpdateArtwork(texture: THREE.Texture) {
+      console.log('[3D] Creating/updating artwork mesh, place:', place);
       if (!artworkRef.current) {
         const geo = new THREE.PlaneGeometry(place.scale, place.scale);
         const mat = new THREE.MeshStandardMaterial({
@@ -171,7 +173,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         mesh.renderOrder = 1;
         scene.add(mesh);
         artworkRef.current = mesh;
-        console.log('[3D] Artwork mesh created at:', place.position);
+        console.log('[3D] Artwork mesh created at:', place.position, 'scale:', place.scale);
       } else {
         (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
         (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
@@ -199,6 +201,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
 }
 
 export function Polo3DPreview({ color, designImage, placement, className = '' }: { color: string; designImage?: string | null; placement?: string; className?: string }) {
+  console.log('[3D] Polo3DPreview props - designImage:', designImage, 'placement:', placement, 'color:', color);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
