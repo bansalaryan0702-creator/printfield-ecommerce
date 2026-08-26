@@ -1855,9 +1855,9 @@ export function ProductDetail() {
               }`}>
                 <div className="w-full aspect-[4/3] max-h-[380px] sm:max-h-none relative bg-white overflow-hidden flex items-center justify-center">
                   
-                   {/* Polo T-Shirt Live Preview */}
-                   {isPolo && selectedColor && !show3D && !showStandardImages && (
-                     <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
+{/* Polo T-Shirt Live Preview - keep mounted but hidden */}
+                    {isPolo && selectedColor && !showStandardImages && (
+                      <div className={`absolute inset-0 z-30 flex items-center justify-center bg-white ${!show3D ? 'block' : 'hidden'}`}>
                         <PoloTshirtPreview
                           color={selectedColor}
                           productImages={validImages}
@@ -1866,35 +1866,35 @@ export function ProductDetail() {
                           designImage={artworks?.[activePlacement]?.previewUrl || null}
                           placement={activePlacement}
                         />
-                     </div>
-                   )}
+                      </div>
+                    )}
 
-                   {/* 3D Preview */}
-                   {isPolo && show3D && !showStandardImages && (
-                     <div className="absolute inset-0 z-30 bg-white">
-                       <React.Suspense fallback={
-                         <div className="w-full h-full flex flex-col items-center justify-center bg-white">
-                           <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin mb-3" />
-                           <p className="text-sm font-medium text-gray-600">Loading 3D Preview...</p>
-                         </div>
-                       }>
+{/* 3D Preview - keep mounted but hidden to preserve GLTF cache */}
+                    {isPolo && selectedColor && !showStandardImages && (
+                      <div className={`absolute inset-0 z-30 bg-white ${show3D ? 'block' : 'hidden'}`}>
+                        <React.Suspense fallback={
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-white">
+                            <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin mb-3" />
+                            <p className="text-sm font-medium text-gray-600">Loading 3D Preview...</p>
+                          </div>
+                        }>
 <Polo3DPreview
-                             color={(() => {
-                               if (!selectedColor) return '#2962a3';
-                               if (typeof selectedColor === 'object') {
-                                 return selectedColor.hex || '#2962a3';
-                               }
-                               if (typeof selectedColor === 'string' && selectedColor.startsWith('#')) return selectedColor;
-                               const found = (product?.colors || []).find((c: any) => c.name?.toLowerCase() === String(selectedColor).toLowerCase());
-                               return found?.hex || '#2962a3';
-                             })()}
-                             designImage={artworks?.[activePlacement]?.previewUrl || null}
-                             placement={activePlacement}
-                             className="w-full h-full"
-                           />
-                       </React.Suspense>
-                     </div>
-                   )}
+                              color={(() => {
+                                if (!selectedColor) return '#2962a3';
+                                if (typeof selectedColor === 'object') {
+                                  return selectedColor.hex || '#2962a3';
+                                }
+                                if (typeof selectedColor === 'string' && selectedColor.startsWith('#')) return selectedColor;
+                                const found = (product?.colors || []).find((c: any) => c.name?.toLowerCase() === String(selectedColor).toLowerCase());
+                                return found?.hex || '#2962a3';
+                              })()}
+                              designImage={artworks?.[activePlacement]?.previewUrl || null}
+                              placement={activePlacement}
+                              className="w-full h-full"
+                            />
+                        </React.Suspense>
+                      </div>
+                    )}
 
                    {/* Base Transparent Mockup */}
                                     {!displayImage || brokenImages[displayImage] ? (
