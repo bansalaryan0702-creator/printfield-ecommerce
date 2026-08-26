@@ -22,7 +22,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   }
 }
 
-// Placement positions on the 3D model
 const PLACEMENT_3D: Record<string, { position: [number, number, number]; rotation: [number, number, number]; scale: number }> = {
   'front-chest': { position: [-0.12, 0.25, 0.52], rotation: [0, 0, 0], scale: 0.25 },
   'front-full': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
@@ -115,12 +114,25 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
   const didCenter = useRef(false);
   const artworkRef = useRef<THREE.Mesh | null>(null);
 
-  // Center on first load
+  // Center on first load + TEST MESH
   useEffect(() => {
     if (!scene || didCenter.current) return;
     didCenter.current = true;
     centerModel(scene);
     applyColor(scene, color);
+
+    // ALWAYS create a TEST MESH (bright green) to verify 3D rendering works
+    const testGeo = new THREE.PlaneGeometry(0.5, 0.5);
+    const testMat = new THREE.MeshStandardMaterial({
+      color: 0x00ff00, transparent: true, opacity: 0.8,
+      side: THREE.DoubleSide, depthWrite: true,
+    });
+    const testMesh = new THREE.Mesh(testGeo, testMat);
+    testMesh.position.set(0, 0.2, 0.5); // Front chest area
+    testMesh.renderOrder = 10;
+    scene.add(testMesh);
+    console.log('[3D] TEST MESH (bright green) created at front chest');
+
     onReady?.();
   }, [scene]);
 
@@ -130,7 +142,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     applyColor(scene, color);
   }, [scene, color]);
 
-  // Artwork overlay - load texture inside effect to avoid crashes
+  // Artwork overlay
   useEffect(() => {
     if (!scene || !designImage || !didCenter.current) {
       if (artworkRef.current) artworkRef.current.visible = false;
@@ -140,33 +152,53 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     console.log('[3D] Loading artwork:', designImage, 'for placement:', placement);
     const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
     const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin('anonymous'); // Try CORS
-    
-    // Try direct load first
+    loader.setCrossOrigin('anonymous');
+
     loader.load(designImage, (texture) => {
       console.log('[3D] Artwork texture loaded successfully');
       createOrUpdateArtwork(texture);
     }, undefined, (err) => {
       console.warn('[3D] Direct load failed, trying proxy:', err);
-      // Fallback: try via proxy for CORS issues
       const proxyUrl = `/api/proxy-image/${designImage.split('/').pop()}`;
       loader.load(proxyUrl, (texture) => {
         console.log('[3D] Artwork loaded via proxy');
         createOrUpdateArtwork(texture);
       }, undefined, (err2) => {
         console.error('[3D] Both loads failed:', err2, 'original URL:', designImage);
-        // Fallback: show a visible placeholder so we know it's a texture issue
         createPlaceholderArtwork();
       });
     });
+
+    function createOrUpdateArtwork(texture: THREE.Texture) {
+      console.log('[3D] Creating/updating artwork mesh, place:', place);
+      if (!artworkRef.current) {
+        const geo = new THREE.PlaneGeometry(place.scale * 1.2, place.scale * 1.2);
+        const mat = new THREE.MeshStandardMaterial({
+          map: texture, transparent: true, alphaTest: 0.01,
+          side: THREE.DoubleSide, depthWrite: true, roughness: 0.9, metalness: 0.0,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        const pos = [...place.position];
+        pos[2] += 0.03;
+        mesh.position.set(pos[0], pos[1], pos[2]);
+        mesh.rotation.set(...place.rotation);
+        mesh.renderOrder = 10;
+        scene.add(mesh);
+        artworkRef.current = mesh;
+        console.log('[3D] Artwork mesh created at:', mesh.position, 'scale:', place.scale * 1.2);
+      } else {
+        (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
+        (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
+        artworkRef.current.visible = true;
+      }
+    }
 
     function createPlaceholderArtwork() {
       console.log('[3D] Creating placeholder artwork (texture failed)');
       if (!artworkRef.current) {
         const geo = new THREE.PlaneGeometry(1, 1);
         const mat = new THREE.MeshStandardMaterial({
-          color: 0xff0000, // Bright red so we can see it
-          transparent: true, opacity: 0.8,
+          color: 0xff0000, transparent: true, opacity: 0.8,
           side: THREE.DoubleSide, depthWrite: true,
         });
         const mesh = new THREE.Mesh(geo, mat);
@@ -178,34 +210,8 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         mesh.renderOrder = 10;
         scene.add(mesh);
         artworkRef.current = mesh;
-        console.log('[3D] Placeholder (red square) created at:', mesh.position);
+        console.log('[3D] Placeholder (red) created at:', mesh.position);
       } else {
-        artworkRef.current.visible = true;
-      }
-    }
-
-    function createOrUpdateArtwork(texture: THREE.Texture) {
-      console.log('[3D] Creating/updating artwork mesh, place:', place);
-      if (!artworkRef.current) {
-        // Make it larger and slightly in front of the surface
-        const geo = new THREE.PlaneGeometry(place.scale * 1.2, place.scale * 1.2);
-        const mat = new THREE.MeshStandardMaterial({
-          map: texture, transparent: true, alphaTest: 0.01,
-          side: THREE.DoubleSide, depthWrite: true, roughness: 0.9, metalness: 0.0,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        // Move slightly forward from surface to avoid z-fighting
-        const pos = [...place.position];
-        pos[2] += 0.03; // 3cm forward
-        mesh.position.set(pos[0], pos[1], pos[2]);
-        mesh.rotation.set(...place.rotation);
-        mesh.renderOrder = 10; // High render order
-        scene.add(mesh);
-        artworkRef.current = mesh;
-        console.log('[3D] Artwork mesh created at:', mesh.position, 'scale:', place.scale * 1.2);
-      } else {
-        (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
-        (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
         artworkRef.current.visible = true;
       }
     }
