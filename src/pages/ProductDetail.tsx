@@ -1884,14 +1884,10 @@ export function ProductDetail() {
                                if (typeof selectedColor === 'object') {
                                  return selectedColor.hex || '#2962a3';
                                }
-                               // If it's already a hex string
                                if (typeof selectedColor === 'string' && selectedColor.startsWith('#')) return selectedColor;
-                               // Try to find hex from product colors by name
                                const found = (product?.colors || []).find((c: any) => c.name?.toLowerCase() === String(selectedColor).toLowerCase());
                                return found?.hex || '#2962a3';
                              })()}
-                             designImage={artworks?.[activePlacement]?.previewUrl || null}
-                             placement={activePlacement}
                              className="w-full h-full"
                            />
                        </React.Suspense>
