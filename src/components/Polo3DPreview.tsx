@@ -136,10 +136,12 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
       return;
     }
 
+    console.log('[3D] Loading artwork:', designImage, 'for placement:', placement);
     const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
     const loader = new THREE.TextureLoader();
     
     loader.load(designImage, (texture) => {
+      console.log('[3D] Artwork texture loaded successfully');
       // Create or update artwork mesh
       if (!artworkRef.current) {
         const geo = new THREE.PlaneGeometry(place.scale, place.scale);
@@ -153,13 +155,14 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         mesh.renderOrder = 1;
         scene.add(mesh);
         artworkRef.current = mesh;
+        console.log('[3D] Artwork mesh created at:', place.position);
       } else {
         (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
         (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
         artworkRef.current.visible = true;
       }
     }, undefined, (err) => {
-      console.warn('Artwork texture failed:', err);
+      console.error('[3D] Artwork texture failed:', err, 'URL:', designImage);
       if (artworkRef.current) artworkRef.current.visible = false;
     });
 
