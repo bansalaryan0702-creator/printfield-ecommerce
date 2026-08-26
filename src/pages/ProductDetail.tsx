@@ -1888,6 +1888,8 @@ export function ProductDetail() {
                                const found = (product?.colors || []).find((c: any) => c.name?.toLowerCase() === String(selectedColor).toLowerCase());
                                return found?.hex || '#2962a3';
                              })()}
+                             designImage={artworks?.[activePlacement]?.previewUrl || null}
+                             placement={activePlacement}
                              className="w-full h-full"
                            />
                        </React.Suspense>

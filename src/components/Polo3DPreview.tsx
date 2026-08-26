@@ -22,11 +22,22 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   }
 }
 
+// Placement positions on the 3D model
+const PLACEMENT_3D: Record<string, { position: [number, number, number]; rotation: [number, number, number]; scale: number }> = {
+  'front-chest': { position: [-0.12, 0.25, 0.52], rotation: [0, 0, 0], scale: 0.25 },
+  'front-full': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
+  'back-full': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
+  'sleeve-left': { position: [-0.45, 0.3, 0.05], rotation: [0, -Math.PI / 2, -0.15], scale: 0.18 },
+  'sleeve-right': { position: [0.45, 0.3, 0.05], rotation: [0, Math.PI / 2, 0.15], scale: 0.18 },
+  'front': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
+  'back': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
+  'generic': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
+};
+
 function applyColor(scene: THREE.Group, color: string) {
   const targetColor = new THREE.Color(color);
   const white = new THREE.Color(1, 1, 1);
 
-  // Detect buttons once (small meshes near top)
   const bodyBox = new THREE.Box3().setFromObject(scene);
   const bodySize = bodyBox.getSize(new THREE.Vector3());
   const bodyVol = bodySize.x * bodySize.y * bodySize.z;
@@ -97,10 +108,11 @@ function centerModel(scene: THREE.Group) {
   scene.position.set(-nc.x, -nm.y, -nc.z);
 }
 
-function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) {
+function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
   const { scene } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
   const didCenter = useRef(false);
+  const artworkRef = useRef<THREE.Mesh | null>(null);
 
   // Center on first load
   useEffect(() => {
@@ -117,6 +129,46 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
     applyColor(scene, color);
   }, [scene, color]);
 
+  // Artwork overlay - load texture inside effect to avoid crashes
+  useEffect(() => {
+    if (!scene || !designImage || !didCenter.current) {
+      if (artworkRef.current) artworkRef.current.visible = false;
+      return;
+    }
+
+    const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
+    const loader = new THREE.TextureLoader();
+    
+    loader.load(designImage, (texture) => {
+      // Create or update artwork mesh
+      if (!artworkRef.current) {
+        const geo = new THREE.PlaneGeometry(place.scale, place.scale);
+        const mat = new THREE.MeshStandardMaterial({
+          map: texture, transparent: true, alphaTest: 0.01,
+          side: THREE.DoubleSide, depthWrite: false, roughness: 0.9, metalness: 0.0,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(...place.position);
+        mesh.rotation.set(...place.rotation);
+        mesh.renderOrder = 1;
+        scene.add(mesh);
+        artworkRef.current = mesh;
+      } else {
+        (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
+        (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
+        artworkRef.current.visible = true;
+      }
+    }, undefined, (err) => {
+      console.warn('Artwork texture failed:', err);
+      if (artworkRef.current) artworkRef.current.visible = false;
+    });
+
+    return () => {
+      if (artworkRef.current) scene.remove(artworkRef.current);
+      artworkRef.current = null;
+    };
+  }, [scene, designImage, placement]);
+
   useFrame((state) => {
     if (groupRef.current) {
       groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.35) * 0.12 + 0.25;
@@ -130,7 +182,7 @@ function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) 
   );
 }
 
-export function Polo3DPreview({ color, className = '' }: { color: string; className?: string }) {
+export function Polo3DPreview({ color, designImage, placement, className = '' }: { color: string; designImage?: string | null; placement?: string; className?: string }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
@@ -155,7 +207,7 @@ export function Polo3DPreview({ color, className = '' }: { color: string; classN
 
         <Suspense fallback={null}>
           <ErrorBoundary>
-            <PoloModel color={resolvedColor} onReady={() => setLoaded(true)} />
+            <PoloModel color={resolvedColor} designImage={designImage} placement={placement} onReady={() => setLoaded(true)} />
           </ErrorBoundary>
         </Suspense>
 
