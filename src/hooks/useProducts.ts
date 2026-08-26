@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 import { Product, PopularProducts, Categories } from '../data/products';
 import { getFeaturedImage } from '../lib/imageUtils';
 
-export function useProducts(page = 1, limit = 20, category?: string, sort?: string, search?: string, subCategory?: string) {
+export function useProducts(page = 1, limit = 20, category?: string, sort?: string, search?: string, subCategory?: string, brand?: string) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1, page: 1, limit: 20 });
   const [availableSubCategories, setAvailableSubCategories] = useState<string[]>([]);
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
@@ -16,13 +17,15 @@ export function useProducts(page = 1, limit = 20, category?: string, sort?: stri
       try {
         let url = `/api/products?page=${page}&limit=${limit}`;
         if (category && category !== 'all') {
-          // Find matching category name from Categories, then PopularProducts if possible, otherwise use as is
           const catObj = Categories.find(c => c.id === category);
           const catName = catObj ? catObj.name : decodeURIComponent(category);
           url += `&category=${encodeURIComponent(catName)}`;
         }
         if (subCategory && subCategory !== 'all') {
           url += `&subCategory=${encodeURIComponent(subCategory)}`;
+        }
+        if (brand && brand !== 'all') {
+          url += `&brand=${encodeURIComponent(brand)}`;
         }
         if (sort) {
           url += `&sort=${encodeURIComponent(sort)}`;
@@ -47,6 +50,7 @@ export function useProducts(page = 1, limit = 20, category?: string, sort?: stri
           });
           
           if (resData.availableSubCategories) setAvailableSubCategories(resData.availableSubCategories);
+          if (resData.availableBrands) setAvailableBrands(resData.availableBrands);
           
           setProducts(dynamicProducts);
         }
@@ -61,7 +65,7 @@ export function useProducts(page = 1, limit = 20, category?: string, sort?: stri
     }
 
     fetchProducts();
-  }, [page, limit, category, sort, search, subCategory]);
+  }, [page, limit, category, sort, search, subCategory, brand]);
 
-  return { products, loading, initialLoading, pagination, availableSubCategories, refetch: () => setLoading(true) };
+  return { products, loading, initialLoading, pagination, availableSubCategories, availableBrands, refetch: () => setLoading(true) };
 }

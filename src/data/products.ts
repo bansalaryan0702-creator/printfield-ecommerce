@@ -24,6 +24,7 @@ export interface Product {
   slug?: string;
   category: string;
   subCategory?: string;
+  brand?: string;
   price: number;
   minQty?: number;
   qtyMultiple?: number;

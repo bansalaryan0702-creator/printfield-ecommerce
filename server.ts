@@ -118,7 +118,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'fire
 
 import Razorpay from 'razorpay';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 
 const s3BucketName = process.env.AWS_S3_BUCKET || 'printfielddigital';
 const s3Region = process.env.AWS_REGION || 'ap-south-1';
@@ -414,21 +414,27 @@ const firestoreDb = initializeFirestore(firebaseApp, { experimentalForceLongPoll
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseStorage = getStorage(firebaseApp);
 
-if (!admin.getApps().length) {
+if (!admin?.apps?.length) {
   try {
-    admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-      projectId: firebaseConfig.projectId,
-    });
+    if (admin?.credential?.applicationDefault) {
+      admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        projectId: firebaseConfig.projectId,
+      });
+    } else {
+      admin.initializeApp();
+    }
   } catch (e) {
     try {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: firebaseConfig.projectId,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
+      if (admin?.credential?.cert && process.env.FIREBASE_CLIENT_EMAIL) {
+        admin.initializeApp({
+          credential: admin.credential.cert({
+            projectId: firebaseConfig.projectId,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          }),
+        });
+      }
     } catch (e2) {
       console.warn('Firebase Admin SDK initialization skipped:', (e2 as Error).message);
     }
@@ -1146,8 +1152,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
       const token = req.headers.authorization?.split(' ')[1];
       if (!token) return false;
       try {
-        const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded: any = jwt.verify(token, JWT_SECRET);
         return ['admin', 'manager', 'employee'].includes(decoded.role);
       } catch (err) {
         return false;
@@ -1163,8 +1168,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
       const token = req.headers.authorization?.split(' ')[1];
       if (!token) return false;
       try {
-        const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded: any = jwt.verify(token, JWT_SECRET);
         return ['admin', 'manager', 'employee'].includes(decoded.role);
       } catch (err) {
         return false;
@@ -3213,6 +3217,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const limit = parseInt(req.query.limit || '20', 10);
       const category = req.query.category;
       const subCategory = req.query.subCategory;
+      const brand = req.query.brand;
       const search = req.query.search;
       const sort = req.query.sort;
       const includeDisabled = req.query.includeDisabled === 'true';
@@ -3229,6 +3234,9 @@ ${linksArray.slice(0, 300).join('\n')}`;
       if (subCategory && subCategory !== 'all') {
         allProducts = allProducts.filter(p => (p.subCategory || '').toLowerCase() === subCategory.toLowerCase());
       }
+      if (brand && brand !== 'all') {
+        allProducts = allProducts.filter(p => (p.brand || '').toLowerCase() === brand.toLowerCase());
+      }
       if (search) {
         const s = search.toLowerCase();
         allProducts = allProducts.filter(p => 
@@ -3237,12 +3245,23 @@ ${linksArray.slice(0, 300).join('\n')}`;
         );
       }
       
+      // Collect available brands before pagination
+      const brandSet = new Set<string>();
+      allProducts.forEach(p => { if (p.brand) brandSet.add(p.brand); });
+      const availableBrands = Array.from(brandSet).sort();
+
       if (sort === 'price-asc') {
         allProducts.sort((a, b) => (a.price || 0) - (b.price || 0));
       } else if (sort === 'price-desc') {
         allProducts.sort((a, b) => (b.price || 0) - (a.price || 0));
       } else if (sort === 'newest') {
         allProducts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } else if (sort === 'relevant') {
+        allProducts.sort((a, b) => {
+          if (a.isBestseller && !b.isBestseller) return -1;
+          if (!a.isBestseller && b.isBestseller) return 1;
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        });
       }
 
       const total = allProducts.length;
@@ -3258,7 +3277,8 @@ ${linksArray.slice(0, 300).join('\n')}`;
         page,
         limit,
         totalPages,
-        availableSubCategories
+        availableSubCategories,
+        availableBrands
       });
     } catch (err) {
       console.error('Error fetching products:', err);

@@ -21,9 +21,10 @@ export function CategoryPage() {
   const urlSearch = searchParams.get('search') || '';
   
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState('newest'); // 'newest', 'price_asc', 'price_desc'
+  const [sort, setSort] = useState('relevant');
   const [search, setSearch] = useState(urlSearch);
   const [subCategory, setSubCategory] = useState('all');
+  const [brand, setBrand] = useState('all');
   const [categoriesData, setCategoriesData] = useState<{name: string, subCategories: string[]}[]>([]);
 
   useEffect(() => {
@@ -63,10 +64,11 @@ export function CategoryPage() {
   };
   
   // Notice we pass normalizedCategoryId to useProducts
-  const { products: displayProducts, loading, pagination, availableSubCategories } = useProducts(page, 18, normalizedCategoryId, sort, search, subCategory);
+  const { products: displayProducts, loading, pagination, availableSubCategories, availableBrands } = useProducts(page, 18, normalizedCategoryId, sort, search, subCategory, brand);
 
   useEffect(() => {
      setSubCategory('all');
+     setBrand('all');
      setPage(1);
   }, [categoryId]);
   
@@ -174,8 +176,28 @@ export function CategoryPage() {
               ))}
             </ul>
           </div>
-          
 
+          {availableBrands && availableBrands.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-4 tracking-wider text-sm uppercase">Brand</h3>
+              <ul className="space-y-3">
+                <li>
+                  <button
+                    onClick={() => { setBrand('all'); setPage(1); }}
+                    className={`text-sm text-left ${brand === 'all' ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}
+                  >All Brands</button>
+                </li>
+                {availableBrands.map(b => (
+                  <li key={b}>
+                    <button
+                      onClick={() => { setBrand(b); setPage(1); }}
+                      className={`text-sm text-left ${brand === b ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}
+                    >{b}</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Product Grid */}
@@ -237,7 +259,8 @@ export function CategoryPage() {
                 value={sort}
                 onChange={(e) => { setSort(e.target.value); setPage(1); }}
               >
-                <option value="newest">Sort by Newest</option>
+                <option value="relevant">Relevant</option>
+                <option value="newest">Newest</option>
                 <option value="price_asc">Price: Low to High</option>
                 <option value="price_desc">Price: High to Low</option>
               </select>
