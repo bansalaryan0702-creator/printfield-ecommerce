@@ -187,7 +187,7 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
     if (right.lengthSq() < 0.001) right.set(1, 0, 0);
     const adjustedUp = new THREE.Vector3().crossVectors(right, hit.normal).normalize();
 
-    const worldPoint = hit.point.clone().add(hit.normal.clone().multiplyScalar(0.015));
+    const worldPoint = hit.point.clone().add(hit.normal.clone().multiplyScalar(0.02));
     const offsetXWorld = adj.offsetX * 0.3;
     const offsetYWorld = adj.offsetY * 0.3;
     const finalWorldPoint = worldPoint.clone()
@@ -275,8 +275,8 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
       const mat = new THREE.MeshStandardMaterial({
         ...(texture ? { map: texture } : { color: 0xff0000 }),
         transparent: true, alphaTest: texture ? 0.01 : 0,
-        side: THREE.DoubleSide, depthWrite: false, roughness: 0.95, metalness: 0.0,
-        polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+        side: THREE.FrontSide, depthWrite: true, roughness: 0.95, metalness: 0.0,
+        polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6,
       });
       if (!texture) { mat.opacity = 0.8; }
       const mesh = new THREE.Mesh(geo, mat);
