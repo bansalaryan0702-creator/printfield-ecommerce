@@ -114,13 +114,12 @@ function centerModel(scene: THREE.Group) {
 }
 
 function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
-  console.log('[3D] PoloModel render - designImage:', designImage, 'placement:', placement);
   const { scene } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
   const didCenter = useRef(false);
   const artworkRef = useRef<THREE.Mesh | null>(null);
 
-  // Compute placement positions from model bounds
+  // Placement anchor in WORLD space (model is normalized to ~3 units tall)
   function getPlacementPos(place: string, bounds: THREE.Box3) {
     const size = bounds.getSize(new THREE.Vector3());
     const min = bounds.min;
@@ -151,25 +150,19 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     }
   }
 
-  // Center on first load + TEST MESH
+  // Convert a world-space point into scene-local space.
+  // centerModel() applies scale+position on the scene itself, so children
+  // must be positioned in pre-transform local units.
+  function toLocal(worldVec: THREE.Vector3) {
+    return worldVec.clone().sub(scene.position).divideScalar(scene.scale.x || 1);
+  }
+
+  // Center on first load
   useEffect(() => {
     if (!scene || didCenter.current) return;
     didCenter.current = true;
     centerModel(scene);
     applyColor(scene, color);
-
-    // ALWAYS create a TEST MESH (bright green) to verify 3D rendering works
-    const testGeo = new THREE.PlaneGeometry(0.5, 0.5);
-    const testMat = new THREE.MeshStandardMaterial({
-      color: 0x00ff00, transparent: true, opacity: 0.8,
-      side: THREE.DoubleSide, depthWrite: true,
-    });
-    const testMesh = new THREE.Mesh(testGeo, testMat);
-    testMesh.position.set(0, 0.2, 0.5);
-    testMesh.renderOrder = 10;
-    scene.add(testMesh);
-    console.log('[3D] TEST MESH (bright green) created at front chest');
-
     onReady?.();
   }, [scene]);
 
@@ -186,45 +179,41 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
       return;
     }
 
-    console.log('[3D] Loading artwork:', designImage, 'for placement:', placement);
-    const bounds = (scene as any).userData.bounds;
-    const place = bounds ? getPlacementPos(placement || 'front-full', bounds) : 
+    const bounds = (scene as any).userData.bounds as THREE.Box3 | undefined;
+    const place = bounds ? getPlacementPos(placement || 'front-full', bounds) :
       PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
+
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
 
     loader.load(designImage, (texture) => {
-      console.log('[3D] Artwork texture loaded successfully');
       createOrUpdateArtwork(texture);
-    }, undefined, (err) => {
-      console.warn('[3D] Direct load failed, trying proxy:', err);
+    }, undefined, () => {
       const proxyUrl = `/api/proxy-image/${designImage.split('/').pop()}`;
       loader.load(proxyUrl, (texture) => {
-        console.log('[3D] Artwork loaded via proxy');
         createOrUpdateArtwork(texture);
-      }, undefined, (err2) => {
-        console.error('[3D] Both loads failed:', err2, 'original URL:', designImage);
+      }, undefined, () => {
         createPlaceholderArtwork();
       });
     });
 
     function createOrUpdateArtwork(texture: THREE.Texture) {
-      console.log('[3D] Creating/updating artwork mesh, place:', place);
       if (!artworkRef.current) {
-        const geo = new THREE.PlaneGeometry(place.scale * 1.2, place.scale * 1.2);
+        // Geometry lives in scene-local units -> divide desired world size by scene scale
+        const invScale = 1 / (scene.scale.x || 1);
+        const geoSize = place.scale * 1.2 * invScale;
+        const geo = new THREE.PlaneGeometry(geoSize, geoSize);
         const mat = new THREE.MeshStandardMaterial({
           map: texture, transparent: true, alphaTest: 0.01,
           side: THREE.DoubleSide, depthWrite: true, roughness: 0.9, metalness: 0.0,
         });
         const mesh = new THREE.Mesh(geo, mat);
-        const pos = [...place.position];
-        pos[2] += 0.03;
-        mesh.position.set(pos[0], pos[1], pos[2]);
+        const worldPos = new THREE.Vector3(place.position[0], place.position[1], place.position[2]);
+        mesh.position.copy(toLocal(worldPos));
         mesh.rotation.set(...place.rotation);
         mesh.renderOrder = 10;
         scene.add(mesh);
         artworkRef.current = mesh;
-        console.log('[3D] Artwork mesh created at:', mesh.position, 'scale:', place.scale * 1.2);
       } else {
         (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
         (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
@@ -233,23 +222,20 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     }
 
     function createPlaceholderArtwork() {
-      console.log('[3D] Creating placeholder artwork (texture failed)');
       if (!artworkRef.current) {
-        const geo = new THREE.PlaneGeometry(1, 1);
+        const invScale = 1 / (scene.scale.x || 1);
+        const geo = new THREE.PlaneGeometry(invScale, invScale);
         const mat = new THREE.MeshStandardMaterial({
           color: 0xff0000, transparent: true, opacity: 0.8,
           side: THREE.DoubleSide, depthWrite: true,
         });
         const mesh = new THREE.Mesh(geo, mat);
-        const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
-        const pos = [...place.position];
-        pos[2] += 0.03;
-        mesh.position.set(pos[0], pos[1], pos[2]);
+        const worldPos = new THREE.Vector3(place.position[0], place.position[1], place.position[2]);
+        mesh.position.copy(toLocal(worldPos));
         mesh.rotation.set(...place.rotation);
         mesh.renderOrder = 10;
         scene.add(mesh);
         artworkRef.current = mesh;
-        console.log('[3D] Placeholder (red) created at:', mesh.position);
       } else {
         artworkRef.current.visible = true;
       }
@@ -275,7 +261,6 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
 }
 
 export function Polo3DPreview({ color, designImage, placement, className = '' }: { color: string; designImage?: string | null; placement?: string; className?: string }) {
-  console.log('[3D] Polo3DPreview props - designImage:', designImage, 'placement:', placement, 'color:', color);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
