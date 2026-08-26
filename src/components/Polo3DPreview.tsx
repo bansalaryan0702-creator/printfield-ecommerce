@@ -139,10 +139,26 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     console.log('[3D] Loading artwork:', designImage, 'for placement:', placement);
     const place = PLACEMENT_3D[placement || 'front-full'] || PLACEMENT_3D['front-full'];
     const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin('anonymous'); // Try CORS
     
+    // Try direct load first
     loader.load(designImage, (texture) => {
       console.log('[3D] Artwork texture loaded successfully');
-      // Create or update artwork mesh
+      createOrUpdateArtwork(texture);
+    }, undefined, (err) => {
+      console.warn('[3D] Direct load failed, trying proxy:', err);
+      // Fallback: try via proxy for CORS issues
+      const proxyUrl = `/api/proxy-image/${designImage.split('/').pop()}`;
+      loader.load(proxyUrl, (texture) => {
+        console.log('[3D] Artwork loaded via proxy');
+        createOrUpdateArtwork(texture);
+      }, undefined, (err2) => {
+        console.error('[3D] Both loads failed:', err2);
+        if (artworkRef.current) artworkRef.current.visible = false;
+      });
+    });
+
+    function createOrUpdateArtwork(texture: THREE.Texture) {
       if (!artworkRef.current) {
         const geo = new THREE.PlaneGeometry(place.scale, place.scale);
         const mat = new THREE.MeshStandardMaterial({
@@ -161,10 +177,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
         artworkRef.current.visible = true;
       }
-    }, undefined, (err) => {
-      console.error('[3D] Artwork texture failed:', err, 'URL:', designImage);
-      if (artworkRef.current) artworkRef.current.visible = false;
-    });
+    }
 
     return () => {
       if (artworkRef.current) scene.remove(artworkRef.current);
