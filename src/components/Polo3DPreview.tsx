@@ -138,7 +138,9 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
   const groupRef = useRef<THREE.Group>(null);
   const didCenter = useRef(false);
   const artworkRef = useRef<THREE.Mesh | null>(null);
-  const adj = adjustment || DEFAULT_ADJUSTMENT;
+  const hitRef = useRef<{ point: THREE.Vector3; normal: THREE.Vector3; planeWorldScale: number } | null>(null);
+  const adjRef = useRef(adjustment || DEFAULT_ADJUSTMENT);
+  adjRef.current = adjustment || DEFAULT_ADJUSTMENT;
 
   function toLocal(worldVec: THREE.Vector3) {
     return worldVec.clone().sub(scene.position).divideScalar(scene.scale.x || 1);
@@ -178,6 +180,33 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
     }
   }
 
+  // Reposition existing artwork mesh using current adjustment (no texture reload)
+  function applyAdjustmentToMesh(mesh: THREE.Mesh, hit: { point: THREE.Vector3; normal: THREE.Vector3; planeWorldScale: number }, adj: ArtworkAdjustment) {
+    const up = new THREE.Vector3(0, 1, 0);
+    const right = new THREE.Vector3().crossVectors(hit.normal, up).normalize();
+    if (right.lengthSq() < 0.001) right.set(1, 0, 0);
+    const adjustedUp = new THREE.Vector3().crossVectors(right, hit.normal).normalize();
+
+    const worldPoint = hit.point.clone().add(hit.normal.clone().multiplyScalar(0.005));
+    const offsetXWorld = adj.offsetX * 0.3;
+    const offsetYWorld = adj.offsetY * 0.3;
+    const finalWorldPoint = worldPoint.clone()
+      .add(right.clone().multiplyScalar(offsetXWorld))
+      .add(adjustedUp.clone().multiplyScalar(offsetYWorld));
+
+    mesh.position.copy(toLocal(finalWorldPoint));
+
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), hit.normal);
+    const adjustedRotation = adj.rotation * (Math.PI / 180);
+    if (adjustedRotation !== 0) {
+      const rotQ = new THREE.Quaternion().setFromAxisAngle(hit.normal, adjustedRotation);
+      q.premultiply(rotQ);
+    }
+    mesh.quaternion.copy(q);
+
+    mesh.scale.setScalar(adj.scale);
+  }
+
   useEffect(() => {
     if (!scene || didCenter.current) return;
     didCenter.current = true;
@@ -191,7 +220,7 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
     applyColor(scene, color);
   }, [scene, color]);
 
-  // Artwork overlay — raycasts onto shirt surface, applies adjustment offsets
+  // Effect 1: Load texture + create mesh (only when scene/designImage/placement changes)
   useEffect(() => {
     if (!scene || !designImage || !didCenter.current) {
       if (artworkRef.current) artworkRef.current.visible = false;
@@ -205,37 +234,37 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
     if (meshes.length === 0) return;
 
     const { origin, dir, scale: planeWorldScale } = getPlacementRaycast(placement || 'front-full', bounds);
-    const hit = raycastSurface(meshes, origin, dir);
-    if (!hit) return;
+    let hit = raycastSurface(meshes, origin, dir);
 
-    const worldPoint = hit.point.clone().add(hit.normal.clone().multiplyScalar(0.005));
+    // Fallback: if raycast misses, place at center-front of bounds
+    if (!hit) {
+      const ctr = bounds.getCenter(new THREE.Vector3());
+      const frontZ = (placement || '').includes('back') ? bounds.min.z : bounds.max.z;
+      const fallbackOrigin = new THREE.Vector3(ctr.x, bounds.min.y + bounds.getSize(new THREE.Vector3()).y * 0.45, frontZ + (placement || '').includes('back') ? -10 : 10);
+      const fallbackDir = new THREE.Vector3(0, 0, (placement || '').includes('back') ? 1 : -1);
+      hit = raycastSurface(meshes, fallbackOrigin, fallbackDir);
+      if (!hit) {
+        // Last resort: just place in front of model center
+        hit = {
+          point: new THREE.Vector3(ctr.x, bounds.min.y + bounds.getSize(new THREE.Vector3()).y * 0.45, bounds.max.z),
+          normal: new THREE.Vector3(0, 0, 1),
+        };
+      }
+    }
+
+    hitRef.current = { ...hit, planeWorldScale };
+
     const invScale = 1 / (scene.scale.x || 1);
-
-    // Compute right/up vectors from surface normal for offset axes
-    const up = new THREE.Vector3(0, 1, 0);
-    const right = new THREE.Vector3().crossVectors(hit.normal, up).normalize();
-    if (right.lengthSq() < 0.001) right.set(1, 0, 0);
-    const adjustedUp = new THREE.Vector3().crossVectors(right, hit.normal).normalize();
-
-    // Apply adjustment offsets (offset in world units: 0.3 = ~30% of shirt width)
-    const offsetXWorld = adj.offsetX * 0.3;
-    const offsetYWorld = adj.offsetY * 0.3;
-    const finalWorldPoint = worldPoint.clone()
-      .add(right.clone().multiplyScalar(offsetXWorld))
-      .add(adjustedUp.clone().multiplyScalar(offsetYWorld));
-
-    const adjustedScale = planeWorldScale * adj.scale;
-    const adjustedRotation = adj.rotation * (Math.PI / 180);
+    const adjustedScale = planeWorldScale * adjRef.current.scale;
 
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
 
-    loader.load(designImage, (tex) => applyArtwork(tex), undefined, () => {
-      loader.load(`/api/proxy-image/${designImage.split('/').pop()}`, (tex) => applyArtwork(tex), undefined, () => applyArtwork(null));
+    loader.load(designImage, (tex) => buildMesh(tex), undefined, () => {
+      loader.load(`/api/proxy-image/${designImage.split('/').pop()}`, (tex) => buildMesh(tex), undefined, () => buildMesh(null));
     });
 
-    function applyArtwork(texture: THREE.Texture | null) {
-      // Remove old artwork mesh to rebuild with new geometry/scale
+    function buildMesh(texture: THREE.Texture | null) {
       if (artworkRef.current) {
         scene.remove(artworkRef.current);
         artworkRef.current = null;
@@ -252,22 +281,20 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
       if (!texture) { mat.opacity = 0.8; }
       const mesh = new THREE.Mesh(geo, mat);
       (mesh as any).userData.isArtwork = true;
-      mesh.position.copy(toLocal(finalWorldPoint));
-
-      // Align to surface normal, then apply rotation around it
-      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), hit.normal);
-      if (adjustedRotation !== 0) {
-        const rotQ = new THREE.Quaternion().setFromAxisAngle(hit.normal, adjustedRotation);
-        q.premultiply(rotQ);
-      }
-      mesh.quaternion.copy(q);
       mesh.renderOrder = 10;
       scene.add(mesh);
       artworkRef.current = mesh;
+      applyAdjustmentToMesh(mesh, hitRef.current!, adjRef.current);
     }
 
     return () => { if (artworkRef.current) scene.remove(artworkRef.current); artworkRef.current = null; };
-  }, [scene, designImage, placement, adj.offsetX, adj.offsetY, adj.scale, adj.rotation]);
+  }, [scene, designImage, placement]);
+
+  // Effect 2: Reapply adjustment instantly when sliders move (no texture reload)
+  useEffect(() => {
+    if (!artworkRef.current || !hitRef.current) return;
+    applyAdjustmentToMesh(artworkRef.current, hitRef.current, adjRef.current);
+  }, [adjustment?.offsetX, adjustment?.offsetY, adjustment?.scale, adjustment?.rotation]);
 
   useFrame((state) => {
     if (groupRef.current) {
