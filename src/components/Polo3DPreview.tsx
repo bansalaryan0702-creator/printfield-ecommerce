@@ -22,93 +22,100 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   }
 }
 
+function applyColor(scene: THREE.Group, color: string) {
+  const targetColor = new THREE.Color(color);
+  const white = new THREE.Color(1, 1, 1);
+
+  // Detect buttons once (small meshes near top)
+  const bodyBox = new THREE.Box3().setFromObject(scene);
+  const bodySize = bodyBox.getSize(new THREE.Vector3());
+  const bodyVol = bodySize.x * bodySize.y * bodySize.z;
+  const btnMeshes = new Set<THREE.Mesh>();
+  scene.traverse((c) => {
+    if (!(c instanceof THREE.Mesh)) return;
+    const b = new THREE.Box3().setFromObject(c);
+    const s = b.getSize(new THREE.Vector3());
+    const v = s.x * s.y * s.z;
+    const small = v < bodyVol * 0.005;
+    const nearTop = b.min.y > bodyBox.max.y - bodySize.y * 0.35;
+    const named = (c.name || '').toLowerCase().includes('button') || (c.name || '').toLowerCase().includes('btn');
+    if (named || (small && nearTop)) btnMeshes.add(c);
+  });
+
+  scene.traverse((c) => {
+    if (!(c instanceof THREE.Mesh)) return;
+    c.castShadow = false;
+    c.receiveShadow = false;
+    const isBtn = btnMeshes.has(c);
+    const mats = Array.isArray(c.material) ? c.material : [c.material];
+    mats.forEach((m) => {
+      if (m instanceof THREE.MeshStandardMaterial) {
+        m.map = null; m.normalMap = null; m.aoMap = null; m.emissiveMap = null;
+        m.color.copy(isBtn ? white : targetColor);
+        m.roughness = isBtn ? 0.3 : 0.85;
+        m.metalness = isBtn ? 0.15 : 0;
+        m.needsUpdate = true;
+      } else if (m instanceof THREE.MeshPhongMaterial) {
+        m.map = null; m.normalMap = null;
+        m.color.copy(isBtn ? white : targetColor);
+        m.specular.set(isBtn ? 0x444444 : 0x111111);
+        m.shininess = isBtn ? 30 : 5;
+        m.needsUpdate = true;
+      }
+    });
+  });
+}
+
+function centerModel(scene: THREE.Group) {
+  scene.updateMatrixWorld(true);
+  const box = new THREE.Box3();
+  scene.traverse((c) => {
+    if (!(c instanceof THREE.Mesh)) return;
+    c.geometry.computeBoundingBox();
+    if (c.geometry.boundingBox) {
+      box.union(c.geometry.boundingBox.clone().applyMatrix4(c.matrixWorld));
+    }
+  });
+  if (box.isEmpty()) box.setFromObject(scene);
+
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  scene.scale.setScalar(3.0 / maxDim);
+  scene.updateMatrixWorld(true);
+
+  const nb = new THREE.Box3();
+  scene.traverse((c) => {
+    if (!(c instanceof THREE.Mesh)) return;
+    c.geometry.computeBoundingBox();
+    if (c.geometry.boundingBox) {
+      nb.union(c.geometry.boundingBox.clone().applyMatrix4(c.matrixWorld));
+    }
+  });
+  if (nb.isEmpty()) nb.setFromObject(scene);
+  const nc = nb.getCenter(new THREE.Vector3());
+  const nm = nb.min;
+  scene.position.set(-nc.x, -nm.y, -nc.z);
+}
+
 function PoloModel({ color, onReady }: { color: string; onReady?: () => void }) {
   const { scene } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
-  const didInit = useRef(false);
+  const didCenter = useRef(false);
 
+  // Center on first load
   useEffect(() => {
-    if (!scene || didInit.current) return;
-    didInit.current = true;
-
-    const targetColor = new THREE.Color(color);
-    const white = new THREE.Color(1, 1, 1);
-
-    // Find button meshes (tiny geometry near top)
-    const bodyBox = new THREE.Box3().setFromObject(scene);
-    const bodySize = bodyBox.getSize(new THREE.Vector3());
-    const bodyVol = bodySize.x * bodySize.y * bodySize.z;
-    const btnNames = ['button', 'btn'];
-    const btnMeshes = new Set<THREE.Mesh>();
-    scene.traverse((c) => {
-      if (!(c instanceof THREE.Mesh)) return;
-      const n = (c.name || '').toLowerCase();
-      const b = new THREE.Box3().setFromObject(c);
-      const s = b.getSize(new THREE.Vector3());
-      const v = s.x * s.y * s.z;
-      const small = v < bodyVol * 0.005;
-      const nearTop = b.min.y > bodyBox.max.y - bodySize.y * 0.35;
-      const named = btnNames.some(x => n.includes(x));
-      if (named || (small && nearTop)) btnMeshes.add(c);
-    });
-
-    // Apply color: body = targetColor, buttons = white, remove textures
-    scene.traverse((c) => {
-      if (!(c instanceof THREE.Mesh)) return;
-      c.castShadow = false;
-      c.receiveShadow = false;
-      const isBtn = btnMeshes.has(c);
-      const mats = Array.isArray(c.material) ? c.material : [c.material];
-      mats.forEach((m) => {
-        if (m instanceof THREE.MeshStandardMaterial) {
-          m.map = null; m.normalMap = null; m.aoMap = null; m.emissiveMap = null;
-          m.color.copy(isBtn ? white : targetColor);
-          m.roughness = isBtn ? 0.3 : 0.85;
-          m.metalness = isBtn ? 0.15 : 0;
-          m.needsUpdate = true;
-        } else if (m instanceof THREE.MeshPhongMaterial) {
-          m.map = null; m.normalMap = null;
-          m.color.copy(isBtn ? white : targetColor);
-          m.specular.set(isBtn ? 0x444444 : 0x111111);
-          m.shininess = isBtn ? 30 : 5;
-          m.needsUpdate = true;
-        }
-      });
-    });
-
-    // Center: compute bounds from geometry + world matrix
-    scene.updateMatrixWorld(true);
-    const box = new THREE.Box3();
-    scene.traverse((c) => {
-      if (!(c instanceof THREE.Mesh)) return;
-      c.geometry.computeBoundingBox();
-      if (c.geometry.boundingBox) {
-        const mb = c.geometry.boundingBox.clone().applyMatrix4(c.matrixWorld);
-        box.union(mb);
-      }
-    });
-    if (box.isEmpty()) box.setFromObject(scene);
-
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    scene.scale.setScalar(3.0 / maxDim);
-    scene.updateMatrixWorld(true);
-
-    const nb = new THREE.Box3();
-    scene.traverse((c) => {
-      if (!(c instanceof THREE.Mesh)) return;
-      c.geometry.computeBoundingBox();
-      if (c.geometry.boundingBox) {
-        nb.union(c.geometry.boundingBox.clone().applyMatrix4(c.matrixWorld));
-      }
-    });
-    if (nb.isEmpty()) nb.setFromObject(scene);
-    const nc = nb.getCenter(new THREE.Vector3());
-    const nm = nb.min;
-    scene.position.set(-nc.x, -nm.y, -nc.z);
-
+    if (!scene || didCenter.current) return;
+    didCenter.current = true;
+    centerModel(scene);
+    applyColor(scene, color);
     onReady?.();
-  }, [scene, color, onReady]);
+  }, [scene]);
+
+  // Color update on every change
+  useEffect(() => {
+    if (!scene || !didCenter.current) return;
+    applyColor(scene, color);
+  }, [scene, color]);
 
   useFrame((state) => {
     if (groupRef.current) {
