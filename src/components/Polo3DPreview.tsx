@@ -150,28 +150,6 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
     }
   }
-    const frontZ = max.z;
-    const backZ = min.z;
-    const leftX = min.x;
-    const rightX = max.x;
-    const sleeveY = min.y + size.y * 0.7; // Shoulder height
-    const scale = Math.min(size.x, size.z) * 0.35;
-
-    switch (place) {
-      case 'front-chest':
-        return { position: [cx - size.x * 0.18, cy, frontZ + 0.02], rotation: [0, 0, 0], scale: scale * 0.6 };
-      case 'front-full':
-        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
-      case 'back-full':
-        return { position: [cx, cy - size.y * 0.05, backZ - 0.02], rotation: [0, Math.PI, 0], scale };
-      case 'sleeve-left':
-        return { position: [leftX - 0.02, sleeveY, cz], rotation: [0, -Math.PI / 2, -0.15], scale: scale * 0.5 };
-      case 'sleeve-right':
-        return { position: [rightX + 0.02, sleeveY, cz], rotation: [0, Math.PI / 2, 0.15], scale: scale * 0.5 };
-      default:
-        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
-    }
-  }
 
   // Center on first load + TEST MESH
   useEffect(() => {
