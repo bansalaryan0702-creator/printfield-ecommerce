@@ -43,6 +43,7 @@ function applyColor(scene: THREE.Group, color: string) {
   const btnMeshes = new Set<THREE.Mesh>();
   scene.traverse((c) => {
     if (!(c instanceof THREE.Mesh)) return;
+    if ((c as any).userData?.isArtwork) return;
     const b = new THREE.Box3().setFromObject(c);
     const s = b.getSize(new THREE.Vector3());
     const v = s.x * s.y * s.z;
@@ -54,6 +55,7 @@ function applyColor(scene: THREE.Group, color: string) {
 
   scene.traverse((c) => {
     if (!(c instanceof THREE.Mesh)) return;
+    if ((c as any).userData?.isArtwork) return;
     c.castShadow = false;
     c.receiveShadow = false;
     const isBtn = btnMeshes.has(c);
@@ -113,6 +115,22 @@ function centerModel(scene: THREE.Group) {
   (scene as any).userData.size = finalBox.getSize(new THREE.Vector3());
 }
 
+// Plane bent around an implicit vertical cylinder so it hugs the torso
+function createCurvedPlaneGeometry(width: number, height: number, segments = 24) {
+  const geo = new THREE.PlaneGeometry(width, height, segments, segments);
+  const posAttr = geo.attributes.position as THREE.BufferAttribute;
+  const radius = width * 1.15; // gentle wrap: ~25-30 deg bend at edges
+  for (let i = 0; i < posAttr.count; i++) {
+    const x = posAttr.getX(i);
+    const y = posAttr.getY(i);
+    const t = Math.max(-1, Math.min(1, x / radius));
+    const angle = Math.asin(t);
+    posAttr.setXYZ(i, Math.sin(angle) * radius, y, (Math.cos(angle) - 1) * radius);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+
 function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
   const { scene } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
@@ -136,17 +154,17 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
 
     switch (place) {
       case 'front-chest':
-        return { position: [cx - size.x * 0.18, cy, frontZ + 0.02], rotation: [0, 0, 0], scale: scale * 0.6 };
+        return { position: [cx - size.x * 0.18, cy, frontZ + 0.008], rotation: [0, 0, 0], scale: scale * 0.6 };
       case 'front-full':
-        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
+        return { position: [cx, cy - size.y * 0.05, frontZ + 0.008], rotation: [0, 0, 0], scale };
       case 'back-full':
-        return { position: [cx, cy - size.y * 0.05, backZ - 0.02], rotation: [0, Math.PI, 0], scale };
+        return { position: [cx, cy - size.y * 0.05, backZ - 0.008], rotation: [0, Math.PI, 0], scale };
       case 'sleeve-left':
-        return { position: [leftX - 0.02, sleeveY, cz], rotation: [0, -Math.PI / 2, -0.15], scale: scale * 0.5 };
+        return { position: [leftX - 0.01, sleeveY, cz], rotation: [0, -Math.PI / 2, -0.15], scale: scale * 0.5 };
       case 'sleeve-right':
-        return { position: [rightX + 0.02, sleeveY, cz], rotation: [0, Math.PI / 2, 0.15], scale: scale * 0.5 };
+        return { position: [rightX + 0.01, sleeveY, cz], rotation: [0, Math.PI / 2, 0.15], scale: scale * 0.5 };
       default:
-        return { position: [cx, cy - size.y * 0.05, frontZ + 0.02], rotation: [0, 0, 0], scale };
+        return { position: [cx, cy - size.y * 0.05, frontZ + 0.008], rotation: [0, 0, 0], scale };
     }
   }
 
@@ -202,12 +220,14 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
         // Geometry lives in scene-local units -> divide desired world size by scene scale
         const invScale = 1 / (scene.scale.x || 1);
         const geoSize = place.scale * 1.2 * invScale;
-        const geo = new THREE.PlaneGeometry(geoSize, geoSize);
+        const geo = createCurvedPlaneGeometry(geoSize, geoSize);
         const mat = new THREE.MeshStandardMaterial({
           map: texture, transparent: true, alphaTest: 0.01,
-          side: THREE.DoubleSide, depthWrite: true, roughness: 0.9, metalness: 0.0,
+          side: THREE.DoubleSide, depthWrite: true, roughness: 0.95, metalness: 0.0,
+          polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
         });
         const mesh = new THREE.Mesh(geo, mat);
+        (mesh as any).userData.isArtwork = true;
         const worldPos = new THREE.Vector3(place.position[0], place.position[1], place.position[2]);
         mesh.position.copy(toLocal(worldPos));
         mesh.rotation.set(...place.rotation);
@@ -224,12 +244,14 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     function createPlaceholderArtwork() {
       if (!artworkRef.current) {
         const invScale = 1 / (scene.scale.x || 1);
-        const geo = new THREE.PlaneGeometry(invScale, invScale);
+        const geo = createCurvedPlaneGeometry(invScale, invScale);
         const mat = new THREE.MeshStandardMaterial({
           color: 0xff0000, transparent: true, opacity: 0.8,
           side: THREE.DoubleSide, depthWrite: true,
+          polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
         });
         const mesh = new THREE.Mesh(geo, mat);
+        (mesh as any).userData.isArtwork = true;
         const worldPos = new THREE.Vector3(place.position[0], place.position[1], place.position[2]);
         mesh.position.copy(toLocal(worldPos));
         mesh.rotation.set(...place.rotation);
