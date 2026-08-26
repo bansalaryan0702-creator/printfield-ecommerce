@@ -1,7 +1,16 @@
-import React, { useRef, useEffect, useState, Suspense, Component, ReactNode } from 'react';
+import React, { useRef, useEffect, useState, Suspense, Component, ReactNode, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+
+export interface ArtworkAdjustment {
+  offsetX: number;
+  offsetY: number;
+  scale: number;
+  rotation: number;
+}
+
+export const DEFAULT_ADJUSTMENT: ArtworkAdjustment = { offsetX: 0, offsetY: 0, scale: 1, rotation: 0 };
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
@@ -21,17 +30,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     return this.props.children;
   }
 }
-
-const PLACEMENT_3D: Record<string, { position: [number, number, number]; rotation: [number, number, number]; scale: number }> = {
-  'front-chest': { position: [-0.12, 0.25, 0.52], rotation: [0, 0, 0], scale: 0.25 },
-  'front-full': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
-  'back-full': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
-  'sleeve-left': { position: [-0.45, 0.3, 0.05], rotation: [0, -Math.PI / 2, -0.15], scale: 0.18 },
-  'sleeve-right': { position: [0.45, 0.3, 0.05], rotation: [0, Math.PI / 2, 0.15], scale: 0.18 },
-  'front': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
-  'back': { position: [0, 0.15, -0.5], rotation: [0, Math.PI, 0], scale: 0.55 },
-  'generic': { position: [0, 0.15, 0.5], rotation: [0, 0, 0], scale: 0.55 },
-};
 
 function applyColor(scene: THREE.Group, color: string) {
   const targetColor = new THREE.Color(color);
@@ -108,18 +106,16 @@ function centerModel(scene: THREE.Group) {
   const nm = nb.min;
   scene.position.set(-nc.x, -nm.y, -nc.z);
 
-  // Store bounds for artwork placement
   scene.updateMatrixWorld(true);
   const finalBox = new THREE.Box3().setFromObject(scene);
   (scene as any).userData.bounds = finalBox;
   (scene as any).userData.size = finalBox.getSize(new THREE.Vector3());
 }
 
-// Plane bent around an implicit vertical cylinder so it hugs the torso
 function createCurvedPlaneGeometry(width: number, height: number, segments = 24) {
   const geo = new THREE.PlaneGeometry(width, height, segments, segments);
   const posAttr = geo.attributes.position as THREE.BufferAttribute;
-  const radius = width * 1.15; // gentle wrap: ~25-30 deg bend at edges
+  const radius = width * 1.15;
   for (let i = 0; i < posAttr.count; i++) {
     const x = posAttr.getX(i);
     const y = posAttr.getY(i);
@@ -131,11 +127,18 @@ function createCurvedPlaneGeometry(width: number, height: number, segments = 24)
   return geo;
 }
 
-function PoloModel({ color, designImage, placement, onReady }: { color: string; designImage?: string | null; placement?: string; onReady?: () => void }) {
+function PoloModel({ color, designImage, placement, adjustment, onReady }: {
+  color: string;
+  designImage?: string | null;
+  placement?: string;
+  adjustment?: ArtworkAdjustment;
+  onReady?: () => void;
+}) {
   const { scene } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
   const didCenter = useRef(false);
   const artworkRef = useRef<THREE.Mesh | null>(null);
+  const adj = adjustment || DEFAULT_ADJUSTMENT;
 
   function toLocal(worldVec: THREE.Vector3) {
     return worldVec.clone().sub(scene.position).divideScalar(scene.scale.x || 1);
@@ -147,7 +150,6 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     return meshes;
   }
 
-  // Raycast onto the shirt surface and return exact hit point + outward normal
   function raycastSurface(meshes: THREE.Mesh[], origin: THREE.Vector3, dir: THREE.Vector3) {
     const rc = new THREE.Raycaster();
     rc.set(origin, dir.normalize());
@@ -157,7 +159,6 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     return { point: hits[0].point, normal };
   }
 
-  // Raycast parameters per placement: cast from far away toward the model
   function getPlacementRaycast(place: string, bounds: THREE.Box3) {
     const sz = bounds.getSize(new THREE.Vector3());
     const ctr = bounds.getCenter(new THREE.Vector3());
@@ -177,7 +178,6 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     }
   }
 
-  // Center on first load
   useEffect(() => {
     if (!scene || didCenter.current) return;
     didCenter.current = true;
@@ -186,13 +186,12 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     onReady?.();
   }, [scene]);
 
-  // Color update on every change
   useEffect(() => {
     if (!scene || !didCenter.current) return;
     applyColor(scene, color);
   }, [scene, color]);
 
-  // Artwork overlay — raycasts onto shirt surface
+  // Artwork overlay — raycasts onto shirt surface, applies adjustment offsets
   useEffect(() => {
     if (!scene || !designImage || !didCenter.current) {
       if (artworkRef.current) artworkRef.current.visible = false;
@@ -209,9 +208,24 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     const hit = raycastSurface(meshes, origin, dir);
     if (!hit) return;
 
-    // Tiny offset along outward normal so artwork sits ON the fabric
     const worldPoint = hit.point.clone().add(hit.normal.clone().multiplyScalar(0.005));
     const invScale = 1 / (scene.scale.x || 1);
+
+    // Compute right/up vectors from surface normal for offset axes
+    const up = new THREE.Vector3(0, 1, 0);
+    const right = new THREE.Vector3().crossVectors(hit.normal, up).normalize();
+    if (right.lengthSq() < 0.001) right.set(1, 0, 0);
+    const adjustedUp = new THREE.Vector3().crossVectors(right, hit.normal).normalize();
+
+    // Apply adjustment offsets (offset in world units: 0.3 = ~30% of shirt width)
+    const offsetXWorld = adj.offsetX * 0.3;
+    const offsetYWorld = adj.offsetY * 0.3;
+    const finalWorldPoint = worldPoint.clone()
+      .add(right.clone().multiplyScalar(offsetXWorld))
+      .add(adjustedUp.clone().multiplyScalar(offsetYWorld));
+
+    const adjustedScale = planeWorldScale * adj.scale;
+    const adjustedRotation = adj.rotation * (Math.PI / 180);
 
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
@@ -221,15 +235,13 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     });
 
     function applyArtwork(texture: THREE.Texture | null) {
+      // Remove old artwork mesh to rebuild with new geometry/scale
       if (artworkRef.current) {
-        if (texture) {
-          (artworkRef.current.material as THREE.MeshStandardMaterial).map = texture;
-          (artworkRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
-        }
-        artworkRef.current.visible = true;
-        return;
+        scene.remove(artworkRef.current);
+        artworkRef.current = null;
       }
-      const geoSize = (texture ? planeWorldScale * 1.2 : 1) * invScale;
+
+      const geoSize = (texture ? adjustedScale * 1.2 : 1) * invScale;
       const geo = createCurvedPlaneGeometry(geoSize, geoSize);
       const mat = new THREE.MeshStandardMaterial({
         ...(texture ? { map: texture } : { color: 0xff0000 }),
@@ -240,8 +252,14 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
       if (!texture) { mat.opacity = 0.8; }
       const mesh = new THREE.Mesh(geo, mat);
       (mesh as any).userData.isArtwork = true;
-      mesh.position.copy(toLocal(worldPoint));
+      mesh.position.copy(toLocal(finalWorldPoint));
+
+      // Align to surface normal, then apply rotation around it
       const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), hit.normal);
+      if (adjustedRotation !== 0) {
+        const rotQ = new THREE.Quaternion().setFromAxisAngle(hit.normal, adjustedRotation);
+        q.premultiply(rotQ);
+      }
       mesh.quaternion.copy(q);
       mesh.renderOrder = 10;
       scene.add(mesh);
@@ -249,7 +267,7 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
     }
 
     return () => { if (artworkRef.current) scene.remove(artworkRef.current); artworkRef.current = null; };
-  }, [scene, designImage, placement]);
+  }, [scene, designImage, placement, adj.offsetX, adj.offsetY, adj.scale, adj.rotation]);
 
   useFrame((state) => {
     if (groupRef.current) {
@@ -264,15 +282,31 @@ function PoloModel({ color, designImage, placement, onReady }: { color: string; 
   );
 }
 
-export function Polo3DPreview({ color, designImage, placement, className = '' }: { color: string; designImage?: string | null; placement?: string; className?: string }) {
+export function Polo3DPreview({
+  color, designImage, placement, className = '',
+  adjustment, adjustmentMode, onAdjustChange,
+}: {
+  color: string;
+  designImage?: string | null;
+  placement?: string;
+  className?: string;
+  adjustment?: ArtworkAdjustment;
+  adjustmentMode?: boolean;
+  onAdjustChange?: (adj: ArtworkAdjustment) => void;
+}) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const resolvedColor = color && color.startsWith('#') ? color : '#2962a3';
+  const adj = adjustment || DEFAULT_ADJUSTMENT;
 
   useEffect(() => {
     const t = setTimeout(() => { if (!loaded && !error) setError(true); }, 60000);
     return () => clearTimeout(t);
   }, [loaded, error]);
+
+  const setAdj = useCallback((patch: Partial<ArtworkAdjustment>) => {
+    onAdjustChange?.({ ...adj, ...patch });
+  }, [adj, onAdjustChange]);
 
   return (
     <div className={`relative ${className}`}>
@@ -289,7 +323,13 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
 
         <Suspense fallback={null}>
           <ErrorBoundary>
-            <PoloModel color={resolvedColor} designImage={designImage} placement={placement} onReady={() => setLoaded(true)} />
+            <PoloModel
+              color={resolvedColor}
+              designImage={designImage}
+              placement={placement}
+              adjustment={adj}
+              onReady={() => setLoaded(true)}
+            />
           </ErrorBoundary>
         </Suspense>
 
@@ -318,11 +358,54 @@ export function Polo3DPreview({ color, designImage, placement, className = '' }:
           </div>
         </div>
       )}
-      {loaded && !error && (
+      {loaded && !error && !adjustmentMode && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
-          Drag to rotate • Scroll to zoom
+          Drag to rotate &bull; Scroll to zoom
         </div>
       )}
+
+      {/* Adjustment sliders overlay */}
+      {adjustmentMode && loaded && !error && (
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-4 pt-10 z-20">
+          <div className="max-w-md mx-auto space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-white text-xs font-semibold tracking-wide uppercase">Adjust Artwork Position</span>
+              <button
+                onClick={() => onAdjustChange?.(DEFAULT_ADJUSTMENT)}
+                className="text-[10px] text-purple-300 hover:text-white transition-colors"
+              >Reset</button>
+            </div>
+
+            <SliderRow label="Left / Right" value={adj.offsetX} min={-1} max={1} step={0.01} onChange={v => setAdj({ offsetX: v })} />
+            <SliderRow label="Up / Down"   value={adj.offsetY} min={-1} max={1} step={0.01} onChange={v => setAdj({ offsetY: v })} />
+            <SliderRow label="Size"        value={adj.scale}   min={0.3} max={3} step={0.01} onChange={v => setAdj({ scale: v })} />
+            <SliderRow label="Rotation"    value={adj.rotation} min={-180} max={180} step={1} onChange={v => setAdj({ rotation: v })} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SliderRow({ label, value, min, max, step, onChange }: {
+  label: string; value: number; min: number; max: number; step: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-white/70 text-[11px] w-20 shrink-0 text-right">{label}</span>
+      <input
+        type="range"
+        min={min} max={max} step={step} value={value}
+        onChange={e => onChange(parseFloat(e.target.value))}
+        className="flex-1 h-1.5 accent-purple-500 bg-white/20 rounded-full appearance-none cursor-pointer
+                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
+                   [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full
+                   [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer"
+      />
+      <span className="text-white text-[11px] w-12 text-right font-mono tabular-nums">
+        {step >= 1 ? value.toFixed(0) : step >= 0.1 ? value.toFixed(1) : value.toFixed(2)}
+      </span>
     </div>
   );
 }
