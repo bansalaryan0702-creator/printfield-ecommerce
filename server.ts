@@ -3719,66 +3719,56 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
 
   // AI Helper Endpoints
 
-  // Local CLIP image classification — runs entirely on machine, no API limits
-  let clipPipeline: any = null;
-  const CATEGORY_LABELS = [
-    'a photo of a t-shirt or polo shirt or hoodie or jacket or sweatshirt',
-    'a photo of a trophy or award or medal or plaque',
-    'a photo of a mug or cup or bottle or flask or tumbler or water bottle',
-    'a photo of a banner or standee or signage or flex or poster',
-    'a photo of a business card or letterhead or envelope or notepad',
-    'a photo of a keychain or pendant or bookmark',
-    'a photo of a pen or pencil or stationery or notebook',
-    'a photo of a cap or hat or bag or backpack or t-shirt',
-    'a photo of a calendar or diary or planner',
-    'a photo of a LED sign or digital display or neon light',
-    'a photo of a gift box or hamper or corporate gift set',
-    'a photo of a sticker or label or tag',
-  ];
-  const CATEGORY_MAP: Record<string, string> = {
-    'a photo of a t-shirt or polo shirt or hoodie or jacket or sweatshirt': 'Apparel',
-    'a photo of a trophy or award or medal or plaque': 'Trophies & Awards',
-    'a photo of a mug or cup or bottle or flask or tumbler or water bottle': 'Drinkware',
-    'a photo of a banner or standee or signage or flex or poster': 'Signages & Banners',
-    'a photo of a business card or letterhead or envelope or notepad': 'Business Stationery',
-    'a photo of a keychain or pendant or bookmark': 'Personalised Gifts',
-    'a photo of a pen or pencil or stationery or notebook': 'Business Stationery',
-    'a photo of a cap or hat or bag or backpack or t-shirt': 'Apparel',
-    'a photo of a calendar or diary or planner': 'Business Stationery',
-    'a photo of a LED sign or digital display or neon light': 'Signages & Banners',
-    'a photo of a gift box or hamper or corporate gift set': 'Corporate Gifts',
-    'a photo of a sticker or label or tag': 'Marketing- Labels & Stickers',
-  };
+  async function imageToBase64(url: string): Promise<string> {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch image for classification');
+    const buffer = Buffer.from(await res.arrayBuffer());
+    return buffer.toString('base64');
+  }
+
+  // AI image classification — uses Gemini vision API
 
   app.post('/api/ai/classify-image', verifyAdmin, async (req, res) => {
     try {
       const { imageUrl } = req.body;
       if (!imageUrl) return res.status(400).json({ error: 'imageUrl is required' });
 
-      // Lazy-load CLIP model (downloads ~350MB on first run, cached after)
-      if (!clipPipeline) {
-        const { pipeline } = await import('@huggingface/transformers');
-        clipPipeline = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32');
-      }
+      const prompt = `Look at this product image and classify it into exactly ONE of these categories: Apparel, Trophies & Awards, Drinkware, Signages & Banners, Business Stationery, Personalised Gifts, Corporate Gifts, Marketing- Labels & Stickers.
 
-      // Download image to temp buffer
-      const imgRes = await fetch(imageUrl);
-      if (!imgRes.ok) throw new Error('Failed to fetch image');
-      const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
-      const tmpPath = `/tmp/cls-${Date.now()}.jpg`;
-      fsSync.writeFileSync(tmpPath, imgBuffer);
+Return ONLY a JSON object with two fields:
+- "category": the single best-matching category from the list above
+- "confidence": a number between 0 and 1
 
-      const result = await clipPipeline(tmpPath, CATEGORY_LABELS, { topk: 3 });
+No text outside the JSON.`;
 
-      // Clean up temp file
-      try { fsSync.unlinkSync(tmpPath); } catch {}
+      const aiRes = await callGeminiWithRetry({
+        contents: [
+          { role: 'user', parts: [
+            { text: prompt },
+            { inlineData: { mimeType: 'image/jpeg', data: await imageToBase64(imageUrl) } }
+          ]}
+        ],
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              category: { type: Type.STRING },
+              confidence: { type: Type.NUMBER }
+            }
+          }
+        }
+      });
 
-      const predictions = Array.isArray(result) ? result : [result];
-      const top = predictions[0];
-      const category = CATEGORY_MAP[top.label] || 'Custom Apparel';
-      const confidence = top.score;
+      let category = 'Custom Apparel';
+      let confidence = 0.8;
+      try {
+        const parsed = JSON.parse(aiRes.text || '{}');
+        category = parsed.category || category;
+        confidence = parsed.confidence || confidence;
+      } catch {}
 
-      return res.json({ category, confidence, predictions: predictions.map((p: any) => ({ label: CATEGORY_MAP[p.label] || p.label, score: p.score })) });
+      return res.json({ category, confidence, predictions: [{ label: category, score: confidence }] });
     } catch (err: any) {
       console.error('Image classification error:', err);
       return res.status(500).json({ error: err.message || 'Classification failed' });
