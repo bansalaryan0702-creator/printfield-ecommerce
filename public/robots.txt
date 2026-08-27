@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /orders
+Disallow: /profile
+Disallow: /checkout
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password
 
-Sitemap: https://printfieldonline.com/sitemap.xml
+Sitemap: https://www.printfieldonline.com/sitemap.xml

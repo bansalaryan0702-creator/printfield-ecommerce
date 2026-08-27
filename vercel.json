@@ -19,13 +19,13 @@
     { "source": "/checkout/", "destination": "/checkout", "permanent": true },
     { "source": "/login/", "destination": "/login", "permanent": true },
     { "source": "/forgot-password/", "destination": "/forgot-password", "permanent": true },
-    { "source": "/index.html", "destination": "/", "permanent": true }
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "printfieldonline.com" }], "destination": "https://www.printfieldonline.com/$1", "permanent": true }
   ],
   "rewrites": [
     { "source": "/uploads/(.*)", "destination": "/api" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/sitemap.xml", "destination": "/api" },
-    { "source": "/robots.txt", "destination": "/api" },
     { "source": "/xiomi", "destination": "/api" },
     { "source": "/alanwalker", "destination": "/api" },
     { "source": "/wp-admin", "destination": "/api" },
@@ -63,6 +63,20 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/xml" },
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=3600" }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain" },
+        { "key": "Cache-Control", "value": "public, max-age=86400, s-maxage=86400" }
       ]
     }
   ]
