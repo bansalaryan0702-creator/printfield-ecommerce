@@ -410,7 +410,16 @@ if (!firebaseConfig.projectId && process.env.FIREBASE_PROJECT_ID) {
 }
 
 const firebaseApp = initializeApp(firebaseConfig);
-const firestoreDb = initializeFirestore(firebaseApp, { experimentalForceLongPolling: true }, firebaseConfig.firestoreDatabaseId || 'ai-studio-84a659f4-d467-4e09-88a5-5dfb369ca41e');
+let firestoreDb: any;
+try {
+  if (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== 'ai-studio-84a659f4-d467-4e09-88a5-5dfb369ca41e') {
+    firestoreDb = initializeFirestore(firebaseApp, { experimentalForceLongPolling: true }, firebaseConfig.firestoreDatabaseId);
+  } else {
+    firestoreDb = getFirestore(firebaseApp);
+  }
+} catch {
+  firestoreDb = getFirestore(firebaseApp);
+}
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseStorage = getStorage(firebaseApp);
 

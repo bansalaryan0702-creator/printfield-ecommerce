@@ -1,13 +1,25 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const customConfig = {
   ...firebaseConfig
 };
 const app = initializeApp(customConfig);
-export const db = initializeFirestore(app, { experimentalForceLongPolling: true }, (firebaseConfig as any).firestoreDatabaseId || 'ai-studio-84a659f4-d467-4e09-88a5-5dfb369ca41e');
+
+let db: any;
+try {
+  const dbId = (firebaseConfig as any).firestoreDatabaseId;
+  if (dbId && dbId !== 'ai-studio-84a659f4-d467-4e09-88a5-5dfb369ca41e') {
+    db = initializeFirestore(app, { experimentalForceLongPolling: true }, dbId);
+  } else {
+    db = getFirestore(app);
+  }
+} catch {
+  db = getFirestore(app);
+}
+export { db };
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
