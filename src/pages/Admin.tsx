@@ -298,9 +298,25 @@ export function Admin() {
             .trim()
             .replace(/\b\w/g, c => c.toUpperCase());
             
+          // Auto-classify image using local CLIP
+          let detectedCategory = '';
+          try {
+            setBulkImageUploadStatus(`Classifying ${i + 1} of ${files.length}: ${file.name}...`);
+            const clsRes = await apiFetch('/api/ai/classify-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+              body: JSON.stringify({ imageUrl: data.url })
+            });
+            if (clsRes.ok) {
+              const clsData = await clsRes.json();
+              detectedCategory = clsData.category || '';
+            }
+          } catch {}
+
           newRows.push({
             name: formattedName,
             image: data.url,
+            category: detectedCategory,
             description: '',
             cardDescription: ''
           });
@@ -2471,6 +2487,30 @@ export function Admin() {
                             </div>
                           </div>
 
+                          {/* Auto-detected Category */}
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Category {p.category ? <span className="text-purple-500 normal-case">(AI detected)</span> : ''}</label>
+                            <div className="flex gap-2">
+                              <select
+                                value={allCategories.includes(p.category) ? p.category : (p.category || bulkCategory)}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setBulkProducts(prev => {
+                                    const copy = [...prev];
+                                    copy[idx].category = val;
+                                    return copy;
+                                  });
+                                }}
+                                className="flex-1 px-3 py-1.5 border border-gray-300 focus:border-purple-500 rounded-lg text-sm bg-white outline-none transition-colors"
+                              >
+                                {allCategories.map(c => (
+                                  <option key={c} value={c}>{c}</option>
+                                ))}
+                                <option value="custom">Custom...</option>
+                              </select>
+                            </div>
+                          </div>
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Product Card Description (Short summary)</label>
@@ -2679,9 +2719,9 @@ export function Admin() {
                                 const gen = genList.find((g: any) => String(g.name || '').trim().toLowerCase() === String(p.name || '').trim().toLowerCase()) || genList[idx];
                                 return {
                                   ...p,
-                                  description: p.description?.trim() || gen?.description || `Crafted with precision, the ${p.name} delivers exceptional quality for ${bulkCategory}.`,
-                                  cardDescription: p.cardDescription?.trim() || gen?.cardDescription || `Custom ${p.name} tailored with premium finish for ${bulkCategory}.`,
-                                  metaTitle: p.metaTitle?.trim() || gen?.metaTitle || `${p.name} - Custom ${bulkCategory}`,
+                                  description: p.description?.trim() || gen?.description || `Crafted with precision, the ${p.name} delivers exceptional quality for ${p.category || bulkCategory}.`,
+                                  cardDescription: p.cardDescription?.trim() || gen?.cardDescription || `Custom ${p.name} tailored with premium finish for ${p.category || bulkCategory}.`,
+                                  metaTitle: p.metaTitle?.trim() || gen?.metaTitle || `${p.name} - Custom ${p.category || bulkCategory}`,
                                   metaDescription: p.metaDescription?.trim() || gen?.metaDescription || `Order high-quality ${p.name} online at Printfield. Crafted with precision for your business needs.`
                                 };
                               }
@@ -2703,16 +2743,16 @@ export function Admin() {
                           },
                           body: JSON.stringify({
                             name: p.name,
-                            category: bulkCategory,
+                            category: p.category || bulkCategory,
                             subCategory: bulkSubCategory,
-                            price: 499, // default price setup hidden from importer UI
-                            minQty: 1,  // default minimum quantity setup hidden from importer UI
+                            price: 499,
+                            minQty: 1,
                             qtyMultiple: 1,
-                            image: p.image || getStockImageForCategory(bulkCategory, bulkSubCategory, p.name),
-                            images: [p.image || getStockImageForCategory(bulkCategory, bulkSubCategory, p.name)],
-                            description: p.description || `Crafted with precision, the ${p.name} delivers exceptional quality for ${bulkCategory}.`,
-                            cardDescription: p.cardDescription || `Custom ${p.name} tailored with premium finish for ${bulkCategory}.`,
-                            metaTitle: p.metaTitle || `${p.name} - Custom ${bulkCategory}`,
+                            image: p.image || getStockImageForCategory(p.category || bulkCategory, bulkSubCategory, p.name),
+                            images: [p.image || getStockImageForCategory(p.category || bulkCategory, bulkSubCategory, p.name)],
+                            description: p.description || `Crafted with precision, the ${p.name} delivers exceptional quality for ${p.category || bulkCategory}.`,
+                            cardDescription: p.cardDescription || `Custom ${p.name} tailored with premium finish for ${p.category || bulkCategory}.`,
+                            metaTitle: p.metaTitle || `${p.name} - Custom ${p.category || bulkCategory}`,
                             metaDescription: p.metaDescription || `Order high-quality ${p.name} online at Printfield.`,
                             features: [],
                             colors: [],
