@@ -143,7 +143,7 @@ async function uploadFileToS3(filename: string, mimeType: string, buffer: Buffer
       Body: buffer,
       ContentType: mimeType,
     }));
-    return `https://${s3BucketName}.s3.${s3Region}.amazonaws.com/${key}`;
+    return `https://printo-s3.dietpixels.net/${key}`;
   } catch (err: any) {
     console.warn(`[S3 Upload] Failed to upload ${filename} to S3:`, err.message || err);
     return null;
