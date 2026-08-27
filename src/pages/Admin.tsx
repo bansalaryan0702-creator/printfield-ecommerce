@@ -399,7 +399,8 @@ export function Admin() {
           task: 'description',
           name: p.name,
           category: cat,
-          subCategory: bulkSubCategory
+          subCategory: bulkSubCategory,
+          features: p.features || []
         })
       });
       
@@ -2365,7 +2366,7 @@ export function Admin() {
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => setBulkProducts(prev => [...prev, { name: '', image: '', description: '', cardDescription: '', metaTitle: '', metaDescription: '' }])}
+                      onClick={() => setBulkProducts(prev => [...prev, { name: '', image: '', description: '', cardDescription: '', metaTitle: '', metaDescription: '', category: '', features: [] }])}
                       className="text-xs"
                     >
                       <Plus className="h-3.5 w-3.5 mr-1" /> Add Row
@@ -2389,7 +2390,7 @@ export function Admin() {
                       {p.isGenerating && (
                         <div className="absolute inset-0 bg-white/80 backdrop-blur-xs rounded-2xl flex flex-col items-center justify-center z-10">
                           <Loader2 className="h-8 w-8 animate-spin text-purple-600 mb-2" />
-                          <p className="text-xs font-bold text-purple-700">Gemini Generating Descriptions...</p>
+                          <p className="text-xs font-bold text-purple-700">Local AI Generating...</p>
                         </div>
                       )}
 
@@ -2466,7 +2467,7 @@ export function Admin() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                title="Generate with Gemini"
+                                title="Generate with Local AI"
                                 onClick={() => handleGenerateSingleAI(idx)}
                                 className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                               >
@@ -2625,7 +2626,7 @@ export function Admin() {
                           const res = await apiFetch('/api/ai/local-generate', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                            body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: bulkSubCategory })
+                            body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: bulkSubCategory, features: p.features || [] })
                           });
                           if (res.ok) {
                             const data = await res.json();
@@ -2688,7 +2689,7 @@ export function Admin() {
                             const genRes = await apiFetch('/api/ai/local-generate', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                              body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: bulkSubCategory })
+                              body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: bulkSubCategory, features: p.features || [] })
                             });
                             if (genRes.ok) {
                               const gen = await genRes.json();

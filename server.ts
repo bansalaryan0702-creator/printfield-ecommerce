@@ -3756,12 +3756,13 @@ ${linksArray.slice(0, 300).join('\n')}`;
     const gen = await getLocalTextGen();
     const result = await gen(prompt, {
       max_new_tokens: maxTokens,
-      temperature: 0.7,
-      top_p: 0.9,
+      temperature: 0.85,
+      top_p: 0.92,
+      top_k: 50,
+      repetition_penalty: 1.3,
       do_sample: true,
     });
     const text = Array.isArray(result) ? result[0]?.generated_text : result?.generated_text || '';
-    // Strip the prompt from the output
     const idx = text.indexOf(prompt);
     return idx >= 0 ? text.slice(idx + prompt.length).trim() : text.trim();
   }
@@ -3771,30 +3772,58 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const { task, name, category, subCategory, description, cardDescription, features } = req.body;
       if (!name) return res.status(400).json({ error: 'Product name is required' });
 
+      const subCatText = subCategory ? ` (${subCategory})` : '';
+      const featureText = features?.length ? `Key features: ${features.join(', ')}.` : '';
+      const existingDescText = description ? `Existing product details: ${description.slice(0, 300)}` : '';
+
       let prompt = '';
       let maxTokens = 300;
 
       if (task === 'description') {
         prompt = `<|system|>
-You are a professional product copywriter for Printfield, a premium printing shop in Whitefield, Bangalore. Write compelling, SEO-friendly product descriptions. Be concise and professional.</s>
+You are a senior copywriter at Printfield, a premium custom printing shop in Whitefield, Bangalore. You MUST write unique descriptions that are specific to EACH product. NEVER use generic filler words. Focus on the exact product name, what it is used for, who it's for, and what makes it special. Every product description must sound completely different.</s>
 <|user|>
-Write a detailed 2-paragraph product description for "${name}" in the "${category || 'Print'}" category${subCategory ? ` (${subCategory})` : ''}. Highlight premium quality, customization options, and fast delivery from Printfield in Whitefield, Bangalore.</s>
+Write a unique 2-paragraph product description for this EXACT product: "${name}".
+Category: ${category || 'Print'}${subCatText}.
+${featureText}
+${existingDescText}
+
+IMPORTANT RULES:
+- Start the first paragraph with something specific about what "${name}" actually IS and what it's used for
+- Second paragraph should cover customization options and ordering from Printfield, Whitefield Bangalore
+- Do NOT use phrases like "crafted with precision" or "exceptional quality" — be specific to THIS product
+- Use words that match the product type (e.g., for apparel use "wear", "fabric", "comfort"; for mugs use "sip", "morning routine", "handle"; for trophies use "achievement", "ceremony", "display")
+- Make it sound natural and different from other product descriptions</s>
 <|assistant|>
 `;
-        maxTokens = 350;
+        maxTokens = 400;
       } else if (task === 'cardDescription') {
         prompt = `<|system|>
-You are a professional product copywriter for Printfield. Write short, punchy product card summaries (2-3 sentences max).</s>
+You are a product copywriter at Printfield. Write SHORT, UNIQUE card descriptions. Each product must have a completely different description. Never repeat phrases across products.</s>
 <|user|>
-Write a short card description (2-3 sentences) for "${name}" in the "${category || 'Print'}" category. Focus on key selling points.</s>
+Write a 2-sentence card description for: "${name}" (${category || 'Print'}${subCatText}).
+${featureText}
+
+RULES:
+- First sentence: what this product is and its main benefit (specific to "${name}")
+- Second sentence: customization or ordering detail
+- Do NOT use "premium quality" or "exceptional" — be specific
+- Keep it under 40 words</s>
 <|assistant|>
 `;
-        maxTokens = 150;
+        maxTokens = 120;
       } else if (task === 'seoMeta') {
         prompt = `<|system|>
-You are an SEO expert for Printfield, a printing shop in Whitefield, Bangalore. Generate SEO-optimized meta titles and descriptions.</s>
+You are an SEO specialist for Printfield in Whitefield, Bangalore. Generate unique meta tags for each product. The title and description must mention the actual product name and what it is.</s>
 <|user|>
-Generate SEO meta tags for "${name}" in the "${category || 'Print'}" category. Return ONLY valid JSON with two fields: "metaTitle" (max 60 characters, include brand name Printfield) and "metaDescription" (max 155 characters, include location Whitefield Bangalore). Do not include any text outside the JSON.</s>
+Generate SEO meta tags for this product: "${name}"
+Category: ${category || 'Print'}${subCatText}
+
+Return ONLY valid JSON with two fields:
+- "metaTitle": Must include the actual product name "${name}" and "Printfield", max 60 characters. Format: "[Product Name] - Custom [Category] | Printfield" or similar unique format
+- "metaDescription": Must describe what "${name}" actually is, mention Whitefield Bangalore, max 155 characters
+
+Do NOT include any text outside the JSON object.</s>
 <|assistant|>
 `;
         maxTokens = 200;
