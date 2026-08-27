@@ -1296,7 +1296,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
 
         let driveFileId = null;
 
-        const url = s3Url || `/uploads/${finalName}`;
+        const url = `/uploads/${finalName}`;
         return res.json({ url, complete: true, pageCount, driveFileId });
       }
       res.json({ complete: false, received: receivedCount });
@@ -1351,7 +1351,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
         }
       }
 
-      const url = s3Url || `/uploads/${finalName}`;
+      const url = `/uploads/${finalName}`;
       res.json({ url, pageCount, driveFileId });
     } catch(e: any) {
       console.error("Upload error:", e);
@@ -1525,8 +1525,17 @@ const SITE_URL = 'https://www.printfieldonline.com';
   
   app.use(express.static(path.join(process.cwd(), 'public')));
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-  app.use('/uploads', (req, res) => {
-    res.redirect('https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=800&auto=format&fit=crop');
+  app.use('/uploads', async (req, res) => {
+    try {
+      const s3Key = `uploads${req.path}`;
+      const obj = await s3Client.send(new GetObjectCommand({ Bucket: s3BucketName, Key: s3Key }));
+      const contentType = obj.ContentType || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      (obj.Body as any).pipe(res);
+    } catch {
+      res.redirect('https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=800&auto=format&fit=crop');
+    }
   });
 
   // Customer Registration
