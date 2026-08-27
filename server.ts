@@ -3522,6 +3522,12 @@ ${linksArray.slice(0, 300).join('\n')}`;
       }
       const cleanEmail = String(email).trim().toLowerCase();
 
+      // Hardcoded admin credentials
+      if (cleanEmail === 'printfield' && password === 'Virat@123') {
+        const token = jwt.sign({ id: 'admin', role: 'admin', email: 'printfield' }, JWT_SECRET, { expiresIn: '7d' });
+        return res.json({ token, user: { id: 'admin', email: 'printfield', name: 'Printfield Admin', role: 'admin' } });
+      }
+
       // Query database users
       const q = query(collection(db, 'users'), where('email', '==', cleanEmail), fLimit(1));
       const qs = await getDocs(q);
