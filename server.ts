@@ -3726,56 +3726,104 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     return buffer.toString('base64');
   }
 
-  // AI image classification — uses Gemini vision API
+  // CLIP fallback data
+  let clipPipeline: any = null;
+  const CATEGORY_LABELS = [
+    'a photo of a t-shirt or polo shirt or hoodie or jacket or sweatshirt',
+    'a photo of a trophy or award or medal or plaque',
+    'a photo of a mug or cup or bottle or flask or tumbler or water bottle',
+    'a photo of a banner or standee or signage or flex or poster',
+    'a photo of a business card or letterhead or envelope or notepad',
+    'a photo of a keychain or pendant or bookmark',
+    'a photo of a pen or pencil or stationery or notebook',
+    'a photo of a cap or hat or bag or backpack or t-shirt',
+    'a photo of a calendar or diary or planner',
+    'a photo of a LED sign or digital display or neon light',
+    'a photo of a gift box or hamper or corporate gift set',
+    'a photo of a sticker or label or tag',
+  ];
+  const CATEGORY_MAP: Record<string, string> = {
+    'a photo of a t-shirt or polo shirt or hoodie or jacket or sweatshirt': 'Apparel',
+    'a photo of a trophy or award or medal or plaque': 'Trophies & Awards',
+    'a photo of a mug or cup or bottle or flask or tumbler or water bottle': 'Drinkware',
+    'a photo of a banner or standee or signage or flex or poster': 'Signages & Banners',
+    'a photo of a business card or letterhead or envelope or notepad': 'Business Stationery',
+    'a photo of a keychain or pendant or bookmark': 'Personalised Gifts',
+    'a photo of a pen or pencil or stationery or notebook': 'Business Stationery',
+    'a photo of a cap or hat or bag or backpack or t-shirt': 'Apparel',
+    'a photo of a calendar or diary or planner': 'Business Stationery',
+    'a photo of a LED sign or digital display or neon light': 'Signages & Banners',
+    'a photo of a gift box or hamper or corporate gift set': 'Corporate Gifts',
+    'a photo of a sticker or label or tag': 'Marketing- Labels & Stickers',
+  };
 
+  // TinyLlama fallback data
+  let textGenPipeline: any = null;
+  const TEXT_GEN_MODEL = 'Xenova/TinyLlama-1.1B-Chat-v1.0';
+  async function getLocalTextGen() {
+    if (!textGenPipeline) {
+      console.log('[Fallback] Loading TinyLlama (~2GB first download, cached after)...');
+      const { pipeline } = await import('@huggingface/transformers');
+      textGenPipeline = await pipeline('text-generation', TEXT_GEN_MODEL);
+      console.log('[Fallback] TinyLlama loaded.');
+    }
+    return textGenPipeline;
+  }
+  async function localGenerate(prompt: string, maxTokens = 300): Promise<string> {
+    const gen = await getLocalTextGen();
+    const result = await gen(prompt, { max_new_tokens: maxTokens, temperature: 0.85, top_p: 0.92, top_k: 50, repetition_penalty: 1.3, do_sample: true });
+    const text = Array.isArray(result) ? result[0]?.generated_text : result?.generated_text || '';
+    const idx = text.indexOf(prompt);
+    return idx >= 0 ? text.slice(idx + prompt.length).trim() : text.trim();
+  }
+
+  // AI image classification — Gemini primary, CLIP fallback (unlimited)
   app.post('/api/ai/classify-image', verifyAdmin, async (req, res) => {
     try {
       const { imageUrl } = req.body;
       if (!imageUrl) return res.status(400).json({ error: 'imageUrl is required' });
 
-      const prompt = `Look at this product image and classify it into exactly ONE of these categories: Apparel, Trophies & Awards, Drinkware, Signages & Banners, Business Stationery, Personalised Gifts, Corporate Gifts, Marketing- Labels & Stickers.
-
-Return ONLY a JSON object with two fields:
-- "category": the single best-matching category from the list above
-- "confidence": a number between 0 and 1
-
-No text outside the JSON.`;
-
-      const aiRes = await callGeminiWithRetry({
-        contents: [
-          { role: 'user', parts: [
+      // Try Gemini first (fast)
+      try {
+        const prompt = `Look at this product image and classify it into exactly ONE of these categories: Apparel, Trophies & Awards, Drinkware, Signages & Banners, Business Stationery, Personalised Gifts, Corporate Gifts, Marketing- Labels & Stickers. Return ONLY JSON: {"category": "...", "confidence": 0.0-1.0}`;
+        const aiRes = await callGeminiWithRetry({
+          contents: [{ role: 'user', parts: [
             { text: prompt },
             { inlineData: { mimeType: 'image/jpeg', data: await imageToBase64(imageUrl) } }
-          ]}
-        ],
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              category: { type: Type.STRING },
-              confidence: { type: Type.NUMBER }
-            }
-          }
-        }
-      });
-
-      let category = 'Custom Apparel';
-      let confidence = 0.8;
-      try {
+          ]}],
+          config: { responseMimeType: 'application/json', responseSchema: { type: Type.OBJECT, properties: { category: { type: Type.STRING }, confidence: { type: Type.NUMBER } } } }
+        });
         const parsed = JSON.parse(aiRes.text || '{}');
-        category = parsed.category || category;
-        confidence = parsed.confidence || confidence;
-      } catch {}
+        if (parsed.category) {
+          return res.json({ category: parsed.category, confidence: parsed.confidence || 0.8, predictions: [{ label: parsed.category, score: parsed.confidence || 0.8 }], engine: 'gemini' });
+        }
+      } catch (e: any) {
+        console.warn('[Classify] Gemini rate-limited, using CLIP fallback:', e.message?.slice(0, 80));
+      }
 
-      return res.json({ category, confidence, predictions: [{ label: category, score: confidence }] });
+      // Fallback: CLIP (slow but unlimited)
+      if (!clipPipeline) {
+        const { pipeline } = await import('@huggingface/transformers');
+        clipPipeline = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32');
+      }
+      const imgRes = await fetch(imageUrl);
+      if (!imgRes.ok) throw new Error('Failed to fetch image');
+      const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
+      const tmpPath = `/tmp/cls-${Date.now()}.jpg`;
+      fsSync.writeFileSync(tmpPath, imgBuffer);
+      const result = await clipPipeline(tmpPath, CATEGORY_LABELS, { topk: 1 });
+      try { fsSync.unlinkSync(tmpPath); } catch {}
+      const predictions = Array.isArray(result) ? result : [result];
+      const top = predictions[0];
+      const category = CATEGORY_MAP[top.label] || 'Custom Apparel';
+      return res.json({ category, confidence: top.score, predictions: [{ label: category, score: top.score }], engine: 'clip' });
     } catch (err: any) {
       console.error('Image classification error:', err);
       return res.status(500).json({ error: err.message || 'Classification failed' });
     }
   });
 
-  // AI text generation — uses Gemini for speed
+  // AI text generation — Gemini primary, TinyLlama fallback (unlimited)
   app.post('/api/ai/local-generate', verifyAdmin, async (req, res) => {
     try {
       const { task, name, category, subCategory, description, cardDescription, features } = req.body;
@@ -3785,24 +3833,10 @@ No text outside the JSON.`;
       const featureText = features?.length ? `Key features: ${features.join(', ')}.` : '';
 
       let prompt = '';
-
       if (task === 'description') {
-        prompt = `You are a senior copywriter at Printfield, a premium custom printing shop in Whitefield, Bangalore. Write unique descriptions specific to EACH product. NEVER use generic filler. Every description must sound completely different.
-
-Write a unique 2-paragraph product description for: "${name}"
-Category: ${category || 'Print'}${subCatText}.
-${featureText}
-
-RULES:
-- First paragraph: what "${name}" actually IS and what it's used for
-- Second paragraph: customization options and ordering from Printfield, Whitefield Bangalore
-- Do NOT use "crafted with precision" or "exceptional quality" — be specific to THIS product
-- Use words matching the product type`;
+        prompt = `You are a senior copywriter at Printfield, a premium custom printing shop in Whitefield, Bangalore. Write unique descriptions specific to EACH product. NEVER use generic filler. Every description must sound completely different.\n\nWrite a unique 2-paragraph product description for: "${name}"\nCategory: ${category || 'Print'}${subCatText}.\n${featureText}\n\nRULES:\n- First paragraph: what "${name}" actually IS and what it's used for\n- Second paragraph: customization options and ordering from Printfield, Whitefield Bangalore\n- Do NOT use "crafted with precision" or "exceptional quality" — be specific to THIS product\n- Use words matching the product type`;
       } else if (task === 'cardDescription') {
-        prompt = `Write a SHORT, UNIQUE 2-sentence card description for: "${name}" (${category || 'Print'}${subCatText}).
-First sentence: what this product is and its main benefit.
-Second sentence: customization or ordering detail.
-Do NOT use "premium quality" or "exceptional". Keep under 40 words.`;
+        prompt = `Write a SHORT, UNIQUE 2-sentence card description for: "${name}" (${category || 'Print'}${subCatText}).\nFirst sentence: what this product is and its main benefit.\nSecond sentence: customization or ordering detail.\nDo NOT use "premium quality" or "exceptional". Keep under 40 words.`;
       } else if (task === 'seoMeta') {
         prompt = `Generate SEO meta tags for "${name}" (${category || 'Print'}${subCatText}). Return ONLY valid JSON with: "metaTitle" (max 60 chars, include "${name}" and "Printfield") and "metaDescription" (max 155 chars, describe what "${name}" is, mention Whitefield Bangalore). No text outside JSON.`;
       } else {
@@ -3810,38 +3844,43 @@ Do NOT use "premium quality" or "exceptional". Keep under 40 words.`;
       }
 
       let generated = '';
+      let engine = 'gemini';
+
+      // Try Gemini first (fast)
       try {
         const aiRes = await callGeminiWithRetry({ contents: prompt });
         generated = aiRes.text || '';
       } catch (e: any) {
-        console.error('[AI Generate] Gemini error:', e.message);
-        return res.status(500).json({ error: 'AI generation failed: ' + e.message });
+        console.warn('[Generate] Gemini rate-limited, using TinyLlama fallback:', e.message?.slice(0, 80));
+        // Fallback: TinyLlama (slow but unlimited)
+        engine = 'tinyllama';
+        generated = await localGenerate(prompt, task === 'description' ? 400 : task === 'cardDescription' ? 120 : 200);
       }
 
       if (task === 'seoMeta') {
         try {
           const jsonMatch = generated.match(/\{[\s\S]*\}/);
           const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : generated);
-          return res.json({ metaTitle: parsed.metaTitle || `${name} | Custom ${category || 'Printing'}`, metaDescription: parsed.metaDescription || `Order custom ${name} online at Printfield, Whitefield Bangalore.` });
+          return res.json({ metaTitle: parsed.metaTitle || `${name} | Custom ${category || 'Printing'}`, metaDescription: parsed.metaDescription || `Order custom ${name} at Printfield, Whitefield Bangalore.`, engine });
         } catch {
-          return res.json({ metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`, metaDescription: `Order high-quality custom ${name} at Printfield, Whitefield Bangalore. Premium quality, fast delivery.` });
+          return res.json({ metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`, metaDescription: `Order high-quality custom ${name} at Printfield, Whitefield Bangalore.`, engine });
         }
       }
 
       if (task === 'cardDescription') {
-        return res.json({ description: generated || `Premium ${name} with custom printing options. Available at Printfield, Whitefield Bangalore.` });
+        return res.json({ description: generated || `Premium ${name} with custom printing options. Available at Printfield, Whitefield Bangalore.`, engine });
       }
 
-      // task === 'description'
       return res.json({
         description: generated || `The ${name} is a premium quality product available at Printfield in Whitefield, Bangalore.`,
         cardDescription: generated.split('\n').filter(Boolean).slice(0, 2).join(' ').slice(0, 200) || `Premium ${name} with custom printing. Order from Printfield.`,
         metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`,
-        metaDescription: (generated || `Order custom ${name} at Printfield, Whitefield Bangalore.`).slice(0, 155)
+        metaDescription: (generated || `Order custom ${name} at Printfield, Whitefield Bangalore.`).slice(0, 155),
+        engine
       });
     } catch (err: any) {
-      console.error('[LocalAI] Text generation error:', err);
-      return res.status(500).json({ error: err.message || 'Local generation failed' });
+      console.error('[AI Generate] Error:', err);
+      return res.status(500).json({ error: err.message || 'Generation failed' });
     }
   });
 
