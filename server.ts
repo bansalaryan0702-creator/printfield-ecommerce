@@ -1296,7 +1296,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
 
         let driveFileId = null;
 
-        const url = `/uploads/${finalName}`;
+        const url = s3Url || `/uploads/${finalName}`;
         return res.json({ url, complete: true, pageCount, driveFileId });
       }
       res.json({ complete: false, received: receivedCount });
@@ -1351,7 +1351,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
         }
       }
 
-      const url = `/uploads/${finalName}`;
+      const url = s3Url || `/uploads/${finalName}`;
       res.json({ url, pageCount, driveFileId });
     } catch(e: any) {
       console.error("Upload error:", e);
