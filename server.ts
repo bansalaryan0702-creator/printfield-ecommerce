@@ -1324,22 +1324,10 @@ const SITE_URL = 'https://www.printfieldonline.com';
       const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.-_]/g, '');
       const finalName = `${id}-${safeName}`;
       
-      const path = await import('path');
-      const uploadDir = path.join(process.cwd(), 'uploads');
+      const pathMod = await import('path');
+      const uploadDir = pathMod.join(process.cwd(), 'uploads');
       await fs.mkdir(uploadDir, { recursive: true });
-      await fs.writeFile(path.join(uploadDir, finalName), req.file.buffer);
-
-      
-      
-
-      let driveFileId = null;
-      
-      let s3Url = null;
-      try {
-        s3Url = await uploadFileToS3(finalName, req.file.mimetype, req.file.buffer);
-      } catch (e: any) {
-        console.warn('[Upload] S3 upload failed:', e.message);
-      }
+      await fs.writeFile(pathMod.join(uploadDir, finalName), req.file.buffer);
 
       let pageCount = null;
       if (req.file.originalname.toLowerCase().endsWith('.pdf')) {
@@ -1352,7 +1340,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
       }
 
       const url = `/uploads/${finalName}`;
-      res.json({ url, pageCount, driveFileId });
+      res.json({ url, pageCount });
     } catch(e: any) {
       console.error("Upload error:", e);
       res.status(500).json({ error: 'Error saving file to disk' });
@@ -3319,12 +3307,35 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
+async function moveLocalToS3(localPath: string): Promise<string> {
+  if (!localPath.startsWith('/uploads/')) return localPath;
+  const filename = localPath.replace('/uploads/', '');
+  const filePath = path.join(process.cwd(), 'uploads', filename);
+  try {
+    const buffer = await fs.readFile(filePath);
+    const mimeType = filename.endsWith('.pdf') ? 'application/pdf' : filename.endsWith('.webp') ? 'image/webp' : filename.endsWith('.png') ? 'image/png' : 'image/jpeg';
+    const s3Url = await uploadFileToS3(filename, mimeType, buffer);
+    if (s3Url) return s3Url;
+  } catch (e: any) {
+    console.warn('[S3 Move] Failed to move', filename, e.message);
+  }
+  return localPath;
+}
+
+async function moveImagesToS3(image: string, images: string[]): Promise<{ image: string; images: string[] }> {
+  const movedImage = image ? await moveLocalToS3(image) : image;
+  const movedImages = Array.isArray(images) ? await Promise.all(images.map(img => moveLocalToS3(img))) : [];
+  return { image: movedImage, images: movedImages };
+}
+
   app.post('/api/products', verifyAdmin, async (req, res) => {
     try {
       const p = req.body;
       const currentProds = await loadProductsFromS3(true);
       const id = "printfield-" + Math.random().toString(36).substr(2, 9);
       
+      const { image: finalImage, images: finalImages } = await moveImagesToS3(p.image || '', Array.isArray(p.images) ? p.images : []);
+
       const newObj = {
         id,
         name: p.name || 'New Product',
@@ -3333,8 +3344,8 @@ ${linksArray.slice(0, 300).join('\n')}`;
         price: Number(p.price || 0),
         stockQty: p.stockQty !== undefined ? p.stockQty : null,
         isDisabled: !!p.isDisabled,
-        image: p.image || '',
-        images: Array.isArray(p.images) ? p.images : [],
+        image: finalImage,
+        images: finalImages,
         description: p.description || '',
         cardDescription: p.cardDescription || '',
         metaTitle: p.metaTitle || '',
@@ -3363,6 +3374,15 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const idx = currentProds.findIndex(p => p.id === id);
       if (idx === -1) return res.status(404).json({ error: 'Product not found' });
       
+      if (updates.image || updates.images) {
+        const { image: finalImage, images: finalImages } = await moveImagesToS3(
+          updates.image || currentProds[idx].image || '',
+          updates.images || currentProds[idx].images || []
+        );
+        updates.image = finalImage;
+        updates.images = finalImages;
+      }
+      
       currentProds[idx] = {
         ...currentProds[idx],
         ...updates,
@@ -3385,6 +3405,15 @@ ${linksArray.slice(0, 300).join('\n')}`;
       const currentProds = await loadProductsFromS3(true);
       const idx = currentProds.findIndex(p => p.id === id);
       if (idx === -1) return res.status(404).json({ error: 'Product not found' });
+      
+      if (updates.image || updates.images) {
+        const { image: finalImage, images: finalImages } = await moveImagesToS3(
+          updates.image || currentProds[idx].image || '',
+          updates.images || currentProds[idx].images || []
+        );
+        updates.image = finalImage;
+        updates.images = finalImages;
+      }
       
       currentProds[idx] = {
         ...currentProds[idx],
