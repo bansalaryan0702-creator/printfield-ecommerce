@@ -379,7 +379,8 @@ export function Admin() {
       alert("Please enter a product name first before generating descriptions.");
       return;
     }
-    if (!bulkCategory.trim()) {
+    const cat = p.category || bulkCategory;
+    if (!cat.trim()) {
       alert("Category is required. Please select or enter a category.");
       return;
     }
@@ -388,16 +389,17 @@ export function Admin() {
     
     try {
       const adminToken = localStorage.getItem('admin_token') || token;
-      const res = await apiFetch('/api/ai/bulk-generate-descriptions', {
+      const res = await apiFetch('/api/ai/local-generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${adminToken}`
         },
         body: JSON.stringify({
-          category: bulkCategory,
-          subCategory: bulkSubCategory,
-          products: [{ name: p.name }]
+          task: 'description',
+          name: p.name,
+          category: cat,
+          subCategory: bulkSubCategory
         })
       });
       
@@ -407,19 +409,14 @@ export function Admin() {
       }
       
       const data = await res.json();
-      const generated = (data.products || [])[0];
-      if (generated) {
-        setBulkProducts(prev => prev.map((item, i) => i === idx ? {
-          ...item,
-          cardDescription: generated.cardDescription || item.cardDescription,
-          description: generated.description || item.description,
-          metaTitle: generated.metaTitle || item.metaTitle,
-          metaDescription: generated.metaDescription || item.metaDescription,
-          isGenerating: false
-        } : item));
-      } else {
-        throw new Error('AI did not return any descriptions');
-      }
+      setBulkProducts(prev => prev.map((item, i) => i === idx ? {
+        ...item,
+        cardDescription: data.cardDescription || item.cardDescription,
+        description: data.description || item.description,
+        metaTitle: data.metaTitle || item.metaTitle,
+        metaDescription: data.metaDescription || item.metaDescription,
+        isGenerating: false
+      } : item));
     } catch (err: any) {
       alert(err.message || 'Generation failed');
       setBulkProducts(prev => prev.map((item, i) => i === idx ? { ...item, isGenerating: false } : item));
@@ -433,13 +430,13 @@ export function Admin() {
     }
     setIsGeneratingCardDesc(true);
     try {
-      const res = await apiFetch('/api/ai/generate-card-description', {
+      const res = await apiFetch('/api/ai/local-generate', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ name, category, description })
+        body: JSON.stringify({ task: 'cardDescription', name, category, description })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to generate description');
@@ -458,13 +455,13 @@ export function Admin() {
     }
     setIsGeneratingSEO(true);
     try {
-      const res = await apiFetch('/api/ai/generate-seo-meta', {
+      const res = await apiFetch('/api/ai/local-generate', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ name, category, description, cardDescription, features })
+        body: JSON.stringify({ task: 'seoMeta', name, category, description, cardDescription, features })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to generate SEO meta tags');
@@ -2612,10 +2609,6 @@ export function Admin() {
                 <Button 
                   onClick={async () => {
                     const valid = bulkProducts.filter(p => p.name.trim());
-                    if (!bulkCategory.trim()) {
-                      setBulkError('Category is required. Please select or enter a category.');
-                      return;
-                    }
                     if (valid.length === 0) {
                       setBulkError('Please add at least one product with a valid name.');
                       return;
@@ -2623,40 +2616,30 @@ export function Admin() {
                     setBulkError('');
                     setIsGeneratingBulk(true);
                     try {
-                      const res = await apiFetch('/api/ai/bulk-generate-descriptions', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                          category: bulkCategory,
-                          subCategory: bulkSubCategory,
-                          products: valid
-                        })
-                      });
-                      if (!res.ok) {
-                        const err = await res.json();
-                        throw new Error(err.error || 'Failed to generate descriptions');
+                      const adminToken = localStorage.getItem('admin_token') || token;
+                      for (let i = 0; i < valid.length; i++) {
+                        const p = valid[i];
+                        const cat = p.category || bulkCategory;
+                        setBulkError(`Generating ${i + 1} of ${valid.length}: ${p.name}...`);
+                        try {
+                          const res = await apiFetch('/api/ai/local-generate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+                            body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: bulkSubCategory })
+                          });
+                          if (res.ok) {
+                            const data = await res.json();
+                            setBulkProducts(prev => prev.map((item) => {
+                              if (item.name.trim().toLowerCase() === p.name.trim().toLowerCase()) {
+                                return { ...item, description: data.description || item.description, cardDescription: data.cardDescription || item.cardDescription, metaTitle: data.metaTitle || item.metaTitle, metaDescription: data.metaDescription || item.metaDescription };
+                              }
+                              return item;
+                            }));
+                          }
+                        } catch {}
                       }
-                      const data = await res.json();
-                      const generatedList = data.products || [];
-                      
-                      setBulkProducts(prev => prev.map((p, idx) => {
-                        const gen = generatedList.find((g: any) => String(g.name || '').trim().toLowerCase() === String(p.name || '').trim().toLowerCase()) || generatedList[idx];
-                        if (gen) {
-                          return {
-                            ...p,
-                            description: gen.description || p.description,
-                            cardDescription: gen.cardDescription || p.cardDescription,
-                            metaTitle: gen.metaTitle || p.metaTitle,
-                            metaDescription: gen.metaDescription || p.metaDescription
-                          };
-                        }
-                        return p;
-                      }));
-                      
-                      alert('Gemini generated unique custom descriptions and SEO tags for all products successfully!');
+                      setBulkError('');
+                      alert('Local AI generated descriptions and SEO tags for all products!');
                     } catch (err: any) {
                       setBulkError(err.message);
                     } finally {
@@ -2669,7 +2652,7 @@ export function Admin() {
                   {isGeneratingBulk ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Gemini Generating Descriptions...
+                      Local AI Generating...
                     </>
                   ) : (
                     <>
@@ -2693,43 +2676,38 @@ export function Admin() {
                     setIsSavingBulk(true);
                     setBulkError('');
                     try {
-                      // Check if any product is missing descriptions; if so, generate unique AI descriptions first
+                      // Auto-generate descriptions using local AI before saving
                       const missingDesc = valid.filter(p => !p.description?.trim() || !p.cardDescription?.trim() || !p.metaTitle?.trim() || !p.metaDescription?.trim());
                       let updatedValid = [...valid];
 
                       if (missingDesc.length > 0) {
                         try {
-                          const genRes = await apiFetch('/api/ai/bulk-generate-descriptions', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                              category: bulkCategory,
-                              subCategory: bulkSubCategory,
-                              products: missingDesc
-                            })
-                          });
-                          if (genRes.ok) {
-                            const genData = await genRes.json();
-                            const genList = genData.products || [];
-                            updatedValid = updatedValid.map((p, idx) => {
-                              if (!p.description?.trim() || !p.cardDescription?.trim() || !p.metaTitle?.trim() || !p.metaDescription?.trim()) {
-                                const gen = genList.find((g: any) => String(g.name || '').trim().toLowerCase() === String(p.name || '').trim().toLowerCase()) || genList[idx];
-                                return {
-                                  ...p,
-                                  description: p.description?.trim() || gen?.description || `Crafted with precision, the ${p.name} delivers exceptional quality for ${p.category || bulkCategory}.`,
-                                  cardDescription: p.cardDescription?.trim() || gen?.cardDescription || `Custom ${p.name} tailored with premium finish for ${p.category || bulkCategory}.`,
-                                  metaTitle: p.metaTitle?.trim() || gen?.metaTitle || `${p.name} - Custom ${p.category || bulkCategory}`,
-                                  metaDescription: p.metaDescription?.trim() || gen?.metaDescription || `Order high-quality ${p.name} online at Printfield. Crafted with precision for your business needs.`
-                                };
-                              }
-                              return p;
+                          const adminToken = localStorage.getItem('admin_token') || token;
+                          for (const p of missingDesc) {
+                            const cat = p.category || bulkCategory;
+                            const genRes = await apiFetch('/api/ai/local-generate', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+                              body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: bulkSubCategory })
                             });
+                            if (genRes.ok) {
+                              const gen = await genRes.json();
+                              updatedValid = updatedValid.map(item => {
+                                if (item.name.trim().toLowerCase() === p.name.trim().toLowerCase()) {
+                                  return {
+                                    ...item,
+                                    description: item.description?.trim() || gen.description || `Crafted with precision, the ${item.name} delivers exceptional quality for ${cat}.`,
+                                    cardDescription: item.cardDescription?.trim() || gen.cardDescription || `Custom ${item.name} tailored with premium finish for ${cat}.`,
+                                    metaTitle: item.metaTitle?.trim() || gen.metaTitle || `${item.name} - Custom ${cat}`,
+                                    metaDescription: item.metaDescription?.trim() || gen.metaDescription || `Order high-quality ${item.name} online at Printfield.`
+                                  };
+                                }
+                                return item;
+                              });
+                            }
                           }
                         } catch (e) {
-                          console.warn("Auto generation prior to bulk save failed, using dynamic fallbacks:", e);
+                          console.warn("Local AI generation prior to bulk save failed, using dynamic fallbacks:", e);
                         }
                       }
 

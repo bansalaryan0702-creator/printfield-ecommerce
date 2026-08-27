@@ -3738,6 +3738,99 @@ ${linksArray.slice(0, 300).join('\n')}`;
     }
   });
 
+  // Local text generation — runs TinyLlama on machine, no API limits
+  let textGenPipeline: any = null;
+  const TEXT_GEN_MODEL = 'Xenova/TinyLlama-1.1B-Chat-v1.0';
+
+  async function getLocalTextGen() {
+    if (!textGenPipeline) {
+      console.log('[LocalAI] Loading TinyLlama text generation model (first run downloads ~2GB, cached after)...');
+      const { pipeline } = await import('@huggingface/transformers');
+      textGenPipeline = await pipeline('text-generation', TEXT_GEN_MODEL);
+      console.log('[LocalAI] TinyLlama model loaded successfully.');
+    }
+    return textGenPipeline;
+  }
+
+  async function localGenerate(prompt: string, maxTokens = 300): Promise<string> {
+    const gen = await getLocalTextGen();
+    const result = await gen(prompt, {
+      max_new_tokens: maxTokens,
+      temperature: 0.7,
+      top_p: 0.9,
+      do_sample: true,
+    });
+    const text = Array.isArray(result) ? result[0]?.generated_text : result?.generated_text || '';
+    // Strip the prompt from the output
+    const idx = text.indexOf(prompt);
+    return idx >= 0 ? text.slice(idx + prompt.length).trim() : text.trim();
+  }
+
+  app.post('/api/ai/local-generate', verifyAdmin, async (req, res) => {
+    try {
+      const { task, name, category, subCategory, description, cardDescription, features } = req.body;
+      if (!name) return res.status(400).json({ error: 'Product name is required' });
+
+      let prompt = '';
+      let maxTokens = 300;
+
+      if (task === 'description') {
+        prompt = `<|system|>
+You are a professional product copywriter for Printfield, a premium printing shop in Whitefield, Bangalore. Write compelling, SEO-friendly product descriptions. Be concise and professional.</s>
+<|user|>
+Write a detailed 2-paragraph product description for "${name}" in the "${category || 'Print'}" category${subCategory ? ` (${subCategory})` : ''}. Highlight premium quality, customization options, and fast delivery from Printfield in Whitefield, Bangalore.</s>
+<|assistant|>
+`;
+        maxTokens = 350;
+      } else if (task === 'cardDescription') {
+        prompt = `<|system|>
+You are a professional product copywriter for Printfield. Write short, punchy product card summaries (2-3 sentences max).</s>
+<|user|>
+Write a short card description (2-3 sentences) for "${name}" in the "${category || 'Print'}" category. Focus on key selling points.</s>
+<|assistant|>
+`;
+        maxTokens = 150;
+      } else if (task === 'seoMeta') {
+        prompt = `<|system|>
+You are an SEO expert for Printfield, a printing shop in Whitefield, Bangalore. Generate SEO-optimized meta titles and descriptions.</s>
+<|user|>
+Generate SEO meta tags for "${name}" in the "${category || 'Print'}" category. Return ONLY valid JSON with two fields: "metaTitle" (max 60 characters, include brand name Printfield) and "metaDescription" (max 155 characters, include location Whitefield Bangalore). Do not include any text outside the JSON.</s>
+<|assistant|>
+`;
+        maxTokens = 200;
+      } else {
+        return res.status(400).json({ error: 'Invalid task type' });
+      }
+
+      const generated = await localGenerate(prompt, maxTokens);
+
+      if (task === 'seoMeta') {
+        try {
+          const jsonMatch = generated.match(/\{[\s\S]*\}/);
+          const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : generated);
+          return res.json({ metaTitle: parsed.metaTitle || `${name} | Custom ${category || 'Printing'}`, metaDescription: parsed.metaDescription || `Order custom ${name} online at Printfield, Whitefield Bangalore.` });
+        } catch {
+          return res.json({ metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`, metaDescription: `Order high-quality custom ${name} at Printfield, Whitefield Bangalore. Premium quality, fast delivery.` });
+        }
+      }
+
+      if (task === 'cardDescription') {
+        return res.json({ description: generated || `Premium ${name} with custom printing options. Available at Printfield, Whitefield Bangalore.` });
+      }
+
+      // task === 'description'
+      return res.json({
+        description: generated || `The ${name} is a premium quality product available at Printfield in Whitefield, Bangalore. Crafted with precision and attention to detail, it offers exceptional durability and a professional finish.`,
+        cardDescription: generated.split('\n').filter(Boolean).slice(0, 2).join(' ').slice(0, 200) || `Premium ${name} with custom printing. Order from Printfield.`,
+        metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`,
+        metaDescription: (generated || `Order custom ${name} at Printfield, Whitefield Bangalore.`).slice(0, 155)
+      });
+    } catch (err: any) {
+      console.error('[LocalAI] Text generation error:', err);
+      return res.status(500).json({ error: err.message || 'Local generation failed' });
+    }
+  });
+
   app.post('/api/ai/bulk-generate-descriptions', verifyAdmin, async (req, res) => {
     try {
       const { productIds, category } = req.body;
