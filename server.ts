@@ -3785,35 +3785,7 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     }
   });
 
-  // Local text generation — runs TinyLlama on machine, no API limits
-  let textGenPipeline: any = null;
-  const TEXT_GEN_MODEL = 'Xenova/TinyLlama-1.1B-Chat-v1.0';
-
-  async function getLocalTextGen() {
-    if (!textGenPipeline) {
-      console.log('[LocalAI] Loading TinyLlama text generation model (first run downloads ~2GB, cached after)...');
-      const { pipeline } = await import('@huggingface/transformers');
-      textGenPipeline = await pipeline('text-generation', TEXT_GEN_MODEL);
-      console.log('[LocalAI] TinyLlama model loaded successfully.');
-    }
-    return textGenPipeline;
-  }
-
-  async function localGenerate(prompt: string, maxTokens = 300): Promise<string> {
-    const gen = await getLocalTextGen();
-    const result = await gen(prompt, {
-      max_new_tokens: maxTokens,
-      temperature: 0.85,
-      top_p: 0.92,
-      top_k: 50,
-      repetition_penalty: 1.3,
-      do_sample: true,
-    });
-    const text = Array.isArray(result) ? result[0]?.generated_text : result?.generated_text || '';
-    const idx = text.indexOf(prompt);
-    return idx >= 0 ? text.slice(idx + prompt.length).trim() : text.trim();
-  }
-
+  // AI text generation — uses Gemini for speed
   app.post('/api/ai/local-generate', verifyAdmin, async (req, res) => {
     try {
       const { task, name, category, subCategory, description, cardDescription, features } = req.body;
@@ -3821,64 +3793,40 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
 
       const subCatText = subCategory ? ` (${subCategory})` : '';
       const featureText = features?.length ? `Key features: ${features.join(', ')}.` : '';
-      const existingDescText = description ? `Existing product details: ${description.slice(0, 300)}` : '';
 
       let prompt = '';
-      let maxTokens = 300;
 
       if (task === 'description') {
-        prompt = `<|system|>
-You are a senior copywriter at Printfield, a premium custom printing shop in Whitefield, Bangalore. You MUST write unique descriptions that are specific to EACH product. NEVER use generic filler words. Focus on the exact product name, what it is used for, who it's for, and what makes it special. Every product description must sound completely different.</s>
-<|user|>
-Write a unique 2-paragraph product description for this EXACT product: "${name}".
-Category: ${category || 'Print'}${subCatText}.
-${featureText}
-${existingDescText}
+        prompt = `You are a senior copywriter at Printfield, a premium custom printing shop in Whitefield, Bangalore. Write unique descriptions specific to EACH product. NEVER use generic filler. Every description must sound completely different.
 
-IMPORTANT RULES:
-- Start the first paragraph with something specific about what "${name}" actually IS and what it's used for
-- Second paragraph should cover customization options and ordering from Printfield, Whitefield Bangalore
-- Do NOT use phrases like "crafted with precision" or "exceptional quality" — be specific to THIS product
-- Use words that match the product type (e.g., for apparel use "wear", "fabric", "comfort"; for mugs use "sip", "morning routine", "handle"; for trophies use "achievement", "ceremony", "display")
-- Make it sound natural and different from other product descriptions</s>
-<|assistant|>
-`;
-        maxTokens = 400;
-      } else if (task === 'cardDescription') {
-        prompt = `<|system|>
-You are a product copywriter at Printfield. Write SHORT, UNIQUE card descriptions. Each product must have a completely different description. Never repeat phrases across products.</s>
-<|user|>
-Write a 2-sentence card description for: "${name}" (${category || 'Print'}${subCatText}).
+Write a unique 2-paragraph product description for: "${name}"
+Category: ${category || 'Print'}${subCatText}.
 ${featureText}
 
 RULES:
-- First sentence: what this product is and its main benefit (specific to "${name}")
-- Second sentence: customization or ordering detail
-- Do NOT use "premium quality" or "exceptional" — be specific
-- Keep it under 40 words</s>
-<|assistant|>
-`;
-        maxTokens = 120;
+- First paragraph: what "${name}" actually IS and what it's used for
+- Second paragraph: customization options and ordering from Printfield, Whitefield Bangalore
+- Do NOT use "crafted with precision" or "exceptional quality" — be specific to THIS product
+- Use words matching the product type`;
+      } else if (task === 'cardDescription') {
+        prompt = `Write a SHORT, UNIQUE 2-sentence card description for: "${name}" (${category || 'Print'}${subCatText}).
+First sentence: what this product is and its main benefit.
+Second sentence: customization or ordering detail.
+Do NOT use "premium quality" or "exceptional". Keep under 40 words.`;
       } else if (task === 'seoMeta') {
-        prompt = `<|system|>
-You are an SEO specialist for Printfield in Whitefield, Bangalore. Generate unique meta tags for each product. The title and description must mention the actual product name and what it is.</s>
-<|user|>
-Generate SEO meta tags for this product: "${name}"
-Category: ${category || 'Print'}${subCatText}
-
-Return ONLY valid JSON with two fields:
-- "metaTitle": Must include the actual product name "${name}" and "Printfield", max 60 characters. Format: "[Product Name] - Custom [Category] | Printfield" or similar unique format
-- "metaDescription": Must describe what "${name}" actually is, mention Whitefield Bangalore, max 155 characters
-
-Do NOT include any text outside the JSON object.</s>
-<|assistant|>
-`;
-        maxTokens = 200;
+        prompt = `Generate SEO meta tags for "${name}" (${category || 'Print'}${subCatText}). Return ONLY valid JSON with: "metaTitle" (max 60 chars, include "${name}" and "Printfield") and "metaDescription" (max 155 chars, describe what "${name}" is, mention Whitefield Bangalore). No text outside JSON.`;
       } else {
         return res.status(400).json({ error: 'Invalid task type' });
       }
 
-      const generated = await localGenerate(prompt, maxTokens);
+      let generated = '';
+      try {
+        const aiRes = await callGeminiWithRetry({ contents: prompt });
+        generated = aiRes.text || '';
+      } catch (e: any) {
+        console.error('[AI Generate] Gemini error:', e.message);
+        return res.status(500).json({ error: 'AI generation failed: ' + e.message });
+      }
 
       if (task === 'seoMeta') {
         try {
@@ -3896,7 +3844,7 @@ Do NOT include any text outside the JSON object.</s>
 
       // task === 'description'
       return res.json({
-        description: generated || `The ${name} is a premium quality product available at Printfield in Whitefield, Bangalore. Crafted with precision and attention to detail, it offers exceptional durability and a professional finish.`,
+        description: generated || `The ${name} is a premium quality product available at Printfield in Whitefield, Bangalore.`,
         cardDescription: generated.split('\n').filter(Boolean).slice(0, 2).join(' ').slice(0, 200) || `Premium ${name} with custom printing. Order from Printfield.`,
         metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`,
         metaDescription: (generated || `Order custom ${name} at Printfield, Whitefield Bangalore.`).slice(0, 155)
