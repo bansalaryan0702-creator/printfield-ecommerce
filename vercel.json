@@ -23,7 +23,6 @@
     { "source": "/(.*)", "has": [{ "type": "host", "value": "printfieldonline.com" }], "destination": "https://www.printfieldonline.com/$1", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/uploads/(.*)", "destination": "/api" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/sitemap.xml", "destination": "/api" },
     { "source": "/xiomi", "destination": "/api" },
