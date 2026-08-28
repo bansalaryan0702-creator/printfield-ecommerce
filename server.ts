@@ -3448,6 +3448,51 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     }
   });
 
+  // Bulk save: accepts array of products, saves all in one S3 write
+  app.post('/api/products/bulk', verifyAdmin, async (req, res) => {
+    try {
+      const { products } = req.body;
+      if (!Array.isArray(products) || products.length === 0) {
+        return res.status(400).json({ error: 'No products provided' });
+      }
+
+      const currentProds = await loadProductsFromS3(true);
+      const now = Date.now();
+
+      for (const p of products) {
+        const id = "printfield-" + Math.random().toString(36).substr(2, 9);
+        const { image: finalImage, images: finalImages } = await moveImagesToS3(p.image || '', Array.isArray(p.images) ? p.images : []);
+
+        currentProds.unshift({
+          id,
+          name: p.name || 'New Product',
+          category: p.category || 'General',
+          subCategory: p.subCategory || '',
+          price: Number(p.price || 0),
+          stockQty: p.stockQty !== undefined ? p.stockQty : null,
+          isDisabled: !!p.isDisabled,
+          image: finalImage,
+          images: finalImages,
+          description: p.description || '',
+          cardDescription: p.cardDescription || '',
+          metaTitle: p.metaTitle || '',
+          metaDescription: p.metaDescription || '',
+          features: Array.isArray(p.features) ? p.features : [],
+          colors: Array.isArray(p.colors) ? p.colors : [],
+          variations: Array.isArray(p.variations) ? p.variations : [],
+          createdAt: now,
+          updatedAt: now
+        });
+      }
+
+      await saveProductsToS3(currentProds);
+      res.json({ success: true, count: products.length });
+    } catch (err) {
+      console.error('Bulk product save error:', err);
+      res.status(500).json({ error: 'Failed to bulk save products' });
+    }
+  });
+
   app.put('/api/products/:id', verifyAdmin, async (req, res) => {
     try {
       const id = req.params.id;

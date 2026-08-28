@@ -2782,21 +2782,11 @@ export function Admin() {
                         }
                       }
 
-                      let savedCount = 0;
-                      for (const p of updatedValid) {
-                        const res = await apiFetch('/api/products', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                          },
-                          body: JSON.stringify({
+                      const bulkPayload = updatedValid.map(p => ({
                             name: p.name,
                             category: p.category || bulkCategory,
                             subCategory: p.subCategory || bulkSubCategory,
                             price: 499,
-                            minQty: 1,
-                            qtyMultiple: 1,
                             image: p.image || getStockImageForCategory(p.category || bulkCategory, p.subCategory || bulkSubCategory, p.name),
                             images: [p.image || getStockImageForCategory(p.category || bulkCategory, p.subCategory || bulkSubCategory, p.name)],
                             description: p.description || `Discover the ${p.name}, a dependable ${(p.category || bulkCategory).toLowerCase()} product for everyday use. Available with custom printing at Printfield, Whitefield Bangalore.`,
@@ -2806,15 +2796,24 @@ export function Admin() {
                             features: [],
                             colors: [],
                             variations: []
-                          })
-                        });
-                        if (!res.ok) {
-                          throw new Error(`Failed to save product: ${p.name}`);
-                        }
-                        savedCount++;
-                      }
+                          }));
 
-                      alert(`Successfully added ${savedCount} products to the catalog!`);
+                          const res = await apiFetch('/api/products/bulk', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ products: bulkPayload })
+                          });
+                          if (!res.ok) {
+                            const errBody = await res.json().catch(() => ({}));
+                            throw new Error(errBody.error || `Failed to save products`);
+                          }
+
+                          const savedCount = bulkPayload.length;
+
+                          alert(`Successfully added ${savedCount} products to the catalog!`);
                       setBulkProducts([
                         { name: '', image: '', description: '', cardDescription: '' }
                       ]);
