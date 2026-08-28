@@ -96,6 +96,49 @@ import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import { PDFDocument } from 'pdf-lib';
 
+// Image compression — resize to max 1200px width, compress to WebP under 100kb
+async function compressImage(buffer: Buffer, mimetype: string): Promise<{ buffer: Buffer; ext: string; mime: string }> {
+  const sharp = (await import('sharp')).default;
+  const input = sharp(buffer);
+  const metadata = await input.metadata();
+  
+  // Only compress raster images (not SVG, GIF animations, etc)
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/tiff'].includes(mimetype)) {
+    return { buffer, ext: mimetype.split('/')[1] || 'bin', mime: mimetype };
+  }
+
+  let pipeline = input;
+  
+  // Resize if wider than 1200px
+  if (metadata.width && metadata.width > 1200) {
+    pipeline = pipeline.resize({ width: 1200, withoutEnlargement: true });
+  }
+
+  // Convert to WebP and compress iteratively to get under 100kb
+  let quality = 80;
+  let result = await pipeline.clone().webp({ quality }).toBuffer();
+  
+  while (result.length > 100 * 1024 && quality > 20) {
+    quality -= 10;
+    result = await pipeline.clone().webp({ quality }).toBuffer();
+  }
+
+  // If still over 100kb, reduce dimensions further
+  if (result.length > 100 * 1024 && metadata.width && metadata.width > 800) {
+    pipeline = sharp(buffer).resize({ width: 800, withoutEnlargement: true });
+    quality = 75;
+    result = await pipeline.webp({ quality }).toBuffer();
+    
+    while (result.length > 100 * 1024 && quality > 20) {
+      quality -= 10;
+      result = await pipeline.clone().webp({ quality }).toBuffer();
+    }
+  }
+
+  console.log(`[ImageCompress] ${metadata.width}x${metadata.height} → ${(result.length / 1024).toFixed(0)}kb (quality=${quality})`);
+  return { buffer: result, ext: 'webp', mime: 'image/webp' };
+}
+
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { 
@@ -1279,12 +1322,24 @@ const SITE_URL = 'https://www.printfieldonline.com';
         }
 
         const safeName = originalName.replace(/[^a-zA-Z0-9.-_]/g, '');
-        const finalName = `${uploadId}-${safeName}`;
+        
+        // Compress image if raster
+        let saveBuffer = finalBuffer;
+        let finalName = `${uploadId}-${safeName}`;
+        if (mimeType.startsWith('image/') && !originalName.toLowerCase().endsWith('.svg')) {
+          try {
+            const compressed = await compressImage(finalBuffer, mimeType);
+            saveBuffer = compressed.buffer;
+            finalName = `${uploadId}-${safeName.replace(/\.[^.]+$/, '')}.${compressed.ext}`;
+          } catch (compressErr) {
+            console.warn('[ChunkCompress] Failed, saving original:', compressErr);
+          }
+        }
         
         const path = await import('path');
         const uploadDir = path.join(process.cwd(), 'uploads');
         await fs.mkdir(uploadDir, { recursive: true });
-        await fs.writeFile(path.join(uploadDir, finalName), finalBuffer);
+        await fs.writeFile(path.join(uploadDir, finalName), saveBuffer);
 
         
         
@@ -1334,12 +1389,27 @@ const SITE_URL = 'https://www.printfieldonline.com';
 
       const id = Date.now().toString();
       const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.-_]/g, '');
-      const finalName = `${id}-${safeName}`;
+      
+      // Compress image if it's a raster image
+      let finalBuffer = req.file.buffer;
+      let finalName = `${id}-${safeName}`;
+      let contentType = req.file.mimetype;
+
+      if (req.file.mimetype.startsWith('image/') && !req.file.originalname.toLowerCase().endsWith('.svg')) {
+        try {
+          const compressed = await compressImage(req.file.buffer, req.file.mimetype);
+          finalBuffer = compressed.buffer;
+          finalName = `${id}-${safeName.replace(/\.[^.]+$/, '')}.${compressed.ext}`;
+          contentType = compressed.mime;
+        } catch (compressErr) {
+          console.warn('[ImageCompress] Failed, saving original:', compressErr);
+        }
+      }
       
       const pathMod = await import('path');
       const uploadDir = pathMod.join(process.cwd(), 'uploads');
       await fs.mkdir(uploadDir, { recursive: true });
-      await fs.writeFile(pathMod.join(uploadDir, finalName), req.file.buffer);
+      await fs.writeFile(pathMod.join(uploadDir, finalName), finalBuffer);
 
       let pageCount = null;
       if (req.file.originalname.toLowerCase().endsWith('.pdf')) {
