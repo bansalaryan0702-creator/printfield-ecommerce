@@ -1909,6 +1909,7 @@ export function ProductDetail() {
                               })()}
                               designImage={artworks?.[activePlacement]?.previewUrl || null}
                               placement={activePlacement}
+                              artworks={artworks}
                               adjustment={adjust3D}
                               adjustmentMode={adjust3DMode}
                               onAdjustChange={setAdjust3D}

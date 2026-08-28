@@ -487,19 +487,21 @@ async function callGeminiWithRetry(params: {
   const aiClient = getAI();
   const requestedModel = params.model || 'gemini-2.5-flash';
   
-  // Build model fallback candidates list to gracefully handle high demand (503/429)
+  // Free-tier Gemini models — generous daily quota
   const fallbackCandidates = [
     requestedModel,
     'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
     'gemini-3.5-flash',
-    'gemini-3.1-flash-lite',
-    'gemini-flash-latest'
+    'gemini-3.5-flash-lite',
+    'gemini-3.6-flash',
+    'gemini-3.1-flash-lite'
   ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
   let lastError: any = null;
 
   for (const modelCandidate of fallbackCandidates) {
-    let retries = 2; // 2 attempts per candidate model
+    let retries = 2;
     let delayMs = 500;
 
     while (retries > 0) {
@@ -513,18 +515,28 @@ async function callGeminiWithRetry(params: {
         lastError = err;
         const errStr = String(err?.message || err || '');
         const errStatus = err?.status || err?.code;
-        const isTransient = errStatus === 503 || errStatus === 429 || 
-                            errStr.includes('503') || errStr.includes('UNAVAILABLE') || 
-                            errStr.includes('high demand') || errStr.includes('429') || 
-                            errStr.includes('RESOURCE_EXHAUSTED');
+        const isRateLimited = errStatus === 429 || 
+                              errStr.includes('429') || 
+                              errStr.includes('RESOURCE_EXHAUSTED') ||
+                              errStr.includes('quota');
+        const isServerError = errStatus === 503 || 
+                              errStr.includes('503') || 
+                              errStr.includes('UNAVAILABLE') || 
+                              errStr.includes('high demand');
 
-        if (isTransient && retries > 1) {
-          console.warn(`[Gemini API Retry] High demand on ${modelCandidate}. Retrying in ${delayMs}ms...`);
+        if (isRateLimited) {
+          // Rate limited — skip retries, switch to next model immediately
+          console.warn(`[Gemini] ${modelCandidate} rate limited (429). Switching to next model...`);
+          break;
+        } else if (isServerError && retries > 1) {
+          // Server error (503) — retry once with backoff
+          console.warn(`[Gemini] ${modelCandidate} server error. Retrying in ${delayMs}ms...`);
           await new Promise((res) => setTimeout(res, delayMs));
           retries--;
+          delayMs *= 2;
         } else {
-          console.warn(`[Gemini API Fallback] ${modelCandidate} unavailable (${errStr}). Trying next fallback model...`);
-          break; // Switch to next fallback candidate
+          console.warn(`[Gemini] ${modelCandidate} failed: ${errStr.slice(0, 80)}. Next model...`);
+          break;
         }
       }
     }
@@ -3458,6 +3470,21 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
         }
       }
       
+      // Also load saved custom categories from S3
+      try {
+        const customCatsResp = await s3Client.send(new GetObjectCommand({ Bucket: s3BucketName, Key: 'database/custom-categories.json' }));
+        const customCatsStr = await customCatsResp.Body.transformToString();
+        const customCats = JSON.parse(customCatsStr);
+        for (const cat of customCats) {
+          if (!categoriesMap[cat.name]) {
+            categoriesMap[cat.name] = new Set();
+          }
+          for (const sub of (cat.subCategories || [])) {
+            categoriesMap[cat.name].add(sub);
+          }
+        }
+      } catch {}
+      
       const hiddenCategories = new Set(['Business Cards']);
       const result = Object.keys(categoriesMap)
         .filter(cat => !hiddenCategories.has(cat))
@@ -3481,6 +3508,42 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+  });
+
+  // Save custom category to S3 so it persists
+  app.post('/api/categories', verifyAdmin, async (req, res) => {
+    try {
+      const { name, subCategories } = req.body;
+      if (!name || !name.trim()) return res.status(400).json({ error: 'Category name is required' });
+
+      let customCats = [];
+      try {
+        const resp = await s3Client.send(new GetObjectCommand({ Bucket: s3BucketName, Key: 'database/custom-categories.json' }));
+        const str = await resp.Body.transformToString();
+        customCats = JSON.parse(str);
+      } catch {}
+
+      const existing = customCats.find(c => c.name.toLowerCase() === name.trim().toLowerCase());
+      if (existing) {
+        if (subCategories?.length) {
+          existing.subCategories = Array.from(new Set([...(existing.subCategories || []), ...subCategories]));
+        }
+      } else {
+        customCats.push({ name: name.trim(), subCategories: subCategories || [] });
+      }
+
+      await s3Client.send(new PutObjectCommand({
+        Bucket: s3BucketName,
+        Key: 'database/custom-categories.json',
+        Body: JSON.stringify(customCats, null, 2),
+        ContentType: 'application/json'
+      }));
+
+      res.json({ success: true, categories: customCats });
+    } catch (err) {
+      console.error('Save category error:', err);
+      res.status(500).json({ error: 'Failed to save category' });
     }
   });
   
@@ -3774,7 +3837,58 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     const result = await gen(prompt, { max_new_tokens: maxTokens, temperature: 0.85, top_p: 0.92, top_k: 50, repetition_penalty: 1.3, do_sample: true });
     const text = Array.isArray(result) ? result[0]?.generated_text : result?.generated_text || '';
     const idx = text.indexOf(prompt);
-    return idx >= 0 ? text.slice(idx + prompt.length).trim() : text.trim();
+    const raw = idx >= 0 ? text.slice(idx + prompt.length).trim() : text.trim();
+    return cleanGeneratedText(raw);
+  }
+
+  // Strip instruction-like / prompt-echo garbage from LLM output
+  function cleanGeneratedText(text: string): string {
+    if (!text) return '';
+    const instructionPatterns = [
+      /bearing down on[^.!?\n]*/gi,
+      /don'?t write[^.!?\n]*/gi,
+      /never use[^.!?\n]*/gi,
+      /avoid using[^.!?\n]*/gi,
+      /do not use[^.!?\n]*/gi,
+      /be specific[^.!?\n]*/gi,
+      /use words matching[^.!?\n]*/gi,
+      /keep under \d+ words[^.!?\n]*/gi,
+      /no text outside[^.!?\n]*/gi,
+      /return only[^.!?\n]*/gi,
+      /output only[^.!?\n]*/gi,
+      /^- .{0,80}$/gm,
+      /^rules?:/gim,
+      /^requirements?:/gim,
+      /^guidelines?:/gim,
+      /^\(bearing[^)]*\)/gi,
+      /each description must be unique/gi,
+      /do not use the same opening words/gi,
+      /consider using[^.!?\n]*/gi,
+      /if appropriate[^.!?\n]*/gi,
+      /vivid descriptions[^.!?\n]*/gi,
+      /use metaphors[^.!?\n]*/gi,
+    ];
+    let cleaned = text;
+    for (const pat of instructionPatterns) {
+      cleaned = cleaned.replace(pat, '');
+    }
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n').replace(/^\s*[-•]\s*/gm, '').trim();
+    // If what's left is mostly empty or very short (<15 chars), it was garbage
+    if (cleaned.replace(/\s/g, '').length < 15) return '';
+    return cleaned;
+  }
+
+  // Check if output looks like instruction/guideline text instead of a real description
+  function looksLikeInstruction(text: string, productName: string): boolean {
+    if (!text) return true;
+    const lower = text.toLowerCase();
+    const instructionWords = ['consider', 'should', 'must', 'avoid', 'make sure', 'ensure', 'try to', 'use ', 'write ', 'generate '];
+    const sentenceCount = text.split(/[.!?]+/).filter(s => s.trim().length > 5).length;
+    // If it's a single short sentence with instruction words, it's garbage
+    if (sentenceCount <= 2 && instructionWords.some(w => lower.includes(w))) return true;
+    // If it doesn't mention anything product-related at all
+    if (!lower.includes(productName.toLowerCase().split(' ')[0].toLowerCase())) return true;
+    return false;
   }
 
   // AI image classification — Gemini primary, CLIP fallback (unlimited)
@@ -3834,11 +3948,41 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
 
       let prompt = '';
       if (task === 'description') {
-        prompt = `You are a senior copywriter at Printfield, a premium custom printing shop in Whitefield, Bangalore. Write unique descriptions specific to EACH product. NEVER use generic filler. Every description must sound completely different.\n\nWrite a unique 2-paragraph product description for: "${name}"\nCategory: ${category || 'Print'}${subCatText}.\n${featureText}\n\nRULES:\n- First paragraph: what "${name}" actually IS and what it's used for\n- Second paragraph: customization options and ordering from Printfield, Whitefield Bangalore\n- Do NOT use "crafted with precision" or "exceptional quality" — be specific to THIS product\n- Use words matching the product type`;
+        prompt = `Write a product description for "${name}" (${category || 'Print'}${subCatText}).
+${featureText}
+
+Write ONE paragraph, 3-4 sentences, in this exact flow:
+
+Sentence 1: Start with a strong verb + adjective + what the product is. Example pattern: "Embrace [quality] with the [product name]."
+Sentence 2: Describe what it is made of or designed with, and what experience or benefit it provides.
+Sentence 3: Say who it is perfect for and what it helps them do.
+Sentence 4 (optional): A short closing line about reliability, style, or everyday use.
+
+Key rules:
+- Each product must sound completely different from others
+- Be specific to THIS product's material, features, and use case
+- Do not repeat phrases across products
+- Natural, professional tone — not salesy`;
       } else if (task === 'cardDescription') {
-        prompt = `Write a SHORT, UNIQUE 2-sentence card description for: "${name}" (${category || 'Print'}${subCatText}).\nFirst sentence: what this product is and its main benefit.\nSecond sentence: customization or ordering detail.\nDo NOT use "premium quality" or "exceptional". Keep under 40 words.`;
+        prompt = `Write a punchy one-liner for a product card grid for "${name}" (${category || 'Print'}${subCatText}).
+This is NOT a description — it is a short hook that makes someone want to click.
+10-15 words max. Start with a strong verb. Focus on the single biggest benefit or feeling.`;
       } else if (task === 'seoMeta') {
-        prompt = `Generate SEO meta tags for "${name}" (${category || 'Print'}${subCatText}). Return ONLY valid JSON with: "metaTitle" (max 60 chars, include "${name}" and "Printfield") and "metaDescription" (max 155 chars, describe what "${name}" is, mention Whitefield Bangalore). No text outside JSON.`;
+        prompt = `Generate SEO-optimized meta tags for "${name}" (${category || 'Print'}${subCatText}) sold at Printfield in Whitefield, Bangalore.
+
+"metaTitle": Max 60 characters. Format: [Primary Keyword] - [Benefit] | Printfield
+- Start with the product name or main search term
+- Include one benefit word (Custom, Premium, Branded, etc.)
+- Always end with "| Printfield"
+
+"metaDescription": Max 155 characters. Write for Google click-through:
+- Start with a verb (Buy, Order, Shop, Get)
+- Include the product name
+- Mention Whitefield Bangalore or Bengaluru
+- Add one selling point (custom branding, fast delivery, bulk orders)
+- End with a call to action (Shop now, Order today, Get a free quote)
+
+Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       } else {
         return res.status(400).json({ error: 'Invalid task type' });
       }
@@ -3846,36 +3990,49 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
       let generated = '';
       let engine = 'gemini';
 
-      // Try Gemini first (fast)
+      // Try Gemini (free models: gemini-2.0-flash, gemini-1.5-flash)
       try {
         const aiRes = await callGeminiWithRetry({ contents: prompt });
-        generated = aiRes.text || '';
+        generated = cleanGeneratedText(aiRes.text || '');
       } catch (e: any) {
-        console.warn('[Generate] Gemini rate-limited, using TinyLlama fallback:', e.message?.slice(0, 80));
-        // Fallback: TinyLlama (slow but unlimited)
-        engine = 'tinyllama';
-        generated = await localGenerate(prompt, task === 'description' ? 400 : task === 'cardDescription' ? 120 : 200);
+        console.warn('[Generate] Gemini unavailable:', e.message?.slice(0, 120));
+        // Gemini failed — generated stays empty, fallback defaults will be used
+      }
+
+      // If output is instruction text or garbage, discard it
+      if (generated && looksLikeInstruction(generated, name)) {
+        generated = '';
       }
 
       if (task === 'seoMeta') {
         try {
           const jsonMatch = generated.match(/\{[\s\S]*\}/);
           const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : generated);
-          return res.json({ metaTitle: parsed.metaTitle || `${name} | Custom ${category || 'Printing'}`, metaDescription: parsed.metaDescription || `Order custom ${name} at Printfield, Whitefield Bangalore.`, engine });
+          return res.json({ metaTitle: parsed.metaTitle || `${name} - Custom ${category || 'Printing'} | Printfield`, metaDescription: parsed.metaDescription || `Order ${name} at Printfield, Whitefield Bangalore 560066. Custom branding. Fast delivery. Shop now!`, engine });
         } catch {
-          return res.json({ metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`, metaDescription: `Order high-quality custom ${name} at Printfield, Whitefield Bangalore.`, engine });
+          return res.json({ metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`, metaDescription: `Order ${name} at Printfield, Whitefield Bangalore 560066. Custom printing. Fast delivery. Shop now!`, engine });
         }
       }
 
       if (task === 'cardDescription') {
-        return res.json({ description: generated || `Premium ${name} with custom printing options. Available at Printfield, Whitefield Bangalore.`, engine });
+        if (!generated) {
+          generated = `Make your brand stand out with the ${name}. Custom printing available at Printfield.`;
+        }
+        return res.json({ description: generated, engine });
+      }
+
+      // Description task fallback — product-specific
+      if (!generated) {
+        const catLower = (category || 'product').toLowerCase();
+        const featureDesc = features?.length ? `Designed with ${features.join(', ')}, it` : 'It';
+        generated = `Discover the ${name}, a dependable ${catLower} product built for everyday use. ${featureDesc} provides reliable performance for professional and personal needs. Perfect for corporate gifting, branding, or personal use, it is available with custom logo printing at Printfield, Whitefield Bangalore with fast delivery across Bengaluru.`;
       }
 
       return res.json({
-        description: generated || `The ${name} is a premium quality product available at Printfield in Whitefield, Bangalore.`,
-        cardDescription: generated.split('\n').filter(Boolean).slice(0, 2).join(' ').slice(0, 200) || `Premium ${name} with custom printing. Order from Printfield.`,
+        description: generated,
+        cardDescription: generated.split('\n').filter(Boolean).slice(0, 2).join(' ').slice(0, 200) || `Get custom ${name} printing at Printfield, Whitefield Bangalore. Fast delivery.`,
         metaTitle: `${name} - Custom ${category || 'Printing'} | Printfield`,
-        metaDescription: (generated || `Order custom ${name} at Printfield, Whitefield Bangalore.`).slice(0, 155),
+        metaDescription: generated.slice(0, 155),
         engine
       });
     } catch (err: any) {
@@ -3892,10 +4049,10 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
       for (const p of allProducts) {
         if ((productIds && productIds.includes(p.id)) || (category && p.category === category)) {
           if (!p.description || p.description.length < 50) {
-            const prompt = `Write a compelling 2-paragraph description for printing product "${p.name}" in category "${p.category || 'Print'}". Highlight premium quality and fast dispatch.`;
+            const prompt = `Write a product description for "${p.name}" (${p.category || 'Print'}) sold at Printfield in Whitefield, Bangalore 560066. ONE paragraph, 3-4 sentences. Start with a strong verb + what the product is. Describe what it is made of and what it is used for. End with who it is perfect for. Be specific to this product. Natural professional tone.`;
             try {
               const aiRes = await callGeminiWithRetry({ contents: prompt });
-              p.description = aiRes.text || p.description;
+              p.description = cleanGeneratedText(aiRes.text || '') || p.description;
               updatedCount++;
             } catch (e) {}
           }
@@ -4040,6 +4197,8 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
         { path: '/faq', priority: '0.6', changefreq: 'monthly' },
         { path: '/contact', priority: '0.7', changefreq: 'monthly' },
         { path: '/rating', priority: '0.5', changefreq: 'monthly' },
+        { path: '/terms', priority: '0.3', changefreq: 'yearly' },
+        { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
       ];
 
       for (const page of staticPages) {
@@ -4110,6 +4269,9 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
             "brand": { "@type": "Brand", "name": "Printfield" },
             "offers": {
               "@type": "Offer",
+              "price": product.price || 499,
+              "priceCurrency": "INR",
+              "priceValidUntil": new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
               "url": canonicalUrl,
               "itemCondition": "https://schema.org/NewCondition",
               "availability": product.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
@@ -4175,6 +4337,8 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
       const catTitle = `${canonicalCat} - Custom Printing in Whitefield Bangalore | Printfield`;
       const catDesc = `Buy custom ${canonicalCat.toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${canonicalCat.toLowerCase()} with fast delivery. Order online at Printfield.`;
       const canonicalUrl = `${SITE_URL}/category/${encodeURIComponent(canonicalCat)}`;
+      const catProducts = allProducts.filter((p: any) => p.category === canonicalCat && !p.isDisabled);
+      const catImage = catProducts[0]?.image || 'https://www.printfieldonline.com/logo.png';
 
       const distPath = path.join(process.cwd(), 'dist');
       const indexPath = path.join(distPath, 'index.html');
@@ -4192,12 +4356,14 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     <link rel="canonical" href="${canonicalUrl}" />
     <meta property="og:title" content="${escapeAttr(catTitle)}" />
     <meta property="og:description" content="${escapeAttr(catDesc)}" />
+    <meta property="og:image" content="${escapeAttr(catImage)}" />
     <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Printfield" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeAttr(catTitle)}" />
     <meta name="twitter:description" content="${escapeAttr(catDesc)}" />
+    <meta name="twitter:image" content="${escapeAttr(catImage)}" />
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE_URL}/"},{"@type":"ListItem","position":2,"name":"${escapeAttr(canonicalCat)}","item":"${canonicalUrl}"}]}</script>
 `;
         html = html.replace(/<title>.*?<\/title>/gi, '');

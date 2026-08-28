@@ -399,7 +399,7 @@ export function Admin() {
           task: 'description',
           name: p.name,
           category: cat,
-          subCategory: bulkSubCategory,
+          subCategory: p.subCategory || bulkSubCategory,
           features: p.features || []
         })
       });
@@ -2216,13 +2216,36 @@ export function Admin() {
                   </select>
 
                   {!allCategories.includes(bulkCategory) && (
-                    <input 
-                      type="text" 
-                      value={bulkCategory} 
-                      onChange={e => setBulkCategory(e.target.value)}
-                      className="w-full px-4 py-2 mt-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm bg-white"
-                      placeholder="Type custom category name..."
-                    />
+                    <div className="flex gap-2 mt-2">
+                      <input 
+                        type="text" 
+                        value={bulkCategory} 
+                        onChange={e => setBulkCategory(e.target.value)}
+                        className="flex-1 px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm bg-white"
+                        placeholder="Type custom category name..."
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!bulkCategory.trim()) return;
+                          try {
+                            const adminToken = localStorage.getItem('admin_token') || token;
+                            const res = await apiFetch('/api/categories', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+                              body: JSON.stringify({ name: bulkCategory.trim(), subCategories: [] })
+                            });
+                            if (res.ok) {
+                              fetchCategoriesAndSubcategories();
+                              alert(`Category "${bulkCategory.trim()}" saved!`);
+                            }
+                          } catch {}
+                        }}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
+                      >
+                        Save
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -2250,14 +2273,37 @@ export function Admin() {
                   </select>
 
                   {showBulkCustomSubCategory && (
-                    <input 
-                      type="text" 
-                      required={showBulkCustomSubCategory}
-                      value={bulkSubCategory} 
-                      onChange={e => setBulkSubCategory(e.target.value)}
-                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm bg-white animate-fadeIn"
-                      placeholder="Type custom subcategory name..."
-                    />
+                    <div className="flex gap-2 animate-fadeIn">
+                      <input 
+                        type="text" 
+                        required={showBulkCustomSubCategory}
+                        value={bulkSubCategory} 
+                        onChange={e => setBulkSubCategory(e.target.value)}
+                        className="flex-1 px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm bg-white"
+                        placeholder="Type custom subcategory name..."
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!bulkSubCategory.trim() || !bulkCategory.trim()) return;
+                          try {
+                            const adminToken = localStorage.getItem('admin_token') || token;
+                            const res = await apiFetch('/api/categories', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+                              body: JSON.stringify({ name: bulkCategory.trim(), subCategories: [bulkSubCategory.trim()] })
+                            });
+                            if (res.ok) {
+                              fetchCategoriesAndSubcategories();
+                              alert(`Subcategory "${bulkSubCategory.trim()}" saved under "${bulkCategory.trim()}"!`);
+                            }
+                          } catch {}
+                        }}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
+                      >
+                        Save
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -2390,7 +2436,7 @@ export function Admin() {
                       {p.isGenerating && (
                         <div className="absolute inset-0 bg-white/80 backdrop-blur-xs rounded-2xl flex flex-col items-center justify-center z-10">
                           <Loader2 className="h-8 w-8 animate-spin text-purple-600 mb-2" />
-                          <p className="text-xs font-bold text-purple-700">Local AI Generating...</p>
+                          <p className="text-xs font-bold text-purple-700">AI Generating...</p>
                         </div>
                       )}
 
@@ -2467,7 +2513,7 @@ export function Admin() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                title="Generate with Local AI"
+                                title="Generate with AI"
                                 onClick={() => handleGenerateSingleAI(idx)}
                                 className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                               >
@@ -2505,6 +2551,30 @@ export function Admin() {
                                   <option key={c} value={c}>{c}</option>
                                 ))}
                                 <option value="custom">Custom...</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Sub-category */}
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sub-category</label>
+                            <div className="flex gap-2">
+                              <select
+                                value={p.subCategory || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setBulkProducts(prev => {
+                                    const copy = [...prev];
+                                    copy[idx].subCategory = val;
+                                    return copy;
+                                  });
+                                }}
+                                className="flex-1 px-3 py-1.5 border border-gray-300 focus:border-purple-500 rounded-lg text-sm bg-white outline-none transition-colors"
+                              >
+                                <option value="">None</option>
+                                {(categoriesData.find(c => c.name === (p.category || bulkCategory))?.subCategories || []).map(sub => (
+                                  <option key={sub} value={sub}>{sub}</option>
+                                ))}
                               </select>
                             </div>
                           </div>
@@ -2640,7 +2710,7 @@ export function Admin() {
                         } catch {}
                       }
                       setBulkError('');
-                      alert('Local AI generated descriptions and SEO tags for all products!');
+                      alert('AI generated descriptions and SEO tags for all products!');
                     } catch (err: any) {
                       setBulkError(err.message);
                     } finally {
@@ -2653,7 +2723,7 @@ export function Admin() {
                   {isGeneratingBulk ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Local AI Generating...
+                      Generating with Gemini AI...
                     </>
                   ) : (
                     <>
@@ -2677,7 +2747,7 @@ export function Admin() {
                     setIsSavingBulk(true);
                     setBulkError('');
                     try {
-                      // Auto-generate descriptions using local AI before saving
+                      // Auto-generate descriptions using AI before saving
                       const missingDesc = valid.filter(p => !p.description?.trim() || !p.cardDescription?.trim() || !p.metaTitle?.trim() || !p.metaDescription?.trim());
                       let updatedValid = [...valid];
 
@@ -2689,7 +2759,7 @@ export function Admin() {
                             const genRes = await apiFetch('/api/ai/local-generate', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                              body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: bulkSubCategory, features: p.features || [] })
+                            body: JSON.stringify({ task: 'description', name: p.name, category: cat, subCategory: p.subCategory || bulkSubCategory, features: p.features || [] })
                             });
                             if (genRes.ok) {
                               const gen = await genRes.json();
@@ -2697,10 +2767,10 @@ export function Admin() {
                                 if (item.name.trim().toLowerCase() === p.name.trim().toLowerCase()) {
                                   return {
                                     ...item,
-                                    description: item.description?.trim() || gen.description || `Crafted with precision, the ${item.name} delivers exceptional quality for ${cat}.`,
-                                    cardDescription: item.cardDescription?.trim() || gen.cardDescription || `Custom ${item.name} tailored with premium finish for ${cat}.`,
-                                    metaTitle: item.metaTitle?.trim() || gen.metaTitle || `${item.name} - Custom ${cat}`,
-                                    metaDescription: item.metaDescription?.trim() || gen.metaDescription || `Order high-quality ${item.name} online at Printfield.`
+                                    description: item.description?.trim() || gen.description || `Discover the ${item.name}, a dependable ${cat.toLowerCase()} product for everyday use. Available with custom printing at Printfield, Whitefield Bangalore.`,
+                                    cardDescription: item.cardDescription?.trim() || gen.cardDescription || `Make your brand stand out with the ${item.name}. Custom printing available at Printfield.`,
+                                    metaTitle: item.metaTitle?.trim() || gen.metaTitle || `${item.name} - Custom ${cat} | Printfield`,
+                                    metaDescription: item.metaDescription?.trim() || gen.metaDescription || `Order ${item.name} at Printfield, Whitefield Bangalore. Custom branding. Fast delivery. Shop now!`
                                   };
                                 }
                                 return item;
@@ -2708,7 +2778,7 @@ export function Admin() {
                             }
                           }
                         } catch (e) {
-                          console.warn("Local AI generation prior to bulk save failed, using dynamic fallbacks:", e);
+                          console.warn("AI generation prior to bulk save failed, using dynamic fallbacks:", e);
                         }
                       }
 
@@ -2723,16 +2793,16 @@ export function Admin() {
                           body: JSON.stringify({
                             name: p.name,
                             category: p.category || bulkCategory,
-                            subCategory: bulkSubCategory,
+                            subCategory: p.subCategory || bulkSubCategory,
                             price: 499,
                             minQty: 1,
                             qtyMultiple: 1,
-                            image: p.image || getStockImageForCategory(p.category || bulkCategory, bulkSubCategory, p.name),
-                            images: [p.image || getStockImageForCategory(p.category || bulkCategory, bulkSubCategory, p.name)],
-                            description: p.description || `Crafted with precision, the ${p.name} delivers exceptional quality for ${p.category || bulkCategory}.`,
-                            cardDescription: p.cardDescription || `Custom ${p.name} tailored with premium finish for ${p.category || bulkCategory}.`,
-                            metaTitle: p.metaTitle || `${p.name} - Custom ${p.category || bulkCategory}`,
-                            metaDescription: p.metaDescription || `Order high-quality ${p.name} online at Printfield.`,
+                            image: p.image || getStockImageForCategory(p.category || bulkCategory, p.subCategory || bulkSubCategory, p.name),
+                            images: [p.image || getStockImageForCategory(p.category || bulkCategory, p.subCategory || bulkSubCategory, p.name)],
+                            description: p.description || `Discover the ${p.name}, a dependable ${(p.category || bulkCategory).toLowerCase()} product for everyday use. Available with custom printing at Printfield, Whitefield Bangalore.`,
+                            cardDescription: p.cardDescription || `Make your brand stand out with the ${p.name}. Custom printing available at Printfield.`,
+                            metaTitle: p.metaTitle || `${p.name} - Custom ${p.category || bulkCategory} | Printfield`,
+                            metaDescription: p.metaDescription || `Order ${p.name} at Printfield, Whitefield Bangalore. Custom branding. Fast delivery. Shop now!`,
                             features: [],
                             colors: [],
                             variations: []

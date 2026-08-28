@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, Suspense, Component, ReactNode, use
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 
 export interface ArtworkAdjustment {
   offsetX: number;
@@ -90,7 +91,7 @@ function centerModel(scene: THREE.Group) {
 
   const size = box.getSize(new THREE.Vector3());
   const maxDim = Math.max(size.x, size.y, size.z);
-  scene.scale.setScalar(3.0 / maxDim);
+  scene.scale.setScalar(2.6 / maxDim);
   scene.updateMatrixWorld(true);
 
   const nb = new THREE.Box3();
@@ -103,8 +104,7 @@ function centerModel(scene: THREE.Group) {
   });
   if (nb.isEmpty()) nb.setFromObject(scene);
   const nc = nb.getCenter(new THREE.Vector3());
-  const nm = nb.min;
-  scene.position.set(-nc.x, -nm.y, -nc.z);
+  scene.position.set(-nc.x, -nc.y, -nc.z);
 
   scene.updateMatrixWorld(true);
   const finalBox = new THREE.Box3().setFromObject(scene);
@@ -112,100 +112,31 @@ function centerModel(scene: THREE.Group) {
   (scene as any).userData.size = finalBox.getSize(new THREE.Vector3());
 }
 
-function createCurvedPlaneGeometry(width: number, height: number, segments = 24) {
-  const geo = new THREE.PlaneGeometry(width, height, segments, segments);
-  const posAttr = geo.attributes.position as THREE.BufferAttribute;
-  const radius = width * 1.15;
-  for (let i = 0; i < posAttr.count; i++) {
-    const x = posAttr.getX(i);
-    const y = posAttr.getY(i);
-    const t = Math.max(-1, Math.min(1, x / radius));
-    const angle = Math.asin(t);
-    posAttr.setXYZ(i, Math.sin(angle) * radius, y, (Math.cos(angle) - 1) * radius);
-  }
-  geo.computeVertexNormals();
-  return geo;
+function getShirtMeshes(scene: THREE.Group): THREE.Mesh[] {
+  const meshes: THREE.Mesh[] = [];
+  scene.traverse((c) => {
+    if (c instanceof THREE.Mesh && !(c as any).userData?.isArtwork) {
+      meshes.push(c);
+    }
+  });
+  return meshes;
 }
 
-function PoloModel({ color, designImage, placement, adjustment, onReady }: {
+function PoloModel({ color, designImage, placement, adjustment, artworks, onReady }: {
   color: string;
   designImage?: string | null;
   placement?: string;
   adjustment?: ArtworkAdjustment;
+  artworks?: Record<string, any>;
   onReady?: () => void;
 }) {
   const { scene } = useGLTF('/polo3d/polo.glb');
   const groupRef = useRef<THREE.Group>(null);
   const didCenter = useRef(false);
-  const artworkRef = useRef<THREE.Mesh | null>(null);
-  const hitRef = useRef<{ point: THREE.Vector3; normal: THREE.Vector3; planeWorldScale: number } | null>(null);
-  const adjRef = useRef(adjustment || DEFAULT_ADJUSTMENT);
-  adjRef.current = adjustment || DEFAULT_ADJUSTMENT;
-
-  function toLocal(worldVec: THREE.Vector3) {
-    return worldVec.clone().sub(scene.position).divideScalar(scene.scale.x || 1);
-  }
-
-  function getShirtMeshes(): THREE.Mesh[] {
-    const meshes: THREE.Mesh[] = [];
-    scene.traverse(c => { if (c instanceof THREE.Mesh && !(c as any).userData?.isArtwork) meshes.push(c); });
-    return meshes;
-  }
-
-  function raycastSurface(meshes: THREE.Mesh[], origin: THREE.Vector3, dir: THREE.Vector3) {
-    const rc = new THREE.Raycaster();
-    rc.set(origin, dir.normalize());
-    const hits = rc.intersectObjects(meshes, false);
-    if (hits.length === 0 || !hits[0].face) return null;
-    const normal = hits[0].face.normal.clone().transformDirection(hits[0].object.matrixWorld).normalize();
-    return { point: hits[0].point, normal };
-  }
-
-  function getPlacementRaycast(place: string, bounds: THREE.Box3) {
-    const sz = bounds.getSize(new THREE.Vector3());
-    const ctr = bounds.getCenter(new THREE.Vector3());
-    const depth = Math.min(sz.x, sz.z);
-    switch (place) {
-      case 'front-chest':
-        return { origin: new THREE.Vector3(ctr.x, bounds.min.y + sz.y * 0.55, bounds.max.z + 10), dir: new THREE.Vector3(0, 0, -1), scale: depth * 0.22 };
-      case 'back-full':
-        return { origin: new THREE.Vector3(ctr.x, bounds.min.y + sz.y * 0.45, bounds.min.z - 10), dir: new THREE.Vector3(0, 0, 1), scale: depth * 0.35 };
-      case 'sleeve-left':
-        return { origin: new THREE.Vector3(bounds.min.x - 10, bounds.min.y + sz.y * 0.7, ctr.z), dir: new THREE.Vector3(1, 0, 0), scale: depth * 0.18 };
-      case 'sleeve-right':
-        return { origin: new THREE.Vector3(bounds.max.x + 10, bounds.min.y + sz.y * 0.7, ctr.z), dir: new THREE.Vector3(-1, 0, 0), scale: depth * 0.18 };
-      case 'front-full':
-      default:
-        return { origin: new THREE.Vector3(ctr.x, bounds.min.y + sz.y * 0.45, bounds.max.z + 10), dir: new THREE.Vector3(0, 0, -1), scale: depth * 0.35 };
-    }
-  }
-
-  // Reposition existing artwork mesh using current adjustment (no texture reload)
-  function applyAdjustmentToMesh(mesh: THREE.Mesh, hit: { point: THREE.Vector3; normal: THREE.Vector3; planeWorldScale: number }, adj: ArtworkAdjustment) {
-    const up = new THREE.Vector3(0, 1, 0);
-    const right = new THREE.Vector3().crossVectors(hit.normal, up).normalize();
-    if (right.lengthSq() < 0.001) right.set(1, 0, 0);
-    const adjustedUp = new THREE.Vector3().crossVectors(right, hit.normal).normalize();
-
-    const worldPoint = hit.point.clone().add(hit.normal.clone().multiplyScalar(0.02));
-    const offsetXWorld = adj.offsetX * 0.3;
-    const offsetYWorld = adj.offsetY * 0.3;
-    const finalWorldPoint = worldPoint.clone()
-      .add(right.clone().multiplyScalar(offsetXWorld))
-      .add(adjustedUp.clone().multiplyScalar(offsetYWorld));
-
-    mesh.position.copy(toLocal(finalWorldPoint));
-
-    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), hit.normal);
-    const adjustedRotation = adj.rotation * (Math.PI / 180);
-    if (adjustedRotation !== 0) {
-      const rotQ = new THREE.Quaternion().setFromAxisAngle(hit.normal, adjustedRotation);
-      q.premultiply(rotQ);
-    }
-    mesh.quaternion.copy(q);
-
-    mesh.scale.setScalar(adj.scale);
-  }
+  const artworkMeshesRef = useRef<THREE.Mesh[]>([]);
+  const [textures, setTextures] = useState<Record<string, THREE.Texture>>({});
+  const activePlacement = placement || 'front-full';
+  const adj = adjustment || DEFAULT_ADJUSTMENT;
 
   useEffect(() => {
     if (!scene || didCenter.current) return;
@@ -220,85 +151,264 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
     applyColor(scene, color);
   }, [scene, color]);
 
-  // Effect 1: Load texture + create mesh (only when scene/designImage/placement changes)
+  // Determine active artworks list
+  const activeArtworksList = React.useMemo(() => {
+    const list: { placementKey: string; url: string }[] = [];
+    if (artworks && Object.keys(artworks).length > 0) {
+      Object.entries(artworks).forEach(([key, art]) => {
+        const url = art?.previewUrl || (typeof art === 'string' ? art : null);
+        if (url) list.push({ placementKey: key, url });
+      });
+    } else if (designImage) {
+      list.push({ placementKey: activePlacement, url: designImage });
+    }
+    return list;
+  }, [artworks, designImage, activePlacement]);
+
+  // Load textures for all active artwork placements
   useEffect(() => {
-    if (!scene || !designImage || !didCenter.current) {
-      if (artworkRef.current) artworkRef.current.visible = false;
-      return;
-    }
-
-    const bounds = (scene as any).userData.bounds as THREE.Box3 | undefined;
-    if (!bounds) return;
-
-    const meshes = getShirtMeshes();
-    if (meshes.length === 0) return;
-
-    const { origin, dir, scale: planeWorldScale } = getPlacementRaycast(placement || 'front-full', bounds);
-    let hit = raycastSurface(meshes, origin, dir);
-
-    // Fallback: if raycast misses, place at center-front of bounds
-    if (!hit) {
-      const ctr = bounds.getCenter(new THREE.Vector3());
-      const frontZ = (placement || '').includes('back') ? bounds.min.z : bounds.max.z;
-      const fallbackOrigin = new THREE.Vector3(ctr.x, bounds.min.y + bounds.getSize(new THREE.Vector3()).y * 0.45, frontZ + (placement || '').includes('back') ? -10 : 10);
-      const fallbackDir = new THREE.Vector3(0, 0, (placement || '').includes('back') ? 1 : -1);
-      hit = raycastSurface(meshes, fallbackOrigin, fallbackDir);
-      if (!hit) {
-        // Last resort: just place in front of model center
-        hit = {
-          point: new THREE.Vector3(ctr.x, bounds.min.y + bounds.getSize(new THREE.Vector3()).y * 0.45, bounds.max.z),
-          normal: new THREE.Vector3(0, 0, 1),
-        };
-      }
-    }
-
-    hitRef.current = { ...hit, planeWorldScale };
-
-    const invScale = 1 / (scene.scale.x || 1);
-    const adjustedScale = planeWorldScale * adjRef.current.scale;
-
+    let isMounted = true;
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
 
-    loader.load(designImage, (tex) => buildMesh(tex), undefined, () => {
-      loader.load(`/api/proxy-image/${designImage.split('/').pop()}`, (tex) => buildMesh(tex), undefined, () => buildMesh(null));
+    activeArtworksList.forEach(({ placementKey, url }) => {
+      loader.load(
+        url,
+        (tex) => {
+          if (!isMounted) return;
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.generateMipmaps = true;
+          tex.minFilter = THREE.LinearMipmapLinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          tex.needsUpdate = true;
+          setTextures((prev) => ({ ...prev, [placementKey]: tex }));
+        },
+        undefined,
+        () => {
+          const filename = url.split('/').pop() || '';
+          loader.load(
+            `/api/proxy-image/${filename}`,
+            (tex) => {
+              if (!isMounted) return;
+              tex.colorSpace = THREE.SRGBColorSpace;
+              tex.generateMipmaps = true;
+              tex.minFilter = THREE.LinearMipmapLinearFilter;
+              tex.magFilter = THREE.LinearFilter;
+              tex.needsUpdate = true;
+              setTextures((prev) => ({ ...prev, [placementKey]: tex }));
+            },
+            undefined,
+            () => {}
+          );
+        }
+      );
     });
 
-    function buildMesh(texture: THREE.Texture | null) {
-      if (artworkRef.current) {
-        scene.remove(artworkRef.current);
-        artworkRef.current = null;
+    return () => {
+      isMounted = false;
+    };
+  }, [activeArtworksList]);
+
+  // Project decals on designated locations
+  useEffect(() => {
+    // 1. Clean up existing decals
+    artworkMeshesRef.current.forEach((mesh) => {
+      if (mesh.parent) mesh.parent.remove(mesh);
+      mesh.geometry?.dispose();
+      if (Array.isArray(mesh.material)) {
+        mesh.material.forEach((m) => m.dispose());
+      } else {
+        mesh.material?.dispose();
+      }
+    });
+    artworkMeshesRef.current = [];
+
+    if (!scene || !didCenter.current) return;
+
+    const meshes = getShirtMeshes(scene);
+    if (meshes.length === 0) return;
+
+    scene.updateMatrixWorld(true);
+    const bounds = (scene as any).userData.bounds as THREE.Box3 | undefined;
+    if (!bounds) return;
+
+    const sz = bounds.getSize(new THREE.Vector3());
+    const ctr = bounds.getCenter(new THREE.Vector3());
+
+    const newDecalMeshes: THREE.Mesh[] = [];
+
+    activeArtworksList.forEach(({ placementKey }) => {
+      const tex = textures[placementKey];
+      if (!tex) return;
+
+      const isCurrentActive = placementKey === activePlacement;
+      const currentAdj = isCurrentActive ? adj : DEFAULT_ADJUSTMENT;
+
+      let worldRayOrigin: THREE.Vector3;
+      let worldRayDir: THREE.Vector3;
+      let baseWorldWidth: number;
+
+      switch (placementKey) {
+        case 'front-chest': {
+          // Left chest logo (neat compact badge on the chest, below collar)
+          const baseX = ctr.x + sz.x * 0.15 + currentAdj.offsetX * sz.x * 0.12;
+          const baseY = ctr.y + sz.y * 0.14 + currentAdj.offsetY * sz.y * 0.12;
+          worldRayOrigin = new THREE.Vector3(baseX, baseY, bounds.max.z + 10);
+          worldRayDir = new THREE.Vector3(0, 0, -1);
+          baseWorldWidth = sz.x * 0.18;
+          break;
+        }
+        case 'back-full':
+        case 'back': {
+          // Back print (~38% of chest width, center back)
+          const baseX = ctr.x - currentAdj.offsetX * sz.x * 0.18;
+          const baseY = ctr.y + sz.y * 0.08 + currentAdj.offsetY * sz.y * 0.18;
+          worldRayOrigin = new THREE.Vector3(baseX, baseY, bounds.min.z - 10);
+          worldRayDir = new THREE.Vector3(0, 0, 1);
+          baseWorldWidth = sz.x * 0.38;
+          break;
+        }
+        case 'sleeve-left': {
+          // Left sleeve badge (~16% of sleeve width)
+          const baseY = ctr.y + sz.y * 0.20 + currentAdj.offsetY * sz.y * 0.12;
+          const baseZ = ctr.z + currentAdj.offsetX * sz.z * 0.12;
+          worldRayOrigin = new THREE.Vector3(bounds.min.x - 10, baseY, baseZ);
+          worldRayDir = new THREE.Vector3(1, 0, 0);
+          baseWorldWidth = sz.x * 0.16;
+          break;
+        }
+        case 'sleeve-right': {
+          // Right sleeve badge (~16% of sleeve width)
+          const baseY = ctr.y + sz.y * 0.20 + currentAdj.offsetY * sz.y * 0.12;
+          const baseZ = ctr.z - currentAdj.offsetX * sz.z * 0.12;
+          worldRayOrigin = new THREE.Vector3(bounds.max.x + 10, baseY, baseZ);
+          worldRayDir = new THREE.Vector3(-1, 0, 0);
+          baseWorldWidth = sz.x * 0.16;
+          break;
+        }
+        case 'front-full':
+        case 'front':
+        case 'generic':
+        default: {
+          // Full front chest print (~38% of chest width, center chest on body)
+          const baseX = ctr.x + currentAdj.offsetX * sz.x * 0.18;
+          const baseY = ctr.y + sz.y * 0.02 + currentAdj.offsetY * sz.y * 0.18;
+          worldRayOrigin = new THREE.Vector3(baseX, baseY, bounds.max.z + 10);
+          worldRayDir = new THREE.Vector3(0, 0, -1);
+          baseWorldWidth = sz.x * 0.38;
+          break;
+        }
       }
 
-      const geoSize = (texture ? adjustedScale * 1.2 : 1) * invScale;
-      const geo = createCurvedPlaneGeometry(geoSize, geoSize);
-      const mat = new THREE.MeshStandardMaterial({
-        ...(texture ? { map: texture } : { color: 0xff0000 }),
-        transparent: true, alphaTest: texture ? 0.01 : 0,
-        side: THREE.FrontSide, depthWrite: true, roughness: 0.95, metalness: 0.0,
-        polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6,
+      // Raycast in world coordinates against all shirt meshes
+      const rc = new THREE.Raycaster();
+      rc.set(worldRayOrigin, worldRayDir.clone().normalize());
+      const hits = rc.intersectObjects(meshes, false);
+
+      let targetMesh: THREE.Mesh;
+      let localHitPoint: THREE.Vector3;
+      let localNormal: THREE.Vector3;
+
+      if (hits.length > 0 && hits[0].face) {
+        const hit = hits[0];
+        targetMesh = hit.object as THREE.Mesh;
+        const worldHitPoint = hit.point;
+        const worldNormal = hit.face.normal.clone().transformDirection(targetMesh.matrixWorld).normalize();
+
+        const targetWorldToLocal = new THREE.Matrix4().copy(targetMesh.matrixWorld).invert();
+        localHitPoint = worldHitPoint.clone().applyMatrix4(targetWorldToLocal);
+        localNormal = worldNormal.clone().transformDirection(targetWorldToLocal).normalize();
+      } else {
+        // Fallback: pick the largest body mesh
+        targetMesh = meshes.reduce((maxM, m) => {
+          const c1 = m.geometry?.attributes?.position?.count || 0;
+          const c2 = maxM.geometry?.attributes?.position?.count || 0;
+          return c1 > c2 ? m : maxM;
+        }, meshes[0]);
+
+        targetMesh.geometry.computeBoundingBox();
+        const lb = targetMesh.geometry.boundingBox || new THREE.Box3();
+        const fallbackZ = (placementKey === 'back-full' || placementKey === 'back') ? lb.min.z : lb.max.z;
+        localHitPoint = new THREE.Vector3(0, 0, fallbackZ);
+        localNormal = (placementKey === 'back-full' || placementKey === 'back') ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 0, 1);
+      }
+
+      if (!targetMesh.geometry.attributes.normal) {
+        targetMesh.geometry.computeVertexNormals();
+      }
+
+      // Calculate decal orientation correctly without horizontal/vertical inversion
+      const dummy = new THREE.Object3D();
+      dummy.position.copy(localHitPoint);
+      dummy.lookAt(localHitPoint.clone().add(localNormal));
+      dummy.rotateZ((currentAdj.rotation * Math.PI) / 180);
+      const orientation = dummy.rotation;
+
+      // Calculate decal width/height in targetMesh local space
+      const meshWorldScale = targetMesh.getWorldScale(new THREE.Vector3());
+      let finalLocalWidth = (baseWorldWidth * currentAdj.scale) / (meshWorldScale.x || 1);
+      let finalLocalHeight = finalLocalWidth;
+      const img = tex?.image as any;
+      if (img && img.width && img.height) {
+        const aspect = img.width / img.height;
+        if (aspect >= 1) {
+          finalLocalHeight = finalLocalWidth / aspect;
+        } else {
+          finalLocalWidth = finalLocalHeight * aspect;
+        }
+      }
+
+      // Depth projector box strictly confined to surface layer
+      const depthSize = Math.max(0.04, Math.max(finalLocalWidth, finalLocalHeight) * 0.6);
+      const decalSize = new THREE.Vector3(finalLocalWidth, finalLocalHeight, depthSize);
+
+      const savedMatrixWorld = targetMesh.matrixWorld.clone();
+      targetMesh.matrixWorld.identity();
+      const decalGeo = new DecalGeometry(targetMesh, localHitPoint, orientation, decalSize);
+      targetMesh.matrixWorld.copy(savedMatrixWorld);
+
+      const decalMat = new THREE.MeshStandardMaterial({
+        map: tex,
+        transparent: true,
+        alphaTest: 0.001,
+        depthTest: true,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -12,
+        polygonOffsetUnits: -12,
+        roughness: 0.85,
+        metalness: 0.0,
+        side: THREE.FrontSide,
       });
-      if (!texture) { mat.opacity = 0.8; }
-      const mesh = new THREE.Mesh(geo, mat);
-      (mesh as any).userData.isArtwork = true;
-      mesh.renderOrder = 10;
-      scene.add(mesh);
-      artworkRef.current = mesh;
-      applyAdjustmentToMesh(mesh, hitRef.current!, adjRef.current);
-    }
 
-    return () => { if (artworkRef.current) scene.remove(artworkRef.current); artworkRef.current = null; };
-  }, [scene, designImage, placement]);
+      const decalMesh = new THREE.Mesh(decalGeo, decalMat);
+      (decalMesh as any).userData.isArtwork = true;
+      decalMesh.renderOrder = 20;
 
-  // Effect 2: Reapply adjustment instantly when sliders move (no texture reload)
-  useEffect(() => {
-    if (!artworkRef.current || !hitRef.current) return;
-    applyAdjustmentToMesh(artworkRef.current, hitRef.current, adjRef.current);
-  }, [adjustment?.offsetX, adjustment?.offsetY, adjustment?.scale, adjustment?.rotation]);
+      targetMesh.add(decalMesh);
+      newDecalMeshes.push(decalMesh);
+    });
+
+    artworkMeshesRef.current = newDecalMeshes;
+
+    return () => {
+      artworkMeshesRef.current.forEach((mesh) => {
+        if (mesh.parent) mesh.parent.remove(mesh);
+        mesh.geometry?.dispose();
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((m) => m.dispose());
+        } else {
+          mesh.material?.dispose();
+        }
+      });
+      artworkMeshesRef.current = [];
+    };
+  }, [scene, textures, activeArtworksList, activePlacement, adj.offsetX, adj.offsetY, adj.scale, adj.rotation]);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.35) * 0.12 + 0.25;
+      // Gentle idle subtle breathing rotation
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08 + 0.15;
     }
   });
 
@@ -311,7 +421,7 @@ function PoloModel({ color, designImage, placement, adjustment, onReady }: {
 
 export function Polo3DPreview({
   color, designImage, placement, className = '',
-  adjustment, adjustmentMode, onAdjustChange,
+  adjustment, adjustmentMode, onAdjustChange, artworks,
 }: {
   color: string;
   designImage?: string | null;
@@ -320,6 +430,7 @@ export function Polo3DPreview({
   adjustment?: ArtworkAdjustment;
   adjustmentMode?: boolean;
   onAdjustChange?: (adj: ArtworkAdjustment) => void;
+  artworks?: Record<string, any>;
 }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -338,13 +449,13 @@ export function Polo3DPreview({
   return (
     <div className={`relative ${className}`}>
       <Canvas
-        camera={{ position: [0, 1.5, 6], fov: 32 }}
+        camera={{ position: [0, 0, 5.2], fov: 32 }}
         gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
         style={{ background: 'linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%)' }}
         onCreated={() => setLoaded(true)}
         onError={() => setError(true)}
       >
-        <ambientLight intensity={1.0} />
+        <ambientLight intensity={1.1} />
         <directionalLight position={[3, 5, 5]} intensity={0.7} />
         <directionalLight position={[-3, 3, -3]} intensity={0.3} />
 
@@ -354,6 +465,7 @@ export function Polo3DPreview({
               color={resolvedColor}
               designImage={designImage}
               placement={placement}
+              artworks={artworks}
               adjustment={adj}
               onReady={() => setLoaded(true)}
             />
@@ -362,9 +474,9 @@ export function Polo3DPreview({
 
         <OrbitControls
           enablePan={false} enableZoom={true}
-          minDistance={4} maxDistance={7}
+          minDistance={3.5} maxDistance={7}
           minPolarAngle={Math.PI / 6} maxPolarAngle={Math.PI / 1.5}
-          target={[0, 1.2, 0]}
+          target={[0, 0, 0]}
           enableDamping={true} dampingFactor={0.05}
         />
       </Canvas>

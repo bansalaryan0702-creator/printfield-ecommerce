@@ -114,6 +114,7 @@ export function Profile() {
         title="My Profile | Printfield"
         description="Manage your Printfield profile, view saved custom designs, and update your account details."
         canonicalUrl="/profile"
+        robots="noindex, nofollow"
       />
       <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">

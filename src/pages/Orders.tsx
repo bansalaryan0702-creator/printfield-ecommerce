@@ -113,6 +113,7 @@ export function Orders() {
         title="My Orders | Printfield"
         description="View your order history, track quotations, and reorder custom printing products from Printfield."
         canonicalUrl="/orders"
+        robots="noindex, nofollow"
       />
       <div className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center font-serif">
