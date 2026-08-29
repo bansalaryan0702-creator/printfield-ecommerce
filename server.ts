@@ -1608,9 +1608,19 @@ const SITE_URL = 'https://www.printfieldonline.com';
       const s3Key = `uploads${req.path}`;
       const obj = await s3Client.send(new GetObjectCommand({ Bucket: s3BucketName, Key: s3Key }));
       const contentType = obj.ContentType || 'application/octet-stream';
+      const chunks: Buffer[] = [];
+      for await (const chunk of obj.Body as any) chunks.push(chunk);
+      const buffer = Buffer.concat(chunks);
+
+      // Cache to local disk for instant serving on subsequent requests
+      const localPath = path.join(process.cwd(), 'uploads', req.path.replace(/^\//, ''));
+      const localDir = path.dirname(localPath);
+      await fs.mkdir(localDir, { recursive: true }).catch(() => {});
+      await fs.writeFile(localPath, buffer).catch(() => {});
+
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      (obj.Body as any).pipe(res);
+      res.send(buffer);
     } catch {
       res.redirect('https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=800&auto=format&fit=crop');
     }
