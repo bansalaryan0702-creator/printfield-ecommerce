@@ -186,7 +186,8 @@ async function uploadFileToS3(filename: string, mimeType: string, buffer: Buffer
       Body: buffer,
       ContentType: mimeType,
     }));
-    return `https://printo-s3.dietpixels.net/${key}`;
+    // Return local path — Express S3 proxy serves from S3 on Vercel
+    return `/uploads/${filename}`;
   } catch (err: any) {
     console.warn(`[S3 Upload] Failed to upload ${filename} to S3:`, err.message || err);
     return null;
@@ -1410,6 +1411,13 @@ const SITE_URL = 'https://www.printfieldonline.com';
       const uploadDir = pathMod.join(process.cwd(), 'uploads');
       await fs.mkdir(uploadDir, { recursive: true });
       await fs.writeFile(pathMod.join(uploadDir, finalName), finalBuffer);
+
+      // Also persist to S3 so images survive server restarts / Vercel redeployments
+      try {
+        await uploadFileToS3(finalName, contentType, finalBuffer);
+      } catch (s3Err: any) {
+        console.warn('[Upload] S3 backup failed:', s3Err.message);
+      }
 
       let pageCount = null;
       if (req.file.originalname.toLowerCase().endsWith('.pdf')) {
@@ -3396,11 +3404,11 @@ async function moveLocalToS3(localPath: string): Promise<string> {
   try {
     const buffer = await fs.readFile(filePath);
     const mimeType = filename.endsWith('.pdf') ? 'application/pdf' : filename.endsWith('.webp') ? 'image/webp' : filename.endsWith('.png') ? 'image/png' : 'image/jpeg';
-    const s3Url = await uploadFileToS3(filename, mimeType, buffer);
-    if (s3Url) return s3Url;
+    await uploadFileToS3(filename, mimeType, buffer);
   } catch (e: any) {
     console.warn('[S3 Move] Failed to move', filename, e.message);
   }
+  // Always return local path — Express S3 proxy handles serving from S3 on Vercel
   return localPath;
 }
 
