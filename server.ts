@@ -1411,6 +1411,14 @@ const SITE_URL = 'https://www.printfieldonline.com';
       await fs.mkdir(uploadDir, { recursive: true });
       await fs.writeFile(pathMod.join(uploadDir, finalName), finalBuffer);
 
+      // Also upload to S3 so the URL persists across serverless invocations
+      let s3Url: string | null = null;
+      try {
+        s3Url = await uploadFileToS3(finalName, contentType, finalBuffer);
+      } catch (s3Err: any) {
+        console.warn('[Upload] S3 upload failed, using local path:', s3Err.message);
+      }
+
       let pageCount = null;
       if (req.file.originalname.toLowerCase().endsWith('.pdf')) {
         try {
@@ -1421,7 +1429,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
         }
       }
 
-      const url = `/uploads/${finalName}`;
+      const url = s3Url || `/uploads/${finalName}`;
       res.json({ url, pageCount });
     } catch(e: any) {
       console.error("Upload error:", e);
