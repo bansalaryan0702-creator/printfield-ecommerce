@@ -5931,13 +5931,15 @@
     "cardDescription": "Swiss Military Dynamic Dry Fit T-shirt delivers breathable comfort and moisture-wicking performance for active everyday wear.",
     "image": "/uploads/optimized/26866c95e93e.webp",
     "images": [
-      "/uploads/optimized/d4fb5cc12728.webp",
       "/uploads/optimized/26866c95e93e.webp",
+      "/uploads/optimized/d4fb5cc12728.webp",
       "/uploads/optimized/895238e1c215.webp",
       "/uploads/optimized/9e8423a3ddfa.webp",
       "/uploads/optimized/22ebaba7c25d.webp",
       "/uploads/optimized/17eb1cccd09e.webp",
-      "/uploads/optimized/d9e890534c36.webp"
+      "/uploads/optimized/d9e890534c36.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/72258f2a-558e-48ca-bcd7-b89f2bcada1b/variant/1782887910464-qdfb3n.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/72258f2a-558e-48ca-bcd7-b89f2bcada1b/variant/1782887913204-8aos3t.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -6086,35 +6088,9 @@
     "cardDescription": "Elevate your brand with a premium, eco-friendly organic cotton polo that serves as the perfect breathable canvas for your custom designs.",
     "image": "/uploads/optimized/e1d314f00244.webp",
     "images": [
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png",
       "/uploads/optimized/e1d314f00244.webp",
-      "/uploads/optimized/5277e223a45c.webp"
+      "/uploads/optimized/5277e223a45c.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/83a8dde4-e431-4e93-9bfe-5b0249b22bb3/featured/1782313636491-21yhtf.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -6424,13 +6400,15 @@
     "cardDescription": "Swiss Military jacket with a sleek full-zip design, offering comfortable everyday wear and easy layering for a clean, sporty look.",
     "image": "/uploads/optimized/958268137b17.webp",
     "images": [
-      "/uploads/optimized/c59165ff59b5.webp",
       "/uploads/optimized/958268137b17.webp",
+      "/uploads/optimized/c59165ff59b5.webp",
       "/uploads/optimized/2ee98e576f1e.webp",
       "/uploads/optimized/4381b50ae1f8.webp",
       "/uploads/optimized/75e260a0d127.webp",
       "/uploads/optimized/aeee04f270d5.webp",
-      "/uploads/optimized/1c0c45922577.webp"
+      "/uploads/optimized/1c0c45922577.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/fe14d793-860f-4965-8598-2a6719aa452e/variant/1782803958192-cncncs.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/fe14d793-860f-4965-8598-2a6719aa452e/variant/1782803960689-ha3ylu.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -6543,8 +6521,8 @@
     "cardDescription": "Swiss Military Dynamic Round Neck T-shirt offers a comfortable fit with a clean, sporty look for effortless everyday wear.",
     "image": "/uploads/optimized/683119aa1283.webp",
     "images": [
-      "/uploads/optimized/a5270efb4475.webp",
       "/uploads/optimized/683119aa1283.webp",
+      "/uploads/optimized/a5270efb4475.webp",
       "/uploads/optimized/9e2903440c46.webp",
       "/uploads/optimized/2d1673e9842b.webp",
       "/uploads/optimized/9350969f53c0.webp",
@@ -6573,7 +6551,17 @@
       "/uploads/optimized/56db6a8d436a.webp",
       "/uploads/optimized/7131ef2e356a.webp",
       "/uploads/optimized/a958015cdb0d.webp",
-      "/uploads/optimized/f56722322a7f.webp"
+      "/uploads/optimized/f56722322a7f.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828836194-k18cmv.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828839164-fi728e.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828841313-6sr9nz.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828843477-5ucs52.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828845515-mcakka.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828847559-rafb80.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828849816-dlam07.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828851865-67ibfj.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828853912-y3nspb.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/ef3e51dc-3e39-4800-9db0-cfbf85a6c209/variant/1782828856059-r7m6gm.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -6732,9 +6720,9 @@
     "cardDescription": "A premium, breathable polo engineered for active comfort and sleek, athletic style.",
     "image": "/uploads/optimized/9a17a2e164c0.webp",
     "images": [
+      "/uploads/optimized/9a17a2e164c0.webp",
       "/uploads/optimized/a8859d45b149.webp",
       "/uploads/optimized/9672b37a6367.webp",
-      "/uploads/optimized/9a17a2e164c0.webp",
       "/uploads/optimized/730d37c37bf8.webp",
       "/uploads/optimized/cc91690b51ff.webp",
       "/uploads/optimized/97b16188f107.webp",
@@ -6742,7 +6730,10 @@
       "/uploads/optimized/20ef6b809629.webp",
       "/uploads/optimized/cf04aa858ed5.webp",
       "/uploads/optimized/be3a74b68632.webp",
-      "/uploads/optimized/c48fbf63b51a.webp"
+      "/uploads/optimized/c48fbf63b51a.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/50a116ff-7411-4b54-a220-c1fee7d473dd/variant/1782464659592-7ut1yo.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/50a116ff-7411-4b54-a220-c1fee7d473dd/variant/1782464662549-gvhlt2.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/50a116ff-7411-4b54-a220-c1fee7d473dd/variant/1782464665722-n8pvhg.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -6831,9 +6822,9 @@
     "cardDescription": "Classic Puma heritage meets everyday comfort in this timeless, retro-inspired essential polo.",
     "image": "/uploads/optimized/a7eb8926bbb2.webp",
     "images": [
+      "/uploads/optimized/a7eb8926bbb2.webp",
       "/uploads/optimized/69a60141314d.webp",
       "/uploads/optimized/b140b56cf150.webp",
-      "/uploads/optimized/a7eb8926bbb2.webp",
       "/uploads/optimized/cde996e057a3.webp",
       "/uploads/optimized/5f16faa1cc8c.webp",
       "/uploads/optimized/b88b2aa29ab9.webp",
@@ -6847,7 +6838,12 @@
       "/uploads/optimized/017e698c74fb.webp",
       "/uploads/optimized/3b1d5e3106f8.webp",
       "/uploads/optimized/5a6b63357cfa.webp",
-      "/uploads/optimized/05fb05da5325.webp"
+      "/uploads/optimized/05fb05da5325.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/f9ed6532-8081-4dc3-9b6f-124938bd8baa/variant/1782467552707-5k9jja.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/f9ed6532-8081-4dc3-9b6f-124938bd8baa/variant/1782467555560-9qn49p.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/f9ed6532-8081-4dc3-9b6f-124938bd8baa/variant/1782467558285-2dmqva.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/f9ed6532-8081-4dc3-9b6f-124938bd8baa/variant/1782467561896-5fsds6.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/f9ed6532-8081-4dc3-9b6f-124938bd8baa/variant/1782467565186-clyx4x.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -6976,13 +6972,15 @@
     "cardDescription": "WildCraft Light Quilt Zippered Jacket offers lightweight warmth, easy comfort, and versatile layering for everyday wear.",
     "image": "/uploads/optimized/013a2d8e7f08.webp",
     "images": [
-      "/uploads/optimized/10e6ed37a8c4.webp",
       "/uploads/optimized/013a2d8e7f08.webp",
+      "/uploads/optimized/10e6ed37a8c4.webp",
       "/uploads/optimized/85155cbfaf7c.webp",
       "/uploads/optimized/537110f861a6.webp",
       "/uploads/optimized/a61ce0d06cba.webp",
       "/uploads/optimized/76d04c5228d4.webp",
-      "/uploads/optimized/cb0f5e6e1e16.webp"
+      "/uploads/optimized/cb0f5e6e1e16.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/c6e50ae9-5aba-4d64-9a82-34ccec3554a2/variant/1782805246735-562oad.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/c6e50ae9-5aba-4d64-9a82-34ccec3554a2/variant/1782805249807-qsomy8.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -7065,8 +7063,8 @@
     "cardDescription": "Puma Dry Cell Ess Tee delivers lightweight comfort and sweat-wicking performance for effortless everyday training and casual wear.",
     "image": "/uploads/optimized/c9f58443c001.webp",
     "images": [
-      "/uploads/optimized/c5b80f6baaa4.webp",
       "/uploads/optimized/c9f58443c001.webp",
+      "/uploads/optimized/c5b80f6baaa4.webp",
       "/uploads/optimized/a70726203982.webp",
       "/uploads/optimized/f57ca85365c7.webp",
       "/uploads/optimized/a05999c03eea.webp",
@@ -7080,7 +7078,12 @@
       "/uploads/optimized/6ee3fe715bd5.webp",
       "/uploads/optimized/91c595e8afea.webp",
       "/uploads/optimized/36e07e8d668d.webp",
-      "/uploads/optimized/fbeab3e20399.webp"
+      "/uploads/optimized/fbeab3e20399.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/64e93576-519a-4f01-a378-9f17b40b8a4e/variant/1782886773607-vuly60.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/64e93576-519a-4f01-a378-9f17b40b8a4e/variant/1782886777148-lgyrwo.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/64e93576-519a-4f01-a378-9f17b40b8a4e/variant/1782886780608-hyg02i.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/64e93576-519a-4f01-a378-9f17b40b8a4e/variant/1782886783112-bl5gwb.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/64e93576-519a-4f01-a378-9f17b40b8a4e/variant/1782886785185-nonq0z.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -7263,16 +7266,24 @@
     "cardDescription": "Premium breathable fabric meets classic design in the ultimate everyday men's polo",
     "image": "/uploads/optimized/06f80d36c866.webp",
     "images": [
+      "/uploads/optimized/06f80d36c866.webp",
       "/uploads/optimized/24e065bba757.webp",
       "/uploads/optimized/28de26e99650.webp",
-      "/uploads/optimized/06f80d36c866.webp",
       "/uploads/optimized/0cabded143d0.webp",
       "/uploads/optimized/4d133997d697.webp",
       "/uploads/optimized/2a5fab32465f.webp",
       "/uploads/optimized/e7a5340492e9.webp",
       "/uploads/optimized/d59e837333bf.webp",
       "/uploads/optimized/05ca686070df.webp",
-      "/uploads/optimized/c16b55d1334f.webp"
+      "/uploads/optimized/c16b55d1334f.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461124519-6c2il1.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461126264-6iw21p.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461127693-rt1ppg.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461128717-gyki0h.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461129846-a1oazo.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461130866-u5n5bk.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461132309-0o1d8d.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d84cbe28-ca6f-4b32-8a53-488b2a0e487f/variant/1782461133222-2l44xq.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -7411,8 +7422,8 @@
     "cardDescription": "Puma Poly Polo T-shirt combines breathable comfort with a smart, sporty look for effortless everyday wear.",
     "image": "/uploads/optimized/0382712257f7.webp",
     "images": [
-      "/uploads/optimized/ffcdcf79933c.webp",
       "/uploads/optimized/0382712257f7.webp",
+      "/uploads/optimized/ffcdcf79933c.webp",
       "/uploads/optimized/ec690a742bc7.webp",
       "/uploads/optimized/e936caf6ca67.webp",
       "/uploads/optimized/fa27a02e88cc.webp",
@@ -7420,7 +7431,10 @@
       "/uploads/optimized/8b500ccbccd9.webp",
       "/uploads/optimized/66f8a9caf3cf.webp",
       "/uploads/optimized/28d13244657d.webp",
-      "/uploads/optimized/93ef2c751c5b.webp"
+      "/uploads/optimized/93ef2c751c5b.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/1adec005-8223-41c6-a9f9-69a9d65e7f09/variant/1782887366728-izj83x.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/1adec005-8223-41c6-a9f9-69a9d65e7f09/variant/1782887370041-myuqe5.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/1adec005-8223-41c6-a9f9-69a9d65e7f09/variant/1782887372126-4y7sjj.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -7566,8 +7580,8 @@
     "cardDescription": "Knitted sweatshirt with a soft feel, comfortable fit, and versatile style for everyday casual wear.",
     "image": "/uploads/optimized/86475956abdd.webp",
     "images": [
-      "/uploads/optimized/ff61ba5d381f.webp",
       "/uploads/optimized/86475956abdd.webp",
+      "/uploads/optimized/ff61ba5d381f.webp",
       "/uploads/optimized/a06535ebdfaf.webp",
       "/uploads/optimized/c6e2808d33c5.webp",
       "/uploads/optimized/59ef3b93fc5d.webp",
@@ -7575,7 +7589,10 @@
       "/uploads/optimized/e4bf31119769.webp",
       "/uploads/optimized/7208b84c344c.webp",
       "/uploads/optimized/a663fafd3954.webp",
-      "/uploads/optimized/8e7e3bf95c3e.webp"
+      "/uploads/optimized/8e7e3bf95c3e.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/b7fdb6f2-819a-4af8-a8e0-4e8a4db6ae08/variant/1782748005887-ymy8vd.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/b7fdb6f2-819a-4af8-a8e0-4e8a4db6ae08/variant/1782748006668-0myh6f.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/b7fdb6f2-819a-4af8-a8e0-4e8a4db6ae08/variant/1782748000840-jdb7lc.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -7664,9 +7681,9 @@
     "cardDescription": "Organic polo T-shirt with a clean, premium look, soft comfort, and an easy everyday fit for casual and smart wear",
     "image": "/uploads/optimized/56dbe2d84982.webp",
     "images": [
+      "/uploads/optimized/56dbe2d84982.webp",
       "/uploads/optimized/6ae25a7a7726.webp",
       "/uploads/optimized/8f4788e6d937.webp",
-      "/uploads/optimized/56dbe2d84982.webp",
       "/uploads/optimized/f825c0b5230d.webp",
       "/uploads/optimized/8b0fd3bbf548.webp",
       "/uploads/optimized/5b3833943318.webp",
@@ -7734,7 +7751,30 @@
       "/uploads/optimized/a0c86c28cd5e.webp",
       "/uploads/optimized/e1aaa8a0a646.webp",
       "/uploads/optimized/c458b3877f23.webp",
-      "/uploads/optimized/50bf62d8bcf2.webp"
+      "/uploads/optimized/50bf62d8bcf2.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662031805-3t63a7.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662035668-i3r3uw.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662039617-lir7w2.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662042386-iiwvc3.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662045991-fb6duu.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662048836-22sdtq.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662052814-nk0ny6.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662056729-e7h364.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662059488-i508y5.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662062955-fne2vk.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662066373-427u7n.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662069283-65wwxi.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662072044-qke3y1.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662074531-ysilu5.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662077698-ykroli.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662080176-iwi361.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662082696-0v99n5.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662085245-3geb80.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662088488-ak6on0.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662091311-8her1v.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662094999-8ggc10.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662097434-6gro8d.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/4b85defc-7847-4b53-b2f6-c6e3990f7b79/variant/1782662099703-pam563.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8024,9 +8064,9 @@
     "cardDescription": "Classic solid polo T-shirt with a regular fit, half sleeves, and a clean sporty look for everyday wear.",
     "image": "/uploads/optimized/cb6fb3867da5.webp",
     "images": [
+      "/uploads/optimized/cb6fb3867da5.webp",
       "/uploads/optimized/7674f49be236.webp",
       "/uploads/optimized/01d30fda3182.webp",
-      "/uploads/optimized/cb6fb3867da5.webp",
       "/uploads/optimized/88898075b0ae.webp",
       "/uploads/optimized/bb13e4138447.webp",
       "/uploads/optimized/860d4be7a047.webp",
@@ -8046,7 +8086,14 @@
       "/uploads/optimized/2e6180c79637.webp",
       "/uploads/optimized/35ba9bbc9d06.webp",
       "/uploads/optimized/5251def58ec0.webp",
-      "/uploads/optimized/b1f90458c82e.webp"
+      "/uploads/optimized/b1f90458c82e.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/870b144d-b371-469c-af62-aa85ee1ab10a/variant/1782493248391-r74wdj.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/870b144d-b371-469c-af62-aa85ee1ab10a/variant/1782493249317-4zrbos.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/870b144d-b371-469c-af62-aa85ee1ab10a/variant/1782493250332-h1r0qa.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/870b144d-b371-469c-af62-aa85ee1ab10a/variant/1782493252393-czgu46.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/870b144d-b371-469c-af62-aa85ee1ab10a/variant/1782493253398-cskovm.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/870b144d-b371-469c-af62-aa85ee1ab10a/variant/1782493254479-rdw3gh.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/870b144d-b371-469c-af62-aa85ee1ab10a/variant/1782493255426-7nuqyj.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8159,9 +8206,9 @@
     "cardDescription": "Elite polo T-shirt with a refined look, comfortable fit, and versatile style for everyday casual and smart wear.",
     "image": "/uploads/optimized/5941639464cd.webp",
     "images": [
+      "/uploads/optimized/5941639464cd.webp",
       "/uploads/optimized/732018b04f12.webp",
       "/uploads/optimized/b78822a24192.webp",
-      "/uploads/optimized/5941639464cd.webp",
       "/uploads/optimized/38a2ae93510c.webp",
       "/uploads/optimized/2e1a54330de9.webp",
       "/uploads/optimized/bb0932e1f102.webp",
@@ -8169,7 +8216,10 @@
       "/uploads/optimized/7d8b0fff0b4b.webp",
       "/uploads/optimized/7dbe67f4591d.webp",
       "/uploads/optimized/2e676f90515c.webp",
-      "/uploads/optimized/21712d22b520.webp"
+      "/uploads/optimized/21712d22b520.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a21a37c9-a937-4e70-82c5-e71e5f8fdaef/variant/1782618816014-onm9by.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a21a37c9-a937-4e70-82c5-e71e5f8fdaef/variant/1782618819872-cf3ize.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a21a37c9-a937-4e70-82c5-e71e5f8fdaef/variant/1782618823938-lk1jyq.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8258,9 +8308,9 @@
     "cardDescription": "Recycled poly-cotton polo T-shirt with a smooth, durable feel and a comfortable everyday fit for casual and smart-casual wear.",
     "image": "/uploads/optimized/1afd0cc1ba8a.webp",
     "images": [
+      "/uploads/optimized/1afd0cc1ba8a.webp",
       "/uploads/optimized/babbde325281.webp",
       "/uploads/optimized/178ec8be18c6.webp",
-      "/uploads/optimized/1afd0cc1ba8a.webp",
       "/uploads/optimized/1d9c775dbc04.webp",
       "/uploads/optimized/e8e1e2b2247f.webp",
       "/uploads/optimized/c0f3f64c37f8.webp",
@@ -8280,7 +8330,14 @@
       "/uploads/optimized/cd50a183e8bf.webp",
       "/uploads/optimized/74c3c0104d07.webp",
       "/uploads/optimized/9b3103472825.webp",
-      "/uploads/optimized/a50b3aa516db.webp"
+      "/uploads/optimized/a50b3aa516db.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/7d5970a0-49a2-46be-a468-01e5a0c13a38/variant/1782664682475-jji4o4.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/7d5970a0-49a2-46be-a468-01e5a0c13a38/variant/1782664685317-pv4mch.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/7d5970a0-49a2-46be-a468-01e5a0c13a38/variant/1782664688696-uf5mct.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/7d5970a0-49a2-46be-a468-01e5a0c13a38/variant/1782664691830-1hy4yh.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/7d5970a0-49a2-46be-a468-01e5a0c13a38/variant/1782664694797-d4jvmh.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/7d5970a0-49a2-46be-a468-01e5a0c13a38/variant/1782664698182-tr1b5r.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/7d5970a0-49a2-46be-a468-01e5a0c13a38/variant/1782664701837-tu7wbi.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8393,9 +8450,9 @@
     "cardDescription": "Zippered hoodie with a modern look, soft comfort, and easy everyday layering for casual and relaxed wear.",
     "image": "/uploads/optimized/e1365f76b503.webp",
     "images": [
+      "/uploads/optimized/e1365f76b503.webp",
       "/uploads/optimized/8979d72011eb.webp",
       "/uploads/optimized/38fe41161482.webp",
-      "/uploads/optimized/e1365f76b503.webp",
       "/uploads/optimized/fef43b2a5fe4.webp",
       "/uploads/optimized/5c59d26cc803.webp",
       "/uploads/optimized/6862f7293d7d.webp",
@@ -8406,7 +8463,11 @@
       "/uploads/optimized/6642f81255b9.webp",
       "/uploads/optimized/1ce9498389ba.webp",
       "/uploads/optimized/86b73a56e923.webp",
-      "/uploads/optimized/ec434616a0e5.webp"
+      "/uploads/optimized/ec434616a0e5.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/6866664d-ca64-4f5e-81ee-4a7fdc422e31/variant/1782735992532-fj8v85.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/6866664d-ca64-4f5e-81ee-4a7fdc422e31/variant/1782735995190-r9vema.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/6866664d-ca64-4f5e-81ee-4a7fdc422e31/variant/1782735997665-zczexj.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/6866664d-ca64-4f5e-81ee-4a7fdc422e31/variant/1782735999708-8z9y6l.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8501,14 +8562,16 @@
     "cardDescription": "Full zipper lycra jacket with a sleek fit, flexible comfort, and versatile style for active, casual, and everyday wear.",
     "image": "/uploads/optimized/5541423c1a34.webp",
     "images": [
+      "/uploads/optimized/5541423c1a34.webp",
       "/uploads/optimized/8ce9030637ac.webp",
       "/uploads/optimized/ab80adece2fe.webp",
-      "/uploads/optimized/5541423c1a34.webp",
       "/uploads/optimized/7554db64f660.webp",
       "/uploads/optimized/547c6d549e2b.webp",
       "/uploads/optimized/be3ae47e811e.webp",
       "/uploads/optimized/62ff5e02be68.webp",
-      "/uploads/optimized/f0c9fee5e10b.webp"
+      "/uploads/optimized/f0c9fee5e10b.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a86fae94-55a6-497a-9ea2-e35bdf083956/variant/1782739114831-3uk0il.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a86fae94-55a6-497a-9ea2-e35bdf083956/variant/1782739116973-w29wij.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8591,8 +8654,8 @@
     "cardDescription": "Indian Terrain Classic Solid Crew Neck T-shirt offers a clean, comfortable fit with timeless everyday style.",
     "image": "/uploads/optimized/038268daa47c.webp",
     "images": [
-      "/uploads/optimized/6e4a5dca1b2e.webp",
       "/uploads/optimized/038268daa47c.webp",
+      "/uploads/optimized/6e4a5dca1b2e.webp",
       "/uploads/optimized/cdabc20e6346.webp",
       "/uploads/optimized/8bf60a305f68.webp",
       "/uploads/optimized/b6102474cbd6.webp",
@@ -8600,7 +8663,10 @@
       "/uploads/optimized/b39d7ac6df63.webp",
       "/uploads/optimized/a1555003d5f8.webp",
       "/uploads/optimized/9e1227cfa7de.webp",
-      "/uploads/optimized/98dbf95d951d.webp"
+      "/uploads/optimized/98dbf95d951d.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a426a21e-e8ff-4ae7-aef1-b2e340fd2559/variant/1782827280083-jeiuf8.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a426a21e-e8ff-4ae7-aef1-b2e340fd2559/variant/1782827282168-xncakm.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/a426a21e-e8ff-4ae7-aef1-b2e340fd2559/variant/1782827284117-oygqer.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8689,9 +8755,9 @@
     "cardDescription": "Quick-dry polo T-shirt with a clean look, breathable comfort, and all-day wearability for active and casual use.",
     "image": "/uploads/optimized/109f4b9eac3e.webp",
     "images": [
+      "/uploads/optimized/109f4b9eac3e.webp",
       "/uploads/optimized/0fb409333e10.webp",
       "/uploads/optimized/9f6e44882665.webp",
-      "/uploads/optimized/109f4b9eac3e.webp",
       "/uploads/optimized/519920ecd4a9.webp",
       "/uploads/optimized/b35d720384e3.webp",
       "/uploads/optimized/88fdf27763c0.webp",
@@ -8714,7 +8780,15 @@
       "/uploads/optimized/0d6bc4afc767.webp",
       "/uploads/optimized/3fcf240c2dd8.webp",
       "/uploads/optimized/791f0dc8d5ba.webp",
-      "/uploads/optimized/b002c5aed528.webp"
+      "/uploads/optimized/b002c5aed528.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736796213-84c73c.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736800234-udhj6u.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736802935-68uhb0.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736806033-arti1j.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736809426-lb93ih.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736811987-dsz104.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736814882-yhec1b.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/86d89f3e-60d9-4836-b884-ea458bca16bb/variant/1782736817480-yoh9v2.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8833,9 +8907,9 @@
     "cardDescription": "Stylish bomber jacket with a modern fit, lightweight comfort, and versatile everyday wear appeal.",
     "image": "/uploads/optimized/483905b6631d.webp",
     "images": [
+      "/uploads/optimized/483905b6631d.webp",
       "/uploads/optimized/96a5301d9c27.webp",
       "/uploads/optimized/f3f26fa67dee.webp",
-      "/uploads/optimized/483905b6631d.webp",
       "/uploads/optimized/3fb22a04f21c.webp",
       "/uploads/optimized/4685b527aade.webp",
       "/uploads/optimized/25b1a7c25110.webp",
@@ -8843,7 +8917,10 @@
       "/uploads/optimized/2a6895f371b1.webp",
       "/uploads/optimized/01c9fedf5b51.webp",
       "/uploads/optimized/a8aaa7f14273.webp",
-      "/uploads/optimized/01a29bca0549.webp"
+      "/uploads/optimized/01a29bca0549.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/2ca9cd71-2b91-4745-bef7-ec35b924244e/variant/1782740868546-r2d1na.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/2ca9cd71-2b91-4745-bef7-ec35b924244e/variant/1782740870433-m1shww.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/2ca9cd71-2b91-4745-bef7-ec35b924244e/variant/1782740872470-rfc5jz.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -8971,12 +9048,14 @@
     "cardDescription": "Puma Woven Track Jacket delivers a sporty, lightweight look with all-day comfort and easy movement.",
     "image": "/uploads/optimized/031f244cbcc4.webp",
     "images": [
+      "/uploads/optimized/031f244cbcc4.webp",
       "/uploads/optimized/f0bd17c85294.webp",
       "/uploads/optimized/0b027d613fd4.webp",
-      "/uploads/optimized/031f244cbcc4.webp",
       "/uploads/optimized/02d9c76881eb.webp",
       "/uploads/optimized/8c6304ddc2d8.webp",
       "/uploads/optimized/197e6e1db164.webp",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/969ecd07-4c46-4c62-aed2-e46fca720c10/variant/1782799637251-1neowi.png",
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/969ecd07-4c46-4c62-aed2-e46fca720c10/variant/1782799639811-lwq53v.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/969ecd07-4c46-4c62-aed2-e46fca720c10/variant/1782799640629-6ldpu5.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/969ecd07-4c46-4c62-aed2-e46fca720c10/variant/1782799641448-zvy4yu.png"
     ],
@@ -9061,11 +9140,11 @@
     "cardDescription": "Caslay Hoodie offers a cozy, casual fit with everyday comfort and effortless style.",
     "image": "/uploads/3d6d2ccb5a891e6c-CaslayHoodie.png",
     "images": [
+      "/uploads/3d6d2ccb5a891e6c-CaslayHoodie.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/697b7928-e71d-4d35-a107-a97b17f2a48b/variant/1782821553186-6s9uj0.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/697b7928-e71d-4d35-a107-a97b17f2a48b/variant/1782821555331-rbuwxi.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/697b7928-e71d-4d35-a107-a97b17f2a48b/variant/1782821557483-90k4x7.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/697b7928-e71d-4d35-a107-a97b17f2a48b/variant/1782821560247-h57r5i.png",
-      "/uploads/3d6d2ccb5a891e6c-CaslayHoodie.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/697b7928-e71d-4d35-a107-a97b17f2a48b/variant/1782821560247-h57r5i.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -9160,9 +9239,9 @@
     "cardDescription": "Swiss Military Alpine Interlock Zipper Jacket offers a sleek, comfortable fit with durable warmth and easy everyday layering.",
     "image": "/uploads/45b2773ec3eea651-SwissMilitaryAlpineInterlockZi.png",
     "images": [
+      "/uploads/45b2773ec3eea651-SwissMilitaryAlpineInterlockZi.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/9b9328f2-1067-4ebc-ba10-f7c330c44825/variant/1782800596320-xb59fo.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/9b9328f2-1067-4ebc-ba10-f7c330c44825/variant/1782800978950-4kb3hv.png",
-      "/uploads/45b2773ec3eea651-SwissMilitaryAlpineInterlockZi.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/9b9328f2-1067-4ebc-ba10-f7c330c44825/variant/1782800978950-4kb3hv.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -9405,10 +9484,10 @@
     "cardDescription": "Puma Premium Hoodie offers a soft, comfortable fit with a clean sporty look for effortless everyday wear.",
     "image": "/uploads/2f890f782306e4ae-PumaPremiumZipperedHoodie.png",
     "images": [
+      "/uploads/2f890f782306e4ae-PumaPremiumZipperedHoodie.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e72c7258-81e8-4bea-baf4-78d45994f338/variant/1782822709997-re40k9.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e72c7258-81e8-4bea-baf4-78d45994f338/variant/1782822713686-bgdcj5.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e72c7258-81e8-4bea-baf4-78d45994f338/variant/1782822716448-duxyhx.png",
-      "/uploads/2f890f782306e4ae-PumaPremiumZipperedHoodie.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e72c7258-81e8-4bea-baf4-78d45994f338/variant/1782822716448-duxyhx.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -9497,12 +9576,12 @@
     "cardDescription": "Adidas Dry-Fit Polo T-shirt with Strips offers breathable, moisture-wicking comfort with a sporty striped look for everyday wear.",
     "image": "/uploads/cfefae54663f1f53-AdidasDryFitPoloTshirtWithStri.png",
     "images": [
+      "/uploads/cfefae54663f1f53-AdidasDryFitPoloTshirtWithStri.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53a3ce85-eb13-42ae-a7c4-b25f2e936953/variant/1782910350472-z1l667.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53a3ce85-eb13-42ae-a7c4-b25f2e936953/variant/1782910354158-pv5zd9.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53a3ce85-eb13-42ae-a7c4-b25f2e936953/variant/1782910356193-nvwexd.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53a3ce85-eb13-42ae-a7c4-b25f2e936953/variant/1782910358313-2yzmf4.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53a3ce85-eb13-42ae-a7c4-b25f2e936953/variant/1782910360407-yfu4ms.png",
-      "/uploads/cfefae54663f1f53-AdidasDryFitPoloTshirtWithStri.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53a3ce85-eb13-42ae-a7c4-b25f2e936953/variant/1782910360407-yfu4ms.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -9603,11 +9682,11 @@
     "cardDescription": "Adidas Round Neck T-shirt and Adidas Dry-Fit Polo T-shirt with Strips combine sporty comfort, breathable fabric, and everyday style for versatile wear.",
     "image": "/uploads/184e7210ec28741d-AdidasRoundNeckTshirt.png",
     "images": [
+      "/uploads/184e7210ec28741d-AdidasRoundNeckTshirt.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53bd1e85-41a4-4997-b421-15662dc30025/variant/1782914828526-uti8pc.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53bd1e85-41a4-4997-b421-15662dc30025/variant/1782914833197-9dmiph.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53bd1e85-41a4-4997-b421-15662dc30025/variant/1782914836533-89kpg4.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53bd1e85-41a4-4997-b421-15662dc30025/variant/1782914838673-ze7hdi.png",
-      "/uploads/184e7210ec28741d-AdidasRoundNeckTshirt.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/53bd1e85-41a4-4997-b421-15662dc30025/variant/1782914838673-ze7hdi.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -9702,14 +9781,14 @@
     "cardDescription": "Adidas Dry-Fit Polo T-shirt offers breathable, moisture-wicking comfort with a smart sporty look for everyday wear.",
     "image": "/uploads/64be2b3e8857a8ef-AdidasDryFitPoloTshirt.png",
     "images": [
+      "/uploads/64be2b3e8857a8ef-AdidasDryFitPoloTshirt.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889698286-rzgd6u.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889701790-cwzi2j.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889704010-0uor4h.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889706456-5tjo7s.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889709521-nwztep.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889712292-ehfbq0.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889714339-6yxrrm.png",
-      "/uploads/64be2b3e8857a8ef-AdidasDryFitPoloTshirt.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/e9f996a5-f786-4db7-8fb3-22e066782be9/variant/1782889714339-6yxrrm.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -9852,13 +9931,13 @@
     "cardDescription": "Adidas Clima Lite Polo T-shirt offers lightweight, breathable comfort with a smart sporty look for everyday wear.",
     "image": "/uploads/42f9772f66fdd820-AdidasClimaLitePoloTshirt.png",
     "images": [
+      "/uploads/42f9772f66fdd820-AdidasClimaLitePoloTshirt.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/051570f1-f0d2-47c5-8855-1df61dcba457/variant/1782888890831-gfqyvy.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/051570f1-f0d2-47c5-8855-1df61dcba457/variant/1782888894405-nzygoy.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/051570f1-f0d2-47c5-8855-1df61dcba457/variant/1782888896577-ubkoet.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/051570f1-f0d2-47c5-8855-1df61dcba457/variant/1782888898915-znww9x.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/051570f1-f0d2-47c5-8855-1df61dcba457/variant/1782888900828-ilmclz.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/051570f1-f0d2-47c5-8855-1df61dcba457/variant/1782888903195-0gv2ji.png",
-      "/uploads/42f9772f66fdd820-AdidasClimaLitePoloTshirt.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/051570f1-f0d2-47c5-8855-1df61dcba457/variant/1782888903195-0gv2ji.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -10177,14 +10256,14 @@
     "cardDescription": "Classic Puma polo shirt, premium blend.",
     "image": "/uploads/e8337ad367e4b88c-PumaPiqueTippingPoloTshirt.png",
     "images": [
+      "/uploads/e8337ad367e4b88c-PumaPiqueTippingPoloTshirt.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483126884-iofylg.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483129639-g3fm1t.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483133327-ba894j.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483136242-hzie9t.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483138989-faqr7o.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483143458-1b5fp7.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483146800-01s1ze.png",
-      "/uploads/e8337ad367e4b88c-PumaPiqueTippingPoloTshirt.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/dd984bda-3d48-4b9e-9a4e-176a6fb4c42b/variant/1782483146800-01s1ze.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -10797,13 +10876,13 @@
     "cardDescription": "Adidas Cotton T-shirt with Tipping offers soft comfort and a clean sporty look for effortless everyday wear.",
     "image": "/uploads/d063c2d70e4f2343-AdidasCottonTshirtWithTipping.png",
     "images": [
+      "/uploads/d063c2d70e4f2343-AdidasCottonTshirtWithTipping.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d236ccde-51d0-45e7-8251-22e4a53c4618/variant/1782918513617-bnt92h.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d236ccde-51d0-45e7-8251-22e4a53c4618/variant/1782918516070-5e0p5r.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d236ccde-51d0-45e7-8251-22e4a53c4618/variant/1782918499374-95z6en.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d236ccde-51d0-45e7-8251-22e4a53c4618/variant/1782918502964-cu7hp8.png",
       "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d236ccde-51d0-45e7-8251-22e4a53c4618/variant/1782918506956-fel72s.png",
-      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d236ccde-51d0-45e7-8251-22e4a53c4618/variant/1782918510441-g40m0d.png",
-      "/uploads/d063c2d70e4f2343-AdidasCottonTshirtWithTipping.png"
+      "https://ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/catalog-images/products/d236ccde-51d0-45e7-8251-22e4a53c4618/variant/1782918510441-g40m0d.png"
     ],
     "features": [
       "Premium quality fabric / materials",
@@ -16504,8 +16583,6 @@
     "badge": "",
     "image": "/uploads/trophies/4221.jpg",
     "images": [
-      "/uploads/trophies/4221.jpg",
-      "/uploads/trophies/4221.jpg",
       "/uploads/trophies/4221.jpg"
     ],
     "description": "4221 Trophy - Premium quality trophy available in White, Black.",
@@ -17122,8 +17199,6 @@
     "badge": "",
     "image": "/uploads/trophies/4609.jpg",
     "images": [
-      "/uploads/trophies/4609.jpg",
-      "/uploads/trophies/4609.jpg",
       "/uploads/trophies/4609.jpg"
     ],
     "description": "4609 8x10 Trophy - Premium quality trophy available in Blue, Black.",
@@ -17477,8 +17552,6 @@
     "badge": "",
     "image": "/uploads/trophies/5101.jpg",
     "images": [
-      "/uploads/trophies/5101.jpg",
-      "/uploads/trophies/5101.jpg",
       "/uploads/trophies/5101.jpg"
     ],
     "description": "5101 Star Metal Trophy - Premium quality trophy available in Silver, Gold.",
@@ -17516,8 +17589,6 @@
     "badge": "",
     "image": "/uploads/trophies/5104.png",
     "images": [
-      "/uploads/trophies/5104.png",
-      "/uploads/trophies/5104.png",
       "/uploads/trophies/5104.png"
     ],
     "description": "5104 Trophy - Premium quality trophy available in Silver, Gold.",
@@ -17716,8 +17787,6 @@
     "badge": "",
     "image": "/uploads/trophies/5109.png",
     "images": [
-      "/uploads/trophies/5109.png",
-      "/uploads/trophies/5109.png",
       "/uploads/trophies/5109.png"
     ],
     "description": "5109 Trophy - Premium quality trophy available in Gold, Silver.",
@@ -17800,8 +17869,6 @@
     "badge": "",
     "image": "/uploads/trophies/5119.jpg",
     "images": [
-      "/uploads/trophies/5119.jpg",
-      "/uploads/trophies/5119.jpg",
       "/uploads/trophies/5119.jpg"
     ],
     "description": "5119 Single Star Trophy - Premium quality trophy available in Silver, Gold.",
@@ -18048,8 +18115,6 @@
     "badge": "",
     "image": "/uploads/trophies/5140.png",
     "images": [
-      "/uploads/trophies/5140.png",
-      "/uploads/trophies/5140.png",
       "/uploads/trophies/5140.png"
     ],
     "description": "5140 Plaque Trophy - Premium quality trophy available in Wooden, Black.",
@@ -21530,8 +21595,6 @@
     "badge": "",
     "image": "/uploads/trophies/Medal.png",
     "images": [
-      "/uploads/trophies/Medal.png",
-      "/uploads/trophies/Medal.png",
       "/uploads/trophies/Medal.png"
     ],
     "description": "Medal Frame 01 Trophy - Premium quality trophy available in Gold, Silver.",
@@ -21595,9 +21658,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT1306.jpg",
     "images": [
-      "/uploads/trophies/MT1306.jpg",
-      "/uploads/trophies/MT1306.jpg",
-      "/uploads/trophies/MT1306.jpg",
       "/uploads/trophies/MT1306.jpg"
     ],
     "description": "MT1306 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -21640,9 +21700,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT1313.jpg",
     "images": [
-      "/uploads/trophies/MT1313.jpg",
-      "/uploads/trophies/MT1313.jpg",
-      "/uploads/trophies/MT1313.jpg",
       "/uploads/trophies/MT1313.jpg"
     ],
     "description": "MT1313 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -21685,9 +21742,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT1315.jpg",
     "images": [
-      "/uploads/trophies/MT1315.jpg",
-      "/uploads/trophies/MT1315.jpg",
-      "/uploads/trophies/MT1315.jpg",
       "/uploads/trophies/MT1315.jpg"
     ],
     "description": "MT1315 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -21730,9 +21784,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT1316.jpg",
     "images": [
-      "/uploads/trophies/MT1316.jpg",
-      "/uploads/trophies/MT1316.jpg",
-      "/uploads/trophies/MT1316.jpg",
       "/uploads/trophies/MT1316.jpg"
     ],
     "description": "MT1316 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -21775,9 +21826,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT1322.jpg",
     "images": [
-      "/uploads/trophies/MT1322.jpg",
-      "/uploads/trophies/MT1322.jpg",
-      "/uploads/trophies/MT1322.jpg",
       "/uploads/trophies/MT1322.jpg"
     ],
     "description": "MT1322 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -21820,9 +21868,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT1323.jpg",
     "images": [
-      "/uploads/trophies/MT1323.jpg",
-      "/uploads/trophies/MT1323.jpg",
-      "/uploads/trophies/MT1323.jpg",
       "/uploads/trophies/MT1323.jpg"
     ],
     "description": "MT1323 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -21865,9 +21910,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT311.jpg",
     "images": [
-      "/uploads/trophies/MT311.jpg",
-      "/uploads/trophies/MT311.jpg",
-      "/uploads/trophies/MT311.jpg",
       "/uploads/trophies/MT311.jpg"
     ],
     "description": "MT311 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22041,9 +22083,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT347.png",
     "images": [
-      "/uploads/trophies/MT347.png",
-      "/uploads/trophies/MT347.png",
-      "/uploads/trophies/MT347.png",
       "/uploads/trophies/MT347.png"
     ],
     "description": "MT347 Trophy - Premium quality trophy available in Silver, Gold, Bronze.",
@@ -22086,9 +22125,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT348.jpg",
     "images": [
-      "/uploads/trophies/MT348.jpg",
-      "/uploads/trophies/MT348.jpg",
-      "/uploads/trophies/MT348.jpg",
       "/uploads/trophies/MT348.jpg"
     ],
     "description": "MT348 Trophy - Premium quality trophy available in Gold, Bronze, Silver.",
@@ -22131,9 +22167,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT357.jpg",
     "images": [
-      "/uploads/trophies/MT357.jpg",
-      "/uploads/trophies/MT357.jpg",
-      "/uploads/trophies/MT357.jpg",
       "/uploads/trophies/MT357.jpg"
     ],
     "description": "MT357 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22543,9 +22576,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT585.jpg",
     "images": [
-      "/uploads/trophies/MT585.jpg",
-      "/uploads/trophies/MT585.jpg",
-      "/uploads/trophies/MT585.jpg",
       "/uploads/trophies/MT585.jpg"
     ],
     "description": "MT585 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22633,9 +22663,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT643.jpg",
     "images": [
-      "/uploads/trophies/MT643.jpg",
-      "/uploads/trophies/MT643.jpg",
-      "/uploads/trophies/MT643.jpg",
       "/uploads/trophies/MT643.jpg"
     ],
     "description": "MT643 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22678,9 +22705,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT652.png",
     "images": [
-      "/uploads/trophies/MT652.png",
-      "/uploads/trophies/MT652.png",
-      "/uploads/trophies/MT652.png",
       "/uploads/trophies/MT652.png"
     ],
     "description": "MT652 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22723,9 +22747,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT653.jpg",
     "images": [
-      "/uploads/trophies/MT653.jpg",
-      "/uploads/trophies/MT653.jpg",
-      "/uploads/trophies/MT653.jpg",
       "/uploads/trophies/MT653.jpg"
     ],
     "description": "MT653 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22813,9 +22834,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT661.jpg",
     "images": [
-      "/uploads/trophies/MT661.jpg",
-      "/uploads/trophies/MT661.jpg",
-      "/uploads/trophies/MT661.jpg",
       "/uploads/trophies/MT661.jpg"
     ],
     "description": "MT661 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22858,9 +22876,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT662.jpg",
     "images": [
-      "/uploads/trophies/MT662.jpg",
-      "/uploads/trophies/MT662.jpg",
-      "/uploads/trophies/MT662.jpg",
       "/uploads/trophies/MT662.jpg"
     ],
     "description": "MT662 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22903,9 +22918,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT688.jpg",
     "images": [
-      "/uploads/trophies/MT688.jpg",
-      "/uploads/trophies/MT688.jpg",
-      "/uploads/trophies/MT688.jpg",
       "/uploads/trophies/MT688.jpg"
     ],
     "description": "MT688 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -22948,9 +22960,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT698.jpg",
     "images": [
-      "/uploads/trophies/MT698.jpg",
-      "/uploads/trophies/MT698.jpg",
-      "/uploads/trophies/MT698.jpg",
       "/uploads/trophies/MT698.jpg"
     ],
     "description": "MT698 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23038,9 +23047,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT709.jpg",
     "images": [
-      "/uploads/trophies/MT709.jpg",
-      "/uploads/trophies/MT709.jpg",
-      "/uploads/trophies/MT709.jpg",
       "/uploads/trophies/MT709.jpg"
     ],
     "description": "MT709 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23083,9 +23089,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT710.jpg",
     "images": [
-      "/uploads/trophies/MT710.jpg",
-      "/uploads/trophies/MT710.jpg",
-      "/uploads/trophies/MT710.jpg",
       "/uploads/trophies/MT710.jpg"
     ],
     "description": "MT710 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23128,9 +23131,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT746.jpg",
     "images": [
-      "/uploads/trophies/MT746.jpg",
-      "/uploads/trophies/MT746.jpg",
-      "/uploads/trophies/MT746.jpg",
       "/uploads/trophies/MT746.jpg"
     ],
     "description": "MT746 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23173,9 +23173,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT747.jpg",
     "images": [
-      "/uploads/trophies/MT747.jpg",
-      "/uploads/trophies/MT747.jpg",
-      "/uploads/trophies/MT747.jpg",
       "/uploads/trophies/MT747.jpg"
     ],
     "description": "MT747 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23218,9 +23215,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT748.jpg",
     "images": [
-      "/uploads/trophies/MT748.jpg",
-      "/uploads/trophies/MT748.jpg",
-      "/uploads/trophies/MT748.jpg",
       "/uploads/trophies/MT748.jpg"
     ],
     "description": "MT748 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23263,9 +23257,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT750.jpg",
     "images": [
-      "/uploads/trophies/MT750.jpg",
-      "/uploads/trophies/MT750.jpg",
-      "/uploads/trophies/MT750.jpg",
       "/uploads/trophies/MT750.jpg"
     ],
     "description": "MT750 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23308,9 +23299,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT755.jpg",
     "images": [
-      "/uploads/trophies/MT755.jpg",
-      "/uploads/trophies/MT755.jpg",
-      "/uploads/trophies/MT755.jpg",
       "/uploads/trophies/MT755.jpg"
     ],
     "description": "MT755 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23353,9 +23341,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT768.jpg",
     "images": [
-      "/uploads/trophies/MT768.jpg",
-      "/uploads/trophies/MT768.jpg",
-      "/uploads/trophies/MT768.jpg",
       "/uploads/trophies/MT768.jpg"
     ],
     "description": "MT768 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23398,9 +23383,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT772.png",
     "images": [
-      "/uploads/trophies/MT772.png",
-      "/uploads/trophies/MT772.png",
-      "/uploads/trophies/MT772.png",
       "/uploads/trophies/MT772.png"
     ],
     "description": "MT772 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23443,9 +23425,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT773.png",
     "images": [
-      "/uploads/trophies/MT773.png",
-      "/uploads/trophies/MT773.png",
-      "/uploads/trophies/MT773.png",
       "/uploads/trophies/MT773.png"
     ],
     "description": "MT773 Trophy - Premium quality trophy available in Gold, Bronze, Silver.",
@@ -23488,10 +23467,8 @@
     "badge": "",
     "image": "/uploads/601c16b0b0e16523-MT783Trophy.jpg",
     "images": [
-      "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?q=80&w=800&auto=format&fit=crop",
-      "/uploads/601c16b0b0e16523-MT783Trophy.jpg"
+      "/uploads/601c16b0b0e16523-MT783Trophy.jpg",
+      "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?q=80&w=800&auto=format&fit=crop"
     ],
     "description": "MT783 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
     "cardDescription": "High-quality trophy for awards and recognition. Available in Bronze, Silver, Gold.",
@@ -23533,9 +23510,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT787.jpg",
     "images": [
-      "/uploads/trophies/MT787.jpg",
-      "/uploads/trophies/MT787.jpg",
-      "/uploads/trophies/MT787.jpg",
       "/uploads/trophies/MT787.jpg"
     ],
     "description": "MT787 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -23578,9 +23552,6 @@
     "badge": "",
     "image": "/uploads/trophies/MT788.jpg",
     "images": [
-      "/uploads/trophies/MT788.jpg",
-      "/uploads/trophies/MT788.jpg",
-      "/uploads/trophies/MT788.jpg",
       "/uploads/trophies/MT788.jpg"
     ],
     "description": "MT788 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -24935,8 +24906,6 @@
     "badge": "",
     "image": "/uploads/trophies/WT14.jpg",
     "images": [
-      "/uploads/trophies/WT14.jpg",
-      "/uploads/trophies/WT14.jpg",
       "/uploads/trophies/WT14.jpg"
     ],
     "description": "WT14 Trophy - Premium quality trophy available in White, Black.",
@@ -25376,9 +25345,6 @@
     "badge": "",
     "image": "/uploads/trophies/WT4511.png",
     "images": [
-      "/uploads/trophies/WT4511.png",
-      "/uploads/trophies/WT4511.png",
-      "/uploads/trophies/WT4511.png",
       "/uploads/trophies/WT4511.png"
     ],
     "description": "WT4511 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -25421,9 +25387,6 @@
     "badge": "",
     "image": "/uploads/trophies/WT4512.png",
     "images": [
-      "/uploads/trophies/WT4512.png",
-      "/uploads/trophies/WT4512.png",
-      "/uploads/trophies/WT4512.png",
       "/uploads/trophies/WT4512.png"
     ],
     "description": "WT4512 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -25622,9 +25585,6 @@
     "badge": "",
     "image": "/uploads/trophies/WT5131.png",
     "images": [
-      "/uploads/trophies/WT5131.png",
-      "/uploads/trophies/WT5131.png",
-      "/uploads/trophies/WT5131.png",
       "/uploads/trophies/WT5131.png"
     ],
     "description": "WT5131 Trophy - Premium quality trophy available in Bronze, Silver, Gold.",
@@ -25667,9 +25627,6 @@
     "badge": "",
     "image": "/uploads/trophies/WT5132.png",
     "images": [
-      "/uploads/trophies/WT5132.png",
-      "/uploads/trophies/WT5132.png",
-      "/uploads/trophies/WT5132.png",
       "/uploads/trophies/WT5132.png"
     ],
     "description": "WT5132 Trophy - Premium quality trophy available in Gold, Bronze, Silver.",
