@@ -3644,7 +3644,7 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
   // Bulk save: accepts array of products, saves all in one S3 write
   app.post('/api/products/bulk', verifyAdmin, async (req, res) => {
     try {
-      const { products } = req.body;
+      const { products, skipImageMove } = req.body;
       if (!Array.isArray(products) || products.length === 0) {
         return res.status(400).json({ error: 'No products provided' });
       }
@@ -3654,7 +3654,15 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
 
       for (const p of products) {
         const id = "printfield-" + Math.random().toString(36).substr(2, 9);
-        const { image: finalImage, images: finalImages } = await moveImagesToS3(p.image || '', Array.isArray(p.images) ? p.images : []);
+        
+        let finalImage = p.image || '';
+        let finalImages = Array.isArray(p.images) ? p.images : [];
+        
+        if (!skipImageMove && (p.image || (p.images && p.images.length > 0))) {
+          const moved = await moveImagesToS3(p.image || '', Array.isArray(p.images) ? p.images : []);
+          finalImage = moved.image;
+          finalImages = moved.images;
+        }
 
         currentProds.unshift({
           id,

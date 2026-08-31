@@ -622,7 +622,7 @@ export function Admin() {
       const res = await apiFetch('/api/products/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-        body: JSON.stringify({ products })
+        body: JSON.stringify({ products, skipImageMove: true })
       });
 
       if (res.ok) {
