@@ -43,7 +43,7 @@ const INDUSTRIES = [
     id: "education",
     name: "Education Institutions",
     tagline: "Schools, universities, and training academies",
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&auto=format&fit=crop&q=80",
     icon: "GraduationCap",
     kitTitle: "Academic Excellence Brand Kit",
     kitItems: [
