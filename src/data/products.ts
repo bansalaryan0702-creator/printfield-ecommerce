@@ -49,43 +49,43 @@ export const Categories: Category[] = [
     "id": "business-stationery",
     "name": "Business Stationery",
     "icon": "package",
-    "image": ""
+    "image": "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&auto=format&fit=crop&q=80"
   },
   {
     "id": "drinkware",
     "name": "Drinkware",
     "icon": "gift",
-    "image": ""
+    "image": "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=1200&auto=format&fit=crop&q=80"
   },
   {
     "id": "corporate-gifts",
     "name": "Corporate Gifts",
     "icon": "gift",
-    "image": ""
+    "image": "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=1200&auto=format&fit=crop&q=80"
   },
   {
     "id": "signage",
     "name": "Signages & Banners",
     "icon": "signpost",
-    "image": ""
+    "image": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&auto=format&fit=crop&q=80"
   },
   {
     "id": "apparel",
     "name": "Apparel",
     "icon": "shirt",
-    "image": ""
+    "image": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=1200&auto=format&fit=crop&q=80"
   },
   {
     "id": "gifts",
     "name": "Personalised Gifts",
     "icon": "gift",
-    "image": ""
+    "image": "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=1200&auto=format&fit=crop&q=80"
   },
   {
     "id": "trophies",
     "name": "Trophies",
     "icon": "trophy",
-    "image": ""
+    "image": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1200&auto=format&fit=crop&q=80"
   }
 ];
 

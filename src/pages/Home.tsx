@@ -43,7 +43,7 @@ const INDUSTRIES = [
     id: "education",
     name: "Education Institutions",
     tagline: "Schools, universities, and training academies",
-    image: "",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80",
     icon: "GraduationCap",
     kitTitle: "Academic Excellence Brand Kit",
     kitItems: [
@@ -58,7 +58,7 @@ const INDUSTRIES = [
     id: "manufacturing",
     name: "Manufacturing",
     tagline: "Production hubs, mills, and shipping factories",
-    image: "",
+    image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1200&auto=format&fit=crop&q=80",
     icon: "Factory",
     kitTitle: "Industrial Safety & Identity Kit",
     kitItems: [
@@ -73,7 +73,7 @@ const INDUSTRIES = [
     id: "retail",
     name: "Retail",
     tagline: "Boutiques, department stores, and supermarkets",
-    image: "",
+    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=80",
     icon: "Store",
     kitTitle: "Premium Retail Packaging & Brand Kit",
     kitItems: [
@@ -88,7 +88,7 @@ const INDUSTRIES = [
     id: "cafes-restaurants",
     name: "Cafes and Restaurants",
     tagline: "Bistros, coffee bars, and fine dining locations",
-    image: "",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop&q=80",
     icon: "Utensils",
     kitTitle: "Culinary Identity & Hospitality Kit",
     kitItems: [
@@ -103,7 +103,7 @@ const INDUSTRIES = [
     id: "healthcare",
     name: "Healthcare",
     tagline: "Clinics, labs, diagnostics, and care centers",
-    image: "",
+    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop&q=80",
     icon: "HeartPulse",
     kitTitle: "Clinical Trust & Stationery Kit",
     kitItems: [
@@ -118,7 +118,7 @@ const INDUSTRIES = [
     id: "mnc",
     name: "MNC",
     tagline: "Corporate offices and multinational enterprises",
-    image: "",
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
     icon: "Building2",
     kitTitle: "Executive Corporate Identity Kit",
     kitItems: [
@@ -133,7 +133,7 @@ const INDUSTRIES = [
     id: "itbc",
     name: "ITBC",
     tagline: "IT organizations and Business Centers / Tech Parks",
-    image: "",
+    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&auto=format&fit=crop&q=80",
     icon: "Laptop",
     kitTitle: "Modern Tech Workspace Brand Kit",
     kitItems: [
@@ -148,7 +148,7 @@ const INDUSTRIES = [
     id: "realestate",
     name: "Realestate",
     tagline: "Builders, development consultants, and brokers",
-    image: "",
+    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&auto=format&fit=crop&q=80",
     icon: "HomeIcon",
     kitTitle: "Luxury Property Presentation Kit",
     kitItems: [
@@ -716,9 +716,6 @@ export function Home() {
                           src={activeInd.image}
                           alt={activeInd.name}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = "";
-                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent"></div>
                         

@@ -94,9 +94,6 @@ export function CategoryPage() {
           loading="eager"
           width="1600"
           height="340"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = "";
-          }}
         />
         {/* Subtle dual gradient overlays for depth & text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-slate-950/30" />
