@@ -129,6 +129,14 @@ export function Admin() {
   const [inMegaMenu, setInMegaMenu] = useState(false);
   const [badge, setBadge] = useState('');
   
+  // PDF Catalog Import state
+  const [pdfProducts, setPdfProducts] = useState<any[]>([]);
+  const [isExtractingPdf, setIsExtractingPdf] = useState(false);
+  const [pdfExtractError, setPdfExtractError] = useState('');
+  const [isGeneratingPdfDesc, setIsGeneratingPdfDesc] = useState(false);
+  const [pdfImportCategory, setPdfImportCategory] = useState('Corporate Gifts');
+  const [pdfImportSubCategory, setPdfImportSubCategory] = useState('');
+  
   // List Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -335,6 +343,151 @@ export function Admin() {
     
     setIsUploadingBulkImages(false);
     setBulkImageUploadStatus('');
+  };
+
+  // PDF Catalog Import handlers
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      setPdfExtractError('Please upload a PDF file');
+      return;
+    }
+
+    setIsExtractingPdf(true);
+    setPdfExtractError('');
+    setPdfProducts([]);
+
+    try {
+      const adminToken = localStorage.getItem('admin_token');
+      const formData = new FormData();
+      formData.append('pdf', file);
+
+      const res = await apiFetch('/api/pdf/extract-products', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${adminToken}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to extract products');
+      }
+
+      const data = await res.json();
+      setPdfProducts(data.products || []);
+    } catch (err: any) {
+      setPdfExtractError(err.message || 'Failed to process PDF');
+    } finally {
+      setIsExtractingPdf(false);
+    }
+  };
+
+  const handlePdfProductNameChange = (idx: number, name: string) => {
+    setPdfProducts(prev => prev.map((p, i) => i === idx ? { ...p, name } : p));
+  };
+
+  const handlePdfProductToggle = (idx: number) => {
+    setPdfProducts(prev => prev.map((p, i) => i === idx ? { ...p, selected: !p.selected } : p));
+  };
+
+  const handlePdfGenerateDescriptions = async () => {
+    const selected = pdfProducts.filter(p => p.selected && p.name.trim());
+    if (selected.length === 0) return;
+
+    setIsGeneratingPdfDesc(true);
+    try {
+      const adminToken = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
+      
+      for (let i = 0; i < selected.length; i++) {
+        const p = selected[i];
+        setPdfProducts(prev => prev.map((pp, idx) => 
+          pp === p ? { ...pp, generating: true } : pp
+        ));
+
+        try {
+          const res = await apiFetch('/api/ai/generate-product-content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+            body: JSON.stringify({
+              imageUrl: p.imageUrl,
+              name: p.name,
+              category: pdfImportCategory
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setPdfProducts(prev => prev.map((pp, idx) => 
+              pp === p ? { 
+                ...pp, 
+                generating: false,
+                description: data.description || pp.description,
+                cardDescription: data.cardDescription || pp.cardDescription,
+                metaTitle: data.metaTitle || pp.metaTitle,
+                metaDescription: data.metaDescription || pp.metaDescription
+              } : pp
+            ));
+          }
+        } catch (err) {
+          console.error('AI generation failed for', p.name, err);
+          setPdfProducts(prev => prev.map((pp, idx) => 
+            pp === p ? { ...pp, generating: false } : pp
+          ));
+        }
+      }
+    } finally {
+      setIsGeneratingPdfDesc(false);
+    }
+  };
+
+  const handlePdfImportAll = async () => {
+    const selected = pdfProducts.filter(p => p.selected && p.name.trim());
+    if (selected.length === 0) return;
+
+    const adminToken = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
+    let imported = 0;
+    let failed = 0;
+
+    for (const p of selected) {
+      try {
+        const productData = {
+          name: p.name,
+          category: pdfImportCategory,
+          subCategory: pdfImportSubCategory || pdfImportCategory,
+          image: p.imageUrl,
+          images: [p.imageUrl],
+          description: p.description || '',
+          cardDescription: p.cardDescription || '',
+          metaTitle: p.metaTitle || '',
+          metaDescription: p.metaDescription || '',
+          price: 0,
+          isDisabled: false
+        };
+
+        const res = await apiFetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+          body: JSON.stringify(productData)
+        });
+
+        if (res.ok) imported++;
+        else failed++;
+      } catch {
+        failed++;
+      }
+    }
+
+    alert(`Imported ${imported} products${failed > 0 ? `, ${failed} failed` : ''}`);
+    if (imported > 0) {
+      setPdfProducts([]);
+      // Refresh products list
+      const refreshRes = await apiFetch('/api/products', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+      if (refreshRes.ok) {
+        const data = await refreshRes.json();
+        setProducts(data.products || []);
+      }
+    }
   };
 
   const handleBulkRowImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
@@ -1382,6 +1535,11 @@ export function Admin() {
                 <Sparkles className="h-3.5 w-3.5 text-blue-600" />
                 {isBulkOptimizingSEO ? 'SEO Optimizing...' : '⚡ AI SEO All Products'}
               </button>
+              <label className={`cursor-pointer px-4 py-2 text-sm rounded-md font-medium transition-colors flex items-center gap-1.5 ${isExtractingPdf ? "text-gray-400" : "text-gray-500 hover:text-gray-900"}`}>
+                <FileSpreadsheet className="h-3.5 w-3.5 text-orange-500" />
+                {isExtractingPdf ? 'Extracting...' : 'PDF Catalog Import'}
+                <input type="file" className="hidden" accept=".pdf" onChange={handlePdfUpload} disabled={isExtractingPdf} />
+              </label>
             </div>
           </div>
           
@@ -2070,6 +2228,97 @@ export function Admin() {
               </form>
             </div>
           </div>
+          )}
+
+          {/* PDF Catalog Import Panel */}
+          {pdfProducts.length > 0 && (
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-200">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <FileSpreadsheet className="h-5 w-5 text-orange-500" />
+                    PDF Catalog Import — {pdfProducts.length} products extracted
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">Review names, generate descriptions, then import</p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <select
+                    value={pdfImportCategory}
+                    onChange={(e) => setPdfImportCategory(e.target.value)}
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  >
+                    {['Corporate Gifts', 'Apparel', 'Trophies', 'Signage', 'Drinkware', 'Business Stationery', 'Personalised Gifts', 'Packaging', 'Marketing', 'Photo Prints'].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handlePdfGenerateDescriptions}
+                    disabled={isGeneratingPdfDesc || pdfProducts.filter(p => p.selected).length === 0}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isGeneratingPdfDesc ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    {isGeneratingPdfDesc ? 'Generating...' : 'AI Generate Descriptions'}
+                  </button>
+                  <button
+                    onClick={handlePdfImportAll}
+                    disabled={pdfProducts.filter(p => p.selected && p.name.trim()).length === 0}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Import Selected ({pdfProducts.filter(p => p.selected && p.name.trim()).length})
+                  </button>
+                  <button
+                    onClick={() => setPdfProducts([])}
+                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {pdfProducts.map((p, idx) => (
+                  <div key={idx} className={`relative border-2 rounded-xl overflow-hidden transition-all ${p.selected ? 'border-orange-400 shadow-md' : 'border-gray-200 opacity-60'}`}>
+                    <button
+                      onClick={() => handlePdfProductToggle(idx)}
+                      className={`absolute top-2 left-2 z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${p.selected ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-300'}`}
+                    >
+                      {p.selected && <CheckCircle2 className="h-4 w-4" />}
+                    </button>
+                    {p.generating && (
+                      <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
+                        <Loader2 className="h-8 w-8 text-purple-600 animate-spin" />
+                      </div>
+                    )}
+                    <div className="aspect-[4/3] bg-gray-100">
+                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="p-3">
+                      <input
+                        type="text"
+                        value={p.name}
+                        onChange={(e) => handlePdfProductNameChange(idx, e.target.value)}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                        placeholder="Product name..."
+                      />
+                      {p.description && (
+                        <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">{p.description}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          )}
+
+          {pdfExtractError && (
+            <div className="max-w-6xl mx-auto mb-4">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                {pdfExtractError}
+              </div>
+            </div>
           )}
 
           {productViewMode === 'list' && (

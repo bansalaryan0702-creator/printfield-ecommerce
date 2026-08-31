@@ -1436,6 +1436,113 @@ const SITE_URL = 'https://www.printfieldonline.com';
       res.status(500).json({ error: 'Error saving file to disk' });
     }
   });
+
+  // PDF Catalog Import — extract pages as 4:3 cropped images with auto-detected names
+  app.post('/api/pdf/extract-products', verifyUser, upload.single('pdf'), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: 'No PDF file uploaded' });
+
+      const pdfjsLib = await import('pdfjs-dist');
+      const { createCanvas } = await import('canvas');
+      const sharp = (await import('sharp')).default;
+
+      const data = new Uint8Array(req.file.buffer);
+      const pdf = await pdfjsLib.getDocument({ data }).promise;
+      const numPages = pdf.numPages;
+      const products: any[] = [];
+
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2.0 }); // 2x for quality
+
+        // Render page to canvas
+        const canvas = createCanvas(viewport.width, viewport.height);
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx as any, viewport }).promise;
+
+        // Get raw image buffer (PNG)
+        const rawBuffer = canvas.toBuffer('image/png');
+
+        // Crop to 4:3 ratio (center crop)
+        const imgMeta = await sharp(rawBuffer).metadata();
+        const imgW = imgMeta.width!;
+        const imgH = imgMeta.height!;
+        const targetRatio = 4 / 3;
+        const currentRatio = imgW / imgH;
+
+        let cropW: number, cropH: number, left: number, top: number;
+        if (currentRatio > targetRatio) {
+          // Too wide — crop sides
+          cropH = imgH;
+          cropW = Math.round(imgH * targetRatio);
+          left = Math.round((imgW - cropW) / 2);
+          top = 0;
+        } else {
+          // Too tall — crop top/bottom
+          cropW = imgW;
+          cropH = Math.round(imgW / targetRatio);
+          left = 0;
+          top = Math.round((imgH - cropH) / 2);
+        }
+
+        // Crop + enhance: sharpen, adjust contrast, resize to 1200px wide
+        const croppedBuffer = await sharp(rawBuffer)
+          .extract({ left, top, width: cropW, height: cropH })
+          .resize(1200, 900, { fit: 'fill' })
+          .sharpen({ sigma: 1.2 })
+          .modulate({ brightness: 1.05 })
+          .jpeg({ quality: 90 })
+          .toBuffer();
+
+        // Upload to S3
+        const filename = `pdf-product-${Date.now()}-${i}.jpg`;
+        const s3Key = `uploads/${filename}`;
+        await s3Client.send(new PutObjectCommand({
+          Bucket: s3BucketName,
+          Key: s3Key,
+          Body: croppedBuffer,
+          ContentType: 'image/jpeg',
+          CacheControl: 'public, max-age=31536000, immutable'
+        }));
+
+        // Also save locally
+        const localPath = path.join(process.cwd(), 'uploads', filename);
+        await fs.mkdir(path.join(process.cwd(), 'uploads'), { recursive: true });
+        await fs.writeFile(localPath, croppedBuffer);
+
+        // Extract text for auto-detecting product name
+        let extractedText = '';
+        try {
+          const textContent = await page.getTextContent();
+          extractedText = textContent.items.map((item: any) => item.str).join(' ').trim();
+        } catch (e) {}
+
+        // Auto-detect product name from extracted text
+        let detectedName = '';
+        if (extractedText) {
+          // Take first meaningful line (skip very short fragments)
+          const lines = extractedText.split(/\s{2,}/).filter((l: string) => l.trim().length > 3);
+          detectedName = lines[0]?.trim().slice(0, 80) || '';
+          // Clean up: remove special chars but keep alphanumeric, spaces, hyphens
+          detectedName = detectedName.replace(/[^\w\s\-&]/g, '').trim();
+        }
+
+        products.push({
+          pageIndex: i,
+          name: detectedName || `Product ${i}`,
+          imageUrl: `/uploads/${filename}`,
+          s3Key,
+          extractedText: extractedText.slice(0, 500),
+          selected: true
+        });
+      }
+
+      res.json({ products, totalPages: numPages });
+    } catch (e: any) {
+      console.error('PDF extraction error:', e);
+      res.status(500).json({ error: 'Failed to process PDF: ' + (e.message || 'Unknown error') });
+    }
+  });
   
   
 
