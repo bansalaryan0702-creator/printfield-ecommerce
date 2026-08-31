@@ -116,6 +116,72 @@ const LOCATIONS: Record<string, {
       services: ["Corporate T-Shirt Printing", "Event & Promotional Merchandise", "Custom Hoodies & Apparels", "Signage, Flex & Standees", "Business Cards & Stationery", "Custom Mugs, Bottles & Gifts"],
       whyUs: ["Quick delivery to Marathahalli", "Trusted by 500+ businesses", "Online design studio — design from home", "Bulk discounts from 10 pieces", "Premium print quality guaranteed", "GST invoice for all orders"]
     }
+  },
+  "epip-zone": {
+    name: "EPIP Zone",
+    area: "EPIP Zone, Whitefield",
+    city: "Bengaluru",
+    pincode: "560066",
+    landmark: "Near EPIP Zone, Whitefield",
+    metaTitle: "Corporate Printing & Gifting in EPIP Zone Bangalore | Printfield",
+    metaDescription: "Corporate printing & gifting in EPIP Zone, Whitefield, Bangalore. Onboarding kits, awards, apparel, brochures, signage. Own production unit, 22+ years experience. Fast delivery.",
+    heroHeading: "Corporate Printing Services in EPIP Zone",
+    heroSubheading: "Trusted by 100+ companies in EPIP Zone for corporate gifting, onboarding kits, branded merchandise & promotional products.",
+    nearbyAreas: ["Whitefield", "ITPL", "Brookefield", "Kadugodi", "Hoodi"],
+    deliveryTime: "1-2 days",
+    mapQuery: "EPIP+Zone+Whitefield+Bengaluru",
+    latitude: 12.9780,
+    longitude: 77.7490,
+    localKeywords: ["corporate printing EPIP zone", "corporate gifting EPIP zone bangalore", "onboarding kits EPIP zone", "promotional products EPIP zone whitefield", "printing near EPIP zone"],
+    localContent: {
+      intro: "Printfield is the nearest printing shop to EPIP Zone, Whitefield with our own production unit on Borewell Road. We serve 100+ companies in EPIP Zone with corporate onboarding kits, branded apparel, awards, signage, and promotional merchandise. With 22+ years of experience, we understand the fast-paced needs of IT companies and deliver consistently.",
+      services: ["Corporate Onboarding Kits", "Branded Apparel & Uniforms", "Awards & Trophies", "Signage & Wayfinding", "Brochures & Catalogues", "Promotional Merchandise"],
+      whyUs: ["5-minute drive from EPIP Zone", "Own production unit — no outsourcing", "22+ years serving Bengaluru corporates", "Express delivery for urgent orders", "Volume discounts from 10 pieces", "GST invoice for all orders"]
+    }
+  },
+  kadugodi: {
+    name: "Kadugodi",
+    area: "Kadugodi",
+    city: "Bengaluru",
+    pincode: "560066",
+    landmark: "Near Kadugodi Main Road",
+    metaTitle: "Custom Printing & Corporate Gifting in Kadugodi Bangalore | Printfield",
+    metaDescription: "Custom printing & corporate gifting in Kadugodi, Whitefield, Bangalore. T-shirts, apparel, signage, brochures. Own production unit on Borewell Road. Fast delivery.",
+    heroHeading: "Custom Printing Services in Kadugodi",
+    heroSubheading: "Your local printing partner for custom apparel, corporate gifts, signage & promotional products in Kadugodi, Whitefield.",
+    nearbyAreas: ["Whitefield", "ITPL", "Brookefield", "Hoodi", "Hope Farm"],
+    deliveryTime: "1-2 days",
+    mapQuery: "Kadugodi+Whitefield+Bengaluru",
+    latitude: 12.9820,
+    longitude: 77.7430,
+    localKeywords: ["custom printing kadugodi", "corporate gifting kadugodi bangalore", "tshirt printing kadugodi whitefield", "signage kadugodi"],
+    localContent: {
+      intro: "Printfield serves the Kadugodi community with premium custom printing services. Located on Borewell Road, just minutes from Kadugodi, we deliver t-shirt printing, corporate gifting, signage, and promotional products to homes and businesses. With 22+ years of experience and our own production unit, we guarantee quality and speed.",
+      services: ["Custom T-Shirt & Apparel Printing", "Corporate Gifting Solutions", "Signage, Banners & Standees", "Business Cards & Stationery", "Promotional Products", "Custom Hoodies & Caps"],
+      whyUs: ["Closest print shop to Kadugodi", "Own production unit on Borewell Road", "Same-day design approval", "Bulk orders from 10 pieces", "Free online design tool", "100% quality guarantee"]
+    }
+  },
+  hoodi: {
+    name: "Hoodi",
+    area: "Hoodi",
+    city: "Bengaluru",
+    pincode: "560066",
+    landmark: "Near Hoodi Main Road",
+    metaTitle: "Custom Printing & Corporate Gifting in Hoodi Bangalore | Printfield",
+    metaDescription: "Custom printing & corporate gifting in Hoodi, Whitefield, Bangalore. Onboarding kits, apparel, signage, brochures. Own production unit, 22+ years. Fast delivery.",
+    heroHeading: "Custom Printing Services in Hoodi",
+    heroSubheading: "Professional printing services for corporates, startups & events in Hoodi, Whitefield, Bengaluru.",
+    nearbyAreas: ["Whitefield", "Brookefield", "Marathahalli", "Kadugodi", "Mahadevapura"],
+    deliveryTime: "1-2 days",
+    mapQuery: "Hoodi+Whitefield+Bengaluru",
+    latitude: 12.9750,
+    longitude: 77.7420,
+    localKeywords: ["custom printing hoodi", "corporate gifting hoodi bangalore", "tshirt printing hoodi whitefield", "signage hoodi", "printing services hoodi"],
+    localContent: {
+      intro: "Printfield is the trusted printing partner for businesses and individuals in Hoodi, Whitefield. From corporate onboarding kits to event t-shirts and promotional signage, we handle orders of all sizes with our own production unit on Borewell Road. 22+ years of experience, same-day design approval, and delivery within 1-2 days.",
+      services: ["Corporate Onboarding Kits", "Custom T-Shirt & Apparel Printing", "Awards & Trophies", "Signage, Banners & Flex", "Brochures, Catalogues & Flyers", "Custom Gifts & Merchandise"],
+      whyUs: ["Minutes from Hoodi on Borewell Road", "Own production unit — no outsourcing", "22+ years serving Bengaluru", "Bulk discounts from 10 pieces", "Free design consultation", "GST invoice for all orders"]
+    }
   }
 };
 

@@ -2099,6 +2099,31 @@ export function ProductDetail() {
               </span>
             </div>
 
+            {/* Volume Pricing Table */}
+            {product?.price > 0 && (
+              <div className="mb-6 sm:mb-8 bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 p-4 sm:p-5">
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
+                  Volume Pricing
+                </h3>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  {[
+                    { qty: '10-49', label: 'Standard' },
+                    { qty: '50-99', label: '5% off' },
+                    { qty: '100+', label: '10% off' },
+                  ].map((tier) => (
+                    <div key={tier.qty} className="bg-white rounded-xl border border-purple-100 p-3">
+                      <div className="text-xs text-gray-500 font-medium">{tier.qty} pcs</div>
+                      <div className="text-sm font-bold text-purple-700 mt-1">{tier.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 mt-3 text-center">
+                  Contact us for custom pricing on bulk orders. GST invoice included.
+                </p>
+              </div>
+            )}
+
             {isBusinessCard && (
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">

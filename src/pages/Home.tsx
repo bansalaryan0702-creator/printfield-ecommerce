@@ -226,8 +226,8 @@ export function Home() {
   return (
     <Layout>
       <SEO 
-        title="Best Printing Shop in Whitefield Bangalore | Custom Printing | Printfield" 
-        description="Best printing shop in Whitefield, Bangalore 560066. Custom t-shirt printing, trophies, corporate gifts, signage & banners. Fast delivery within 5km. Order online at Printfield."
+        title="Printfield | Corporate Printing & Gifting in Whitefield, Bangalore" 
+        description="Corporate printing & gifting in Whitefield, Bangalore. 22+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging. Fast delivery."
         canonicalUrl="/"
         ogImage="/logo.png"
         schema={JSON.stringify({
@@ -238,6 +238,7 @@ export function Home() {
           "url": "https://www.printfieldonline.com",
           "telephone": "+919606371222",
           "email": "Aryan@printfield.in",
+          "foundingDate": "2004",
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "No 96, Mini Villa, Opp. Chaitnya Swojas, Borewell Road",
@@ -252,18 +253,20 @@ export function Home() {
             "longitude": 77.7500
           },
           "areaServed": [
-            "Whitefield, Bengaluru",
-            "Brookefield",
-            "Marathahalli",
+            "Whitefield",
+            "EPIP Zone",
             "ITPL",
-            "Mahadevapura",
-            "KR Puram"
+            "Brookefield",
+            "Kadugodi",
+            "Hoodi",
+            "Marathahalli",
+            "Mahadevapura"
           ],
-          "priceRange": "₹₹",
+          "priceRange": "₹99 - ₹5000",
           "openingHoursSpecification": [
             { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "10:00", "closes": "19:00" }
           ],
-          "description": "Printfield is a printing shop in Whitefield, Bengaluru offering custom t-shirt printing, corporate gifts, signage, banners, trophies, business cards and promotional products. Same-day design approval, bulk orders from 10 pieces, delivery within 1-2 days.",
+          "description": "Corporate printing & gifting in Whitefield, Bangalore. 22+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging.",
           "aggregateRating": {
             "@type": "AggregateRating",
             "ratingValue": "4.8",
@@ -409,6 +412,33 @@ export function Home() {
               </a>
             </motion.div>
           </motion.div>
+        </section>
+
+        {/* TRUST STRIP */}
+        <section className="bg-slate-900 text-white py-10 md:py-14 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+              {[
+                { value: "22+", label: "Years Experience", sub: "Serving Bengaluru since 2004" },
+                { value: "Own Unit", label: "Production Facility", sub: "Borewell Road, Whitefield" },
+                { value: "10K+", label: "Orders Delivered", sub: "Corporate & individual" },
+                { value: "4.8★", label: "Customer Rating", sub: "150+ verified reviews" },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="text-center"
+                >
+                  <div className="text-3xl md:text-4xl font-black text-purple-400 mb-1">{stat.value}</div>
+                  <div className="text-sm font-bold uppercase tracking-wider text-white/90">{stat.label}</div>
+                  <div className="text-xs text-white/50 mt-1">{stat.sub}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* BENTO GRID CATEGORIES */}

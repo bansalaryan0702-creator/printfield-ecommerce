@@ -4326,6 +4326,9 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         { path: '/printing-itpl', priority: '0.8', changefreq: 'weekly' },
         { path: '/printing-brookefield', priority: '0.8', changefreq: 'weekly' },
         { path: '/printing-marathahalli', priority: '0.8', changefreq: 'weekly' },
+        { path: '/printing-epip-zone', priority: '0.9', changefreq: 'weekly' },
+        { path: '/printing-kadugodi', priority: '0.8', changefreq: 'weekly' },
+        { path: '/printing-hoodi', priority: '0.8', changefreq: 'weekly' },
         { path: '/about', priority: '0.6', changefreq: 'monthly' },
         { path: '/faq', priority: '0.6', changefreq: 'monthly' },
         { path: '/contact', priority: '0.7', changefreq: 'monthly' },
@@ -4521,7 +4524,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     app.use(express.static(distPath));
 
     const pageMeta: Record<string, { title: string; description: string; canonical: string }> = {
-      '/': { title: 'Printfield - Best Printing Shop in Whitefield Bangalore', description: 'Premium custom printing services in Whitefield, Bengaluru 560066. Trophies, apparel, corporate gifts, signage & more.', canonical: '/' },
+      '/': { title: 'Printfield | Corporate Printing & Gifting in Whitefield, Bangalore', description: 'Corporate printing & gifting in Whitefield, Bangalore. 22+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging. Fast delivery.', canonical: '/' },
       '/about': { title: 'About Us - Printfield Digital Solutions', description: 'Learn about Printfield Digital Solutions, your trusted printing partner in Whitefield, Bengaluru.', canonical: '/about' },
       '/faq': { title: 'FAQ - Printfield Printing Services', description: 'Frequently asked questions about Printfield printing services, delivery, pricing, and customization.', canonical: '/faq' },
       '/contact': { title: 'Contact Us - Printfield Whitefield Bangalore', description: 'Contact Printfield for custom printing services. Call +91 96063 71222 or visit us in Whitefield, Bengaluru.', canonical: '/contact' },
@@ -4534,6 +4537,9 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       '/printing-itpl': { title: 'Custom T-Shirt Printing near ITPL Bangalore | Printfield', description: 'Custom t-shirt printing & corporate gifting near ITPL, Whitefield, Bengaluru. Fast delivery to ITPL Tech Park and surrounding areas.', canonical: '/printing-itpl' },
       '/printing-brookefield': { title: 'Custom T-Shirt Printing in Brookefield Bangalore | Printfield', description: 'Best custom t-shirt printing services in Brookefield, Bengaluru. Corporate gifting, promotional products & bulk apparel printing.', canonical: '/printing-brookefield' },
       '/printing-marathahalli': { title: 'Custom T-Shirt Printing in Marathahalli Bangalore | Printfield', description: 'Custom t-shirt printing, corporate gifting & promotional products in Marathahalli, Bengaluru. Bulk orders, fast delivery.', canonical: '/printing-marathahalli' },
+      '/printing-epip-zone': { title: 'Corporate Printing & Gifting in EPIP Zone Bangalore | Printfield', description: 'Corporate printing & gifting in EPIP Zone, Whitefield, Bangalore. Onboarding kits, awards, apparel, brochures, signage. Own production unit, 22+ years.', canonical: '/printing-epip-zone' },
+      '/printing-kadugodi': { title: 'Custom Printing & Corporate Gifting in Kadugodi Bangalore | Printfield', description: 'Custom printing & corporate gifting in Kadugodi, Whitefield, Bangalore. T-shirts, apparel, signage, brochures. Own production unit. Fast delivery.', canonical: '/printing-kadugodi' },
+      '/printing-hoodi': { title: 'Custom Printing & Corporate Gifting in Hoodi Bangalore | Printfield', description: 'Custom printing & corporate gifting in Hoodi, Whitefield, Bangalore. Onboarding kits, apparel, signage, brochures. 22+ years experience. Fast delivery.', canonical: '/printing-hoodi' },
       '/categories': { title: 'All Categories - Printfield Printing Services', description: 'Browse all printing categories at Printfield. Trophies, apparel, corporate gifts, signage, photo prints & more.', canonical: '/categories' },
       '/checkout': { title: 'Checkout - Printfield', description: 'Complete your order at Printfield.', canonical: '/checkout' },
       '/login': { title: 'Login - Printfield', description: 'Login to your Printfield account.', canonical: '/login' },
@@ -4546,7 +4552,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
 
     const notFoundPage = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Page Not Found - Printfield</title><meta name="robots" content="noindex"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1f2937}.card{background:#fff;border-radius:16px;padding:48px;max-width:480px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}h1{font-size:64px;color:#f59e0b;margin-bottom:8px}p{color:#6b7280;margin:12px 0 24px;line-height:1.6}a{display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;transition:background .2s}a:hover{background:#d97706}</style></head><body><div class="card"><h1>404</h1><p>The page you're looking for doesn't exist or has been moved.</p><a href="/">Go to Homepage</a></div></body></html>`;
 
-    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/printing-whitefield', '/printing-itpl', '/printing-brookefield', '/printing-marathahalli', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
+    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/printing-whitefield', '/printing-itpl', '/printing-brookefield', '/printing-marathahalli', '/printing-epip-zone', '/printing-kadugodi', '/printing-hoodi', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
     const invalidExtensions = /\.(php|asp|aspx|jsp|cgi|pl|py|rb|do|action|xml|json|txt|csv|doc|docx|pdf|xls|xlsx|zip|rar|exe|dmg|apk)(\?|$)/i;
     const spamPrefixes = ['/xiomi', '/alanwalker', '/wp-admin', '/wp-content', '/wp-includes', '/wordpress'];
 
