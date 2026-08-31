@@ -2661,6 +2661,41 @@ Requirements:
     }
   });
 
+  // Build a condensed product catalog for the AI chatbot
+  function buildProductCatalog(products: any[]): string {
+    const active = products.filter(p => !p.isDisabled && p.image);
+    const byCategory: Record<string, any[]> = {};
+    for (const p of active) {
+      const cat = p.category || 'Other';
+      if (!byCategory[cat]) byCategory[cat] = [];
+      byCategory[cat].push(p);
+    }
+
+    let catalog = 'PRINTFIELD PRODUCT CATALOG (with prices and links):\n\n';
+
+    for (const [category, prods] of Object.entries(byCategory)) {
+      catalog += `## ${category}\n`;
+      for (const p of prods.slice(0, 30)) { // cap at 30 per category to control token usage
+        const price = p.price > 0 ? `₹${p.price}` : 'Quote on Request';
+        const slug = p.slug || p.id;
+        const link = `https://www.printfieldonline.com/product/${encodeURIComponent(slug)}`;
+        const colors = p.colors?.length ? ` | Colors: ${p.colors.map((c: any) => typeof c === 'string' ? c : c.name).join(', ')}` : '';
+        const features = p.cardDescription ? ` | ${p.cardDescription}` : '';
+        catalog += `- ${p.name} | ${price}${features}${colors} | Link: ${link}\n`;
+      }
+      if (prods.length > 30) {
+        catalog += `  ...and ${prods.length - 30} more ${category} products\n`;
+      }
+      catalog += '\n';
+    }
+
+    catalog += `\nTotal: ${active.length} products across ${Object.keys(byCategory).length} categories.\n`;
+    catalog += 'Always suggest specific products with direct links when recommending.\n';
+    catalog += 'Categories include: Apparel, Corporate Gifts, Trophies, Signage, Drinkware, Business Stationery, Personalised Gifts, Packaging, Marketing, Photo Prints, and more.';
+
+    return catalog;
+  }
+
   app.post('/api/chat/message', async (req, res) => {
     try {
       const { message, sessionId } = req.body;
@@ -2705,12 +2740,45 @@ Requirements:
         parts: [{ text: m.text }]
       }));
 
+      // Load product catalog for AI awareness
+      let productCatalog = '';
+      try {
+        const allProducts = await loadProductsFromS3();
+        productCatalog = buildProductCatalog(allProducts);
+      } catch (e) {
+        console.warn('Failed to load products for chat:', e);
+      }
+
       const systemInstruction = `You are 'Printfield Assistant', a natural, expert, and friendly human-like customer representative for Printfield (India's premier platform for custom printed branding materials, corporate stationery, personalized merchandise, packaging, and corporate gifts).
 
 Your mission is to help customers design, customize, choose, and order standard and premium products.
 Provide helpful, specific, and professional guidance. Suggest materials (such as premium 300 GSM paper, thick matte cards, elegant custom envelopes, textured letterheads, etc.), answer design/print questions, recommend quantity options, and guide them gracefully through the ordering process.
 
 ${customerName ? `The customer's name is ${customerName}. Address them by name naturally (e.g., "Hi ${customerName}," or "Sure, ${customerName}, we can...") in your messages to make the interaction feel personalized and warm.` : ""}
+
+PRODUCT CATALOG (use this to recommend specific products with links):
+${productCatalog}
+
+KEY BUSINESS INFO:
+- Location: Borewell Road, Whitefield, Bengaluru 560066
+- Phone: +91 9606371222
+- WhatsApp: https://wa.me/919606371222
+- 22+ years experience, own production unit (no outsourcing)
+- Delivery: 1-2 days within Whitefield/EPIP/ITPL/Brookefield/Kadugodi/Hoodi
+- Minimum order: 10 pieces for DTF printing, 50 for screen printing
+- Corporate gifting: No minimum, even single pieces welcome
+- GST invoice provided for all orders
+- Hours: Mon-Sat 10:00 AM - 7:00 PM
+
+CRITICAL RULES FOR PRODUCT RECOMMENDATIONS:
+1. ALWAYS recommend specific products from the catalog above with their direct links
+2. When a customer asks about a product type, list 3-5 relevant options with prices
+3. Include the direct link to each product page so they can view and order
+4. If they ask about pricing, give the base price and mention volume discounts
+5. If they ask about a category, list the top products in that category
+6. Proactively suggest related products (e.g., if they want t-shirts, also suggest caps, hoodies, polo shirts)
+7. For corporate orders, suggest complete brand kits (apparel + stationery + gifts)
+8. Never say "I don't have product information" — you have the full catalog above
 
 Texting & Style Guidelines (CRITICAL for sounding natural and NOT like an AI):
 - Sound like a real, helpful human customer representative texting back in a live chat. Keep your tone professional, friendly, and practical.
@@ -2723,7 +2791,7 @@ Texting & Style Guidelines (CRITICAL for sounding natural and NOT like an AI):
 - DO NOT use markdown headers (e.g. ###, ##, #) or overly dense markdown bullet lists.
 - Avoid excessive bolding (e.g., do not bold every product name or option). Only bold occasionally for real emphasis, or avoid bold entirely.
 - Write naturally: use standard conversational transitions. End your message with a natural, open-ended question to keep the chat active (e.g., "Would you like me to recommend a specific GSM for those card types, or do you already have a preference?").
-- Ensure responses are concise, clear, and focused (max 120 words).`;
+- Ensure responses are concise, clear, and focused (max 150 words).`;
 
       const aiResponse = await callGeminiWithRetry({
         model: 'gemini-2.5-flash',

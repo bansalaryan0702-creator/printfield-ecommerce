@@ -311,10 +311,10 @@ export const AIChatBox: React.FC = () => {
   };
 
   const suggestionChips = [
-    'Suggest custom business card choices',
-    'What premium paper stocks do you offer?',
-    'Help me choose corporate gifts',
-    'How does custom packaging work?'
+    'Show me corporate t-shirt options',
+    'What trophies do you have?',
+    'Suggest onboarding kit ideas',
+    'What are your most popular gifts?'
   ];
 
   return (
