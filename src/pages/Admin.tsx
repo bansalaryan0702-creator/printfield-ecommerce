@@ -447,35 +447,37 @@ export function Admin() {
         let detectedName = '';
         try {
           const textContent = await page.getTextContent();
-          // Join items, preserving line breaks from Y-position changes
           const items = textContent.items as any[];
-          let lastY: number | null = null;
-          const lines: string[] = [];
-          let currentLine = '';
+          
+          // Join all text strings with spaces
+          const allText = items.map(item => item.str || '').join(' ').trim();
+          extractedText = allText;
+          console.log(`[PDF Page ${i}] Text items: ${items.length}, text length: ${allText.length}, preview: "${allText.slice(0, 100)}"`);
 
-          for (const item of items) {
-            if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
-              if (currentLine.trim()) lines.push(currentLine.trim());
-              currentLine = '';
+          if (allText.length > 2) {
+            // Try to find product name using multiple strategies
+            const lines = allText.split(/\n+/).map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+            
+            // Strategy 1: Look for lines that look like product names
+            for (const line of lines) {
+              const clean = line.replace(/[^a-zA-Z0-9\s\-&\/.]/g, '').trim();
+              if (clean.length >= 3 && clean.length <= 100 && !/^\d+$/.test(clean) && !/^[₹$]/.test(clean)) {
+                detectedName = clean.slice(0, 80);
+                break;
+              }
             }
-            currentLine += item.str;
-            lastY = item.transform[5];
-          }
-          if (currentLine.trim()) lines.push(currentLine.trim());
-
-          extractedText = lines.join('\n');
-
-          // Find the most likely product name:
-          // 1. First line that looks like a name (3-80 chars, not all numbers)
-          // 2. Skip lines that are just numbers, prices, or single words
-          for (const line of lines) {
-            const clean = line.replace(/[^a-zA-Z0-9\s\-&\/]/g, '').trim();
-            if (clean.length >= 3 && clean.length <= 80 && !/^\d+$/.test(clean) && !/^[₹$]/.test(clean)) {
-              detectedName = clean;
-              break;
+            
+            // Strategy 2: If no name found, try the first few words
+            if (!detectedName && allText.length > 2) {
+              const words = allText.split(/\s+/).filter((w: string) => w.length > 1);
+              if (words.length >= 2) {
+                detectedName = words.slice(0, 5).join(' ').replace(/[^a-zA-Z0-9\s\-&\/]/g, '').trim().slice(0, 80);
+              }
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Text extraction failed for page', i, e);
+        }
 
         extracted.push({
           pageIndex: i,
@@ -2518,6 +2520,14 @@ export function Admin() {
                             </select>
                           </div>
                         </div>
+
+                        {/* Extracted text debug */}
+                        {p.extractedText && p.extractedText.length > 5 && (
+                          <div className="bg-gray-100 rounded-lg px-3 py-2 border border-gray-200">
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Extracted from PDF</label>
+                            <p className="text-xs text-gray-600 line-clamp-3 whitespace-pre-wrap">{p.extractedText.slice(0, 300)}</p>
+                          </div>
+                        )}
 
                         {/* Description */}
                         <div>
