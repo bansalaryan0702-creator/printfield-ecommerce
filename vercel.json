@@ -3,6 +3,11 @@
   "buildCommand": "npm run build && npm prune --omit=dev",
   "outputDirectory": "dist",
   "framework": null,
+  "functions": {
+    "dist/server.cjs": {
+      "maxDuration": 30
+    }
+  },
   "redirects": [
     { "source": "/categories/", "destination": "/categories", "permanent": true },
     { "source": "/about/", "destination": "/about", "permanent": true },
