@@ -447,10 +447,34 @@ export function Admin() {
         let detectedName = '';
         try {
           const textContent = await page.getTextContent();
-          extractedText = textContent.items.map((item: any) => item.str).join(' ').trim();
-          const lines = extractedText.split(/\s{2,}/).filter((l: string) => l.trim().length > 3);
-          detectedName = lines[0]?.trim().slice(0, 80) || '';
-          detectedName = detectedName.replace(/[^\w\s\-&]/g, '').trim();
+          // Join items, preserving line breaks from Y-position changes
+          const items = textContent.items as any[];
+          let lastY: number | null = null;
+          const lines: string[] = [];
+          let currentLine = '';
+
+          for (const item of items) {
+            if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
+              if (currentLine.trim()) lines.push(currentLine.trim());
+              currentLine = '';
+            }
+            currentLine += item.str;
+            lastY = item.transform[5];
+          }
+          if (currentLine.trim()) lines.push(currentLine.trim());
+
+          extractedText = lines.join('\n');
+
+          // Find the most likely product name:
+          // 1. First line that looks like a name (3-80 chars, not all numbers)
+          // 2. Skip lines that are just numbers, prices, or single words
+          for (const line of lines) {
+            const clean = line.replace(/[^a-zA-Z0-9\s\-&\/]/g, '').trim();
+            if (clean.length >= 3 && clean.length <= 80 && !/^\d+$/.test(clean) && !/^[₹$]/.test(clean)) {
+              detectedName = clean;
+              break;
+            }
+          }
         } catch (e) {}
 
         extracted.push({
