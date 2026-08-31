@@ -534,47 +534,44 @@ export function Admin() {
     if (selected.length === 0) return;
 
     const adminToken = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
-    let imported = 0;
-    let failed = 0;
+    
+    const products = selected.map(p => ({
+      name: p.name,
+      category: pdfImportCategory,
+      subCategory: pdfImportSubCategory || pdfImportCategory,
+      image: p.imageUrl,
+      images: [p.imageUrl],
+      description: p.description || '',
+      cardDescription: p.cardDescription || '',
+      metaTitle: p.metaTitle || '',
+      metaDescription: p.metaDescription || '',
+      price: 0,
+      isDisabled: false
+    }));
 
-    for (const p of selected) {
-      try {
-        const productData = {
-          name: p.name,
-          category: pdfImportCategory,
-          subCategory: pdfImportSubCategory || pdfImportCategory,
-          image: p.imageUrl,
-          images: [p.imageUrl],
-          description: p.description || '',
-          cardDescription: p.cardDescription || '',
-          metaTitle: p.metaTitle || '',
-          metaDescription: p.metaDescription || '',
-          price: 0,
-          isDisabled: false
-        };
+    try {
+      const res = await apiFetch('/api/products/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({ products })
+      });
 
-        const res = await apiFetch('/api/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-          body: JSON.stringify(productData)
-        });
-
-        if (res.ok) imported++;
-        else failed++;
-      } catch {
-        failed++;
+      if (res.ok) {
+        const data = await res.json();
+        alert(`Imported ${data.count || products.length} products successfully!`);
+        setPdfProducts([]);
+        // Refresh products list
+        const refreshRes = await apiFetch('/api/products', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          setProducts(refreshData.products || []);
+        }
+      } else {
+        const err = await res.json();
+        alert(`Import failed: ${err.error || 'Unknown error'}`);
       }
-    }
-
-    alert(`Imported ${imported} products${failed > 0 ? `, ${failed} failed` : ''}`);
-    if (imported > 0) {
-      setPdfProducts([]);
-      // Refresh products list
-      const refreshRes = await apiFetch('/api/products', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-      if (refreshRes.ok) {
-        const data = await refreshRes.json();
-        setProducts(data.products || []);
-      }
+    } catch (err: any) {
+      alert(`Import failed: ${err.message}`);
     }
   };
 
