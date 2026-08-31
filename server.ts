@@ -3649,7 +3649,8 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
         return res.status(400).json({ error: 'No products provided' });
       }
 
-      const currentProds = await loadProductsFromS3(true);
+      // Use cache if available, otherwise force refresh
+      const currentProds = await loadProductsFromS3(!s3ProductsInMemory);
       const now = Date.now();
 
       for (const p of products) {
@@ -4275,17 +4276,21 @@ Return ONLY valid JSON with these 4 fields. No markdown, no extra text.`;
 
       let result: any = {};
       try {
-        const aiRes = await callGeminiWithRetry({ contents: prompt });
-        const text = cleanGeneratedText(aiRes.text || '');
+        // Race against a 15-second timeout so fallback is always returned quickly
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('AI timeout')), 15000)
+        );
+        const aiRes = await Promise.race([callGeminiWithRetry({ contents: prompt }), timeoutPromise]);
+        const text = cleanGeneratedText((aiRes as any).text || '');
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           result = JSON.parse(jsonMatch[0]);
         }
       } catch (e: any) {
-        console.warn('[generate-product-content] Gemini failed:', e.message?.slice(0, 100));
+        console.warn('[generate-product-content] Gemini failed/timeout:', e.message?.slice(0, 100));
       }
 
-      // Fallback defaults
+      // Fallback defaults — always fill missing fields
       result.description = result.description || `The ${name} is a premium quality product available at Printfield in Whitefield, Bangalore. Custom branding and bulk orders available. Order today for fast delivery.`;
       result.cardDescription = result.cardDescription || `Premium ${name} — custom branding available at Printfield.`;
       result.metaTitle = result.metaTitle || `${name} - Custom Printing | Printfield`;

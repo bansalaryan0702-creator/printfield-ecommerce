@@ -359,9 +359,9 @@ export function Admin() {
     setPdfProducts([]);
 
     try {
-      // Dynamically load pdfjs-dist in browser
+      // Dynamically load pdfjs-dist in browser — use local worker to avoid CDN version mismatch
       const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -448,31 +448,52 @@ export function Admin() {
         try {
           const textContent = await page.getTextContent();
           const items = textContent.items as any[];
-          
-          // Join all text strings with spaces
-          const allText = items.map(item => item.str || '').join(' ').trim();
-          extractedText = allText;
-          console.log(`[PDF Page ${i}] Text items: ${items.length}, text length: ${allText.length}, preview: "${allText.slice(0, 100)}"`);
 
-          if (allText.length > 2) {
-            // Try to find product name using multiple strategies
-            const lines = allText.split(/\n+/).map((l: string) => l.trim()).filter((l: string) => l.length > 0);
-            
-            // Strategy 1: Look for lines that look like product names
-            for (const line of lines) {
-              const clean = line.replace(/[^a-zA-Z0-9\s\-&\/.]/g, '').trim();
-              if (clean.length >= 3 && clean.length <= 100 && !/^\d+$/.test(clean) && !/^[₹$]/.test(clean)) {
-                detectedName = clean.slice(0, 80);
-                break;
-              }
+          // Group text items by Y position (same line = similar Y) then sort by X
+          // This reconstructs actual lines as they appear in the PDF
+          const lineMap: Map<number, { x: number; str: string }[]> = new Map();
+          for (const item of items) {
+            if (!item.str?.trim()) continue;
+            const transform = item.transform as number[] | undefined;
+            if (!transform) continue;
+            const yRaw = transform[5];
+            // Round Y to nearest 2pts to group same-line items
+            const yKey = Math.round(yRaw / 2) * 2;
+            if (!lineMap.has(yKey)) lineMap.set(yKey, []);
+            lineMap.get(yKey)!.push({ x: transform[4], str: item.str });
+          }
+
+          // Sort lines by Y descending (top of page first in PDF coordinate system)
+          const sortedYKeys = Array.from(lineMap.keys()).sort((a, b) => b - a);
+          const lines: string[] = sortedYKeys.map(y => {
+            const lineItems = lineMap.get(y)!.sort((a, b) => a.x - b.x);
+            return lineItems.map(it => it.str).join(' ').trim();
+          }).filter(l => l.length > 0);
+
+          extractedText = lines.join('\n');
+          console.log(`[PDF Page ${i}] Lines: ${lines.length}, preview: "${lines.slice(0, 3).join(' | ')}"`);
+
+          // Find the best product name: prefer short title-case or ALL-CAPS lines near the top
+          for (const line of lines) {
+            // Remove special chars except alphanumeric, spaces, hyphens, ampersands
+            const clean = line.replace(/[^a-zA-Z0-9\s\-&\/.]/g, '').trim();
+            if (
+              clean.length >= 3 &&
+              clean.length <= 80 &&
+              !/^\d+$/.test(clean) &&       // not just numbers
+              !/^[₹$€£]/.test(clean) &&     // not a price line
+              !/^(page|pg|www|http)/i.test(clean) // not a page/URL indicator
+            ) {
+              detectedName = clean.slice(0, 80);
+              break;
             }
-            
-            // Strategy 2: If no name found, try the first few words
-            if (!detectedName && allText.length > 2) {
-              const words = allText.split(/\s+/).filter((w: string) => w.length > 1);
-              if (words.length >= 2) {
-                detectedName = words.slice(0, 5).join(' ').replace(/[^a-zA-Z0-9\s\-&\/]/g, '').trim().slice(0, 80);
-              }
+          }
+
+          // Fallback: first 4 words of all text
+          if (!detectedName && extractedText.length > 2) {
+            const words = extractedText.split(/\s+/).filter((w: string) => w.length > 1 && /[a-zA-Z]/.test(w));
+            if (words.length >= 1) {
+              detectedName = words.slice(0, 4).join(' ').replace(/[^a-zA-Z0-9\s\-&\/]/g, '').trim().slice(0, 80);
             }
           }
         } catch (e) {
@@ -603,6 +624,10 @@ export function Admin() {
     if (selected.length === 0) return;
 
     const adminToken = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
+    if (!adminToken) {
+      alert('Please log in first to import products.');
+      return;
+    }
     
     const products = selected.map(p => ({
       name: p.name,
@@ -637,9 +662,10 @@ export function Admin() {
         }
       } else {
         const err = await res.json();
-        alert(`Import failed: ${err.error || 'Unknown error'}`);
+        alert(`Import failed: ${err.error || 'Unknown error'} (Status: ${res.status})`);
       }
     } catch (err: any) {
+      console.error('Import error:', err);
       alert(`Import failed: ${err.message}`);
     }
   };
