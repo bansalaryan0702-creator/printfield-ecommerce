@@ -458,7 +458,9 @@ export function Admin() {
           name: detectedName || `Product ${i}`,
           imageUrl,
           extractedText: extractedText.slice(0, 500),
-          selected: true
+          selected: true,
+          category: pdfImportCategory,
+          subCategory: ''
         });
 
         // Update state progressively so user sees progress
@@ -578,8 +580,8 @@ export function Admin() {
     
     const products = selected.map(p => ({
       name: p.name,
-      category: pdfImportCategory,
-      subCategory: pdfImportSubCategory || pdfImportCategory,
+      category: p.category || pdfImportCategory,
+      subCategory: p.subCategory || '',
       image: p.imageUrl,
       images: [p.imageUrl],
       description: p.description || '',
@@ -2460,6 +2462,36 @@ export function Admin() {
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
+                          </div>
+                        </div>
+
+                        {/* Category + Sub-category */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Category</label>
+                            <select
+                              value={allCategories.includes(p.category) ? p.category : (p.category || pdfImportCategory)}
+                              onChange={(e) => setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, category: e.target.value } : pp))}
+                              className="w-full px-3 py-1.5 border border-gray-300 focus:border-orange-500 rounded-lg text-sm bg-white outline-none transition-colors"
+                            >
+                              {allCategories.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                              ))}
+                              <option value="custom">Custom...</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sub-category</label>
+                            <select
+                              value={p.subCategory || ''}
+                              onChange={(e) => setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, subCategory: e.target.value } : pp))}
+                              className="w-full px-3 py-1.5 border border-gray-300 focus:border-orange-500 rounded-lg text-sm bg-white outline-none transition-colors"
+                            >
+                              <option value="">None</option>
+                              {(categoriesData.find(c => c.name === (p.category || pdfImportCategory))?.subCategories || []).map(sub => (
+                                <option key={sub} value={sub}>{sub}</option>
+                              ))}
+                            </select>
                           </div>
                         </div>
 
