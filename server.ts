@@ -4253,6 +4253,51 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     }
   });
 
+  // Full product content generation (description + card + SEO) in one call
+  app.post('/api/ai/generate-product-content', verifyAdmin, async (req, res) => {
+    try {
+      const { imageUrl, name, category } = req.body;
+      if (!name) return res.status(400).json({ error: 'Product name is required' });
+
+      const prompt = `You are a product content writer for Printfield, a printing and corporate gifting company in Whitefield, Bangalore.
+
+Generate ALL of the following for the product: "${name}" (Category: ${category || 'Corporate Gifts'})
+
+1. "description": A product description — ONE paragraph, 3-4 sentences. Flow: strong verb + what it is → material/design + benefit → who it's perfect for → closing line. Natural, professional. Max 150 words.
+
+2. "cardDescription": A punchy one-liner for a product card. 10-15 words max. Start with a strong verb. Focus on the single biggest benefit.
+
+3. "metaTitle": SEO title. Max 60 chars. Format: [Product Name] - [Benefit] | Printfield
+
+4. "metaDescription": SEO meta description. Max 155 chars. Start with a verb (Buy/Order/Shop), include product name, mention Whitefield Bangalore, end with call to action.
+
+Return ONLY valid JSON with these 4 fields. No markdown, no extra text.`;
+
+      let result: any = {};
+      try {
+        const aiRes = await callGeminiWithRetry({ contents: prompt });
+        const text = cleanGeneratedText(aiRes.text || '');
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          result = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e: any) {
+        console.warn('[generate-product-content] Gemini failed:', e.message?.slice(0, 100));
+      }
+
+      // Fallback defaults
+      result.description = result.description || `The ${name} is a premium quality product available at Printfield in Whitefield, Bangalore. Custom branding and bulk orders available. Order today for fast delivery.`;
+      result.cardDescription = result.cardDescription || `Premium ${name} — custom branding available at Printfield.`;
+      result.metaTitle = result.metaTitle || `${name} - Custom Printing | Printfield`;
+      result.metaDescription = result.metaDescription || `Order ${name} at Printfield, Whitefield Bangalore. Custom branding. Fast delivery. Shop now!`;
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('Generate product content error:', err);
+      res.status(500).json({ error: 'Failed to generate product content' });
+    }
+  });
+
   // AI text generation — Gemini primary, TinyLlama fallback (unlimited)
   app.post('/api/ai/local-generate', verifyAdmin, async (req, res) => {
     try {
