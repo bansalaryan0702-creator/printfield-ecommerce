@@ -489,8 +489,9 @@ export function Admin() {
       
       for (let i = 0; i < selected.length; i++) {
         const p = selected[i];
+        const origIdx = pdfProducts.indexOf(p);
         setPdfProducts(prev => prev.map((pp, idx) => 
-          pp === p ? { ...pp, generating: true } : pp
+          idx === origIdx ? { ...pp, generating: true } : pp
         ));
 
         try {
@@ -507,7 +508,7 @@ export function Admin() {
           if (res.ok) {
             const data = await res.json();
             setPdfProducts(prev => prev.map((pp, idx) => 
-              pp === p ? { 
+              idx === origIdx ? { 
                 ...pp, 
                 generating: false,
                 description: data.description || pp.description,
@@ -516,16 +517,56 @@ export function Admin() {
                 metaDescription: data.metaDescription || pp.metaDescription
               } : pp
             ));
+          } else {
+            setPdfProducts(prev => prev.map((pp, idx) => 
+              idx === origIdx ? { ...pp, generating: false } : pp
+            ));
           }
         } catch (err) {
           console.error('AI generation failed for', p.name, err);
           setPdfProducts(prev => prev.map((pp, idx) => 
-            pp === p ? { ...pp, generating: false } : pp
+            idx === origIdx ? { ...pp, generating: false } : pp
           ));
         }
       }
     } finally {
       setIsGeneratingPdfDesc(false);
+    }
+  };
+
+  const handlePdfGenerateSingle = async (idx: number) => {
+    const p = pdfProducts[idx];
+    if (!p || !p.name.trim()) return;
+
+    setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, generating: true } : pp));
+
+    try {
+      const adminToken = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
+      const res = await apiFetch('/api/ai/generate-product-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          imageUrl: p.imageUrl,
+          name: p.name,
+          category: pdfImportCategory
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPdfProducts(prev => prev.map((pp, i) => i === idx ? { 
+          ...pp, 
+          generating: false,
+          description: data.description || pp.description,
+          cardDescription: data.cardDescription || pp.cardDescription,
+          metaTitle: data.metaTitle || pp.metaTitle,
+          metaDescription: data.metaDescription || pp.metaDescription
+        } : pp));
+      } else {
+        setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, generating: false } : pp));
+      }
+    } catch (err) {
+      setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, generating: false } : pp));
     }
   };
 
@@ -2323,11 +2364,11 @@ export function Admin() {
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                     <FileSpreadsheet className="h-5 w-5 text-orange-500" />
-                    PDF Catalog Import — {pdfProducts.length} products extracted
+                    PDF Catalog — {pdfProducts.length} products extracted
                   </h2>
-                  <p className="text-sm text-gray-500 mt-1">Review names, generate descriptions, then import</p>
+                  <p className="text-sm text-gray-500 mt-1">Review names, generate AI descriptions, then import all at once</p>
                 </div>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap items-center">
                   <select
                     value={pdfImportCategory}
                     onChange={(e) => setPdfImportCategory(e.target.value)}
@@ -2343,7 +2384,7 @@ export function Admin() {
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
                   >
                     {isGeneratingPdfDesc ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                    {isGeneratingPdfDesc ? 'Generating...' : 'AI Generate Descriptions'}
+                    {isGeneratingPdfDesc ? 'Generating...' : 'AI Generate All'}
                   </button>
                   <button
                     onClick={handlePdfImportAll}
@@ -2351,45 +2392,125 @@ export function Admin() {
                     className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Import Selected ({pdfProducts.filter(p => p.selected && p.name.trim()).length})
+                    Import ({pdfProducts.filter(p => p.selected && p.name.trim()).length})
                   </button>
                   <button
                     onClick={() => setPdfProducts([])}
-                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200"
+                    className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200"
                   >
-                    Clear
+                    Clear All
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
                 {pdfProducts.map((p, idx) => (
-                  <div key={idx} className={`relative border-2 rounded-xl overflow-hidden transition-all ${p.selected ? 'border-orange-400 shadow-md' : 'border-gray-200 opacity-60'}`}>
-                    <button
-                      onClick={() => handlePdfProductToggle(idx)}
-                      className={`absolute top-2 left-2 z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${p.selected ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-300'}`}
-                    >
-                      {p.selected && <CheckCircle2 className="h-4 w-4" />}
-                    </button>
+                  <div key={idx} className={`p-5 rounded-2xl border transition-all relative group ${p.selected ? 'bg-gray-50/50 border-gray-200 hover:border-orange-200' : 'bg-gray-100/50 border-gray-100 opacity-50'}`}>
+                    
                     {p.generating && (
-                      <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
-                        <Loader2 className="h-8 w-8 text-purple-600 animate-spin" />
+                      <div className="absolute inset-0 bg-white/80 backdrop-blur-xs rounded-2xl flex flex-col items-center justify-center z-10">
+                        <Loader2 className="h-8 w-8 animate-spin text-purple-600 mb-2" />
+                        <p className="text-xs font-bold text-purple-700">AI Generating...</p>
                       </div>
                     )}
-                    <div className="aspect-[4/3] bg-gray-100">
-                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <input
-                        type="text"
-                        value={p.name}
-                        onChange={(e) => handlePdfProductNameChange(idx, e.target.value)}
-                        className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-                        placeholder="Product name..."
-                      />
-                      {p.description && (
-                        <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">{p.description}</p>
-                      )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                      
+                      {/* Image Preview + Toggle (3 cols) */}
+                      <div className="md:col-span-3 bg-white p-2 rounded-xl border border-gray-200 relative aspect-square">
+                        <img 
+                          src={p.imageUrl} 
+                          alt={p.name || 'Preview'} 
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <button
+                          onClick={() => handlePdfProductToggle(idx)}
+                          className={`absolute top-2 left-2 z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${p.selected ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-300'}`}
+                        >
+                          {p.selected && <CheckCircle2 className="h-4 w-4" />}
+                        </button>
+                      </div>
+
+                      {/* Editable Fields (9 cols) */}
+                      <div className="md:col-span-9 space-y-3">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Product Name</label>
+                            <input
+                              type="text"
+                              value={p.name}
+                              onChange={(e) => handlePdfProductNameChange(idx, e.target.value)}
+                              className="w-full px-3 py-1.5 border border-gray-300 focus:border-orange-500 rounded-lg text-sm bg-white font-semibold text-gray-800 outline-none transition-colors"
+                              placeholder="Product name..."
+                            />
+                          </div>
+                          <div className="flex gap-1 pt-4">
+                            <button
+                              onClick={() => handlePdfGenerateSingle(idx)}
+                              disabled={p.generating}
+                              className="h-8 w-8 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg flex items-center justify-center"
+                              title="Generate with AI"
+                            >
+                              <Wand2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => setPdfProducts(prev => prev.filter((_, i) => i !== idx))}
+                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg flex items-center justify-center"
+                              title="Remove"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Description {p.description ? <span className="text-green-500 normal-case">(AI generated)</span> : ''}</label>
+                          <textarea
+                            value={p.description || ''}
+                            onChange={(e) => setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, description: e.target.value } : pp))}
+                            rows={2}
+                            className="w-full px-3 py-1.5 border border-gray-300 focus:border-orange-500 rounded-lg text-sm bg-white outline-none transition-colors resize-none"
+                            placeholder="Product description..."
+                          />
+                        </div>
+
+                        {/* Card Description */}
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Card Hook</label>
+                          <input
+                            type="text"
+                            value={p.cardDescription || ''}
+                            onChange={(e) => setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, cardDescription: e.target.value } : pp))}
+                            className="w-full px-3 py-1.5 border border-gray-300 focus:border-orange-500 rounded-lg text-sm bg-white outline-none transition-colors"
+                            placeholder="Short punchy hook..."
+                          />
+                        </div>
+
+                        {/* SEO Title + Description */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Meta Title</label>
+                            <input
+                              type="text"
+                              value={p.metaTitle || ''}
+                              onChange={(e) => setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, metaTitle: e.target.value } : pp))}
+                              className="w-full px-3 py-1.5 border border-gray-300 focus:border-orange-500 rounded-lg text-sm bg-white outline-none transition-colors"
+                              placeholder="SEO title..."
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Meta Description</label>
+                            <input
+                              type="text"
+                              value={p.metaDescription || ''}
+                              onChange={(e) => setPdfProducts(prev => prev.map((pp, i) => i === idx ? { ...pp, metaDescription: e.target.value } : pp))}
+                              className="w-full px-3 py-1.5 border border-gray-300 focus:border-orange-500 rounded-lg text-sm bg-white outline-none transition-colors"
+                              placeholder="SEO description..."
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
