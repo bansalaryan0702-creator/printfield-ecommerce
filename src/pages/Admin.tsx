@@ -24,6 +24,9 @@ export function Admin() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [statusNotification, setStatusNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // AI Bulk Product Creator state
@@ -1541,6 +1544,58 @@ export function Admin() {
     }
   };
 
+  const toggleProductSelection = (id: string) => {
+    setSelectedProductIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedProductIds.size === products.length) {
+      setSelectedProductIds(new Set());
+    } else {
+      setSelectedProductIds(new Set(products.map(p => p.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedProductIds);
+    if (ids.length === 0) return;
+    setIsBulkDeleting(true);
+
+    const activeToken = token || localStorage.getItem('admin_token');
+    try {
+      setProducts(prev => prev.filter(p => !ids.includes(p.id)));
+      setSelectedProductIds(new Set());
+
+      const res = await apiFetch('/api/products/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${activeToken}` },
+        body: JSON.stringify({ ids })
+      });
+
+      if (res.ok) {
+        setStatusNotification({ type: 'success', message: `Deleted ${ids.length} products successfully.` });
+        fetchProducts();
+        fetchCategoriesAndSubcategories();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setStatusNotification({ type: 'error', message: `Bulk delete failed: ${err.error || 'Server error'}` });
+        fetchProducts();
+      }
+    } catch (error: any) {
+      setStatusNotification({ type: 'error', message: `Bulk delete failed: ${error.message}` });
+      fetchProducts();
+    } finally {
+      setIsBulkDeleting(false);
+      setShowBulkDeleteConfirm(false);
+      setTimeout(() => setStatusNotification(null), 5000);
+    }
+  };
+
   const handleToggleEnableProduct = async (id: string, currentStatus: boolean) => {
     try {
       const res = await apiFetch(`/api/products/${encodeURIComponent(id)}`, {
@@ -2646,8 +2701,38 @@ export function Admin() {
                 </div>
               </div>
               <div className="space-y-4 mb-6">
+                {/* Select All + Bulk Actions Bar */}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={selectedProductIds.size === products.length && products.length > 0}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                    <span className="text-sm text-gray-600 font-medium">
+                      {selectedProductIds.size > 0 ? `${selectedProductIds.size} selected` : `All ${products.length}`}
+                    </span>
+                  </label>
+                  {selectedProductIds.size > 0 && (
+                    <button
+                      onClick={() => setShowBulkDeleteConfirm(true)}
+                      className="ml-auto flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete Selected ({selectedProductIds.size})
+                    </button>
+                  )}
+                </div>
                 {products.map(p => (
-                  <div key={p.id} className={`flex gap-4 p-4 border border-gray-100 rounded-xl transition-colors ${p.isDisabled ? 'bg-gray-100 opacity-60' : 'hover:bg-gray-50'}`}>
+                  <div key={p.id} className={`flex gap-4 p-4 border border-gray-100 rounded-xl transition-colors ${selectedProductIds.has(p.id) ? 'bg-red-50/50 border-red-200' : p.isDisabled ? 'bg-gray-100 opacity-60' : 'hover:bg-gray-50'}`}>
+                    <div className="flex flex-col items-center gap-2 pt-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedProductIds.has(p.id)}
+                        onChange={() => toggleProductSelection(p.id)}
+                        className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      />
                     <div className="relative">
                       {getFeaturedImage(p) ? (
                         <img 
@@ -2683,6 +2768,7 @@ export function Admin() {
                           MEGA MENU
                         </div>
                       )}
+                    </div>
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
@@ -3450,6 +3536,51 @@ export function Admin() {
                   <>
                     <Trash2 className="w-4 h-4" />
                     Delete Permanently
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-gray-100 transform transition-all animate-in fade-in zoom-in-95">
+            <div className="flex items-center gap-3 text-red-600 mb-3">
+              <div className="p-3 bg-red-100 rounded-full">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Delete {selectedProductIds.size} Products?</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+              Are you sure you want to permanently delete <strong className="text-gray-900">{selectedProductIds.size} products</strong>? This will remove them from the product catalog and storage. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={isBulkDeleting}
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isBulkDeleting}
+                onClick={handleBulkDelete}
+                className="px-5 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {isBulkDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete {selectedProductIds.size} Products
                   </>
                 )}
               </button>

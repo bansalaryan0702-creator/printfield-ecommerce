@@ -3810,6 +3810,23 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     }
   });
 
+  app.post('/api/products/bulk-delete', verifyAdmin, async (req, res) => {
+    try {
+      const { ids } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'No product IDs provided' });
+      }
+      let currentProds = await loadProductsFromS3(true);
+      const idSet = new Set(ids);
+      currentProds = currentProds.filter(p => !idSet.has(p.id));
+      await saveProductsToS3(currentProds);
+      res.json({ success: true, deleted: ids.length });
+    } catch (err) {
+      console.error('Bulk delete error:', err);
+      res.status(500).json({ error: 'Failed to bulk delete products' });
+    }
+  });
+
   app.get('/api/categories-and-subcategories', async (req, res) => {
     try {
       const allProducts = await loadProductsFromS3();
