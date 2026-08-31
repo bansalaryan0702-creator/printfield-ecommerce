@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import express from 'express';
+import Groq from 'groq-sdk';
 import * as fsSync from 'fs';
 import crypto from 'crypto';
 
@@ -587,6 +588,43 @@ async function callGeminiWithRetry(params: {
   }
 
   throw lastError || new Error("Failed to generate content with Gemini API after retries and model fallbacks.");
+}
+
+// Groq fallback — free tier, Llama 3.1 70B, no rate limits for reasonable usage
+let groqClient: Groq | null = null;
+function getGroq(): Groq | null {
+  const key = process.env.GROQ_API_KEY;
+  if (!key || key === 'placeholder') return null;
+  if (!groqClient) groqClient = new Groq({ apiKey: key });
+  return groqClient;
+}
+
+async function callAIWithFallback(prompt: string): Promise<string> {
+  // Try Gemini first
+  try {
+    const res = await callGeminiWithRetry({ contents: prompt });
+    return res.text || '';
+  } catch (e: any) {
+    console.warn('[AI Fallback] Gemini failed:', e.message?.slice(0, 100));
+  }
+
+  // Try Groq as fallback
+  const groq = getGroq();
+  if (groq) {
+    try {
+      const res = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
+        temperature: 0.7,
+      });
+      return res.choices?.[0]?.message?.content || '';
+    } catch (e: any) {
+      console.warn('[AI Fallback] Groq failed:', e.message?.slice(0, 100));
+    }
+  }
+
+  return '';
 }
 
 async function verifyImageWithAI(buffer: Buffer, mimeType: string): Promise<{ safe: boolean, reason?: string }> {
@@ -4276,18 +4314,15 @@ Return ONLY valid JSON with these 4 fields. No markdown, no extra text.`;
 
       let result: any = {};
       try {
-        // Race against a 15-second timeout so fallback is always returned quickly
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('AI timeout')), 15000)
-        );
-        const aiRes = await Promise.race([callGeminiWithRetry({ contents: prompt }), timeoutPromise]);
-        const text = cleanGeneratedText((aiRes as any).text || '');
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          result = JSON.parse(jsonMatch[0]);
+        const generated = await callAIWithFallback(prompt);
+        if (generated) {
+          const jsonMatch = generated.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            result = JSON.parse(jsonMatch[0]);
+          }
         }
       } catch (e: any) {
-        console.warn('[generate-product-content] Gemini failed/timeout:', e.message?.slice(0, 100));
+        console.warn('[generate-product-content] AI failed:', e.message?.slice(0, 100));
       }
 
       // Fallback defaults — always fill missing fields
@@ -4356,13 +4391,13 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       let generated = '';
       let engine = 'gemini';
 
-      // Try Gemini (free models: gemini-2.0-flash, gemini-1.5-flash)
+      // Try Gemini first, then Groq fallback
       try {
-        const aiRes = await callGeminiWithRetry({ contents: prompt });
-        generated = cleanGeneratedText(aiRes.text || '');
+        generated = await callAIWithFallback(prompt);
+        generated = cleanGeneratedText(generated);
+        engine = 'gemini+groq';
       } catch (e: any) {
-        console.warn('[Generate] Gemini unavailable:', e.message?.slice(0, 120));
-        // Gemini failed — generated stays empty, fallback defaults will be used
+        console.warn('[Generate] AI unavailable:', e.message?.slice(0, 120));
       }
 
       // If output is instruction text or garbage, discard it
@@ -4417,8 +4452,8 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
           if (!p.description || p.description.length < 50) {
             const prompt = `Write a product description for "${p.name}" (${p.category || 'Print'}) sold at Printfield in Whitefield, Bangalore 560066. ONE paragraph, 3-4 sentences. Start with a strong verb + what the product is. Describe what it is made of and what it is used for. End with who it is perfect for. Be specific to this product. Natural professional tone.`;
             try {
-              const aiRes = await callGeminiWithRetry({ contents: prompt });
-              p.description = cleanGeneratedText(aiRes.text || '') || p.description;
+              const generated = await callAIWithFallback(prompt);
+              p.description = cleanGeneratedText(generated) || p.description;
               updatedCount++;
             } catch (e) {}
           }
@@ -4437,20 +4472,8 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     try {
       const { productName, category, description } = req.body;
       const prompt = `Generate SEO meta tags for product "${productName}" (${category}). Return JSON with fields "metaTitle" (max 60 chars) and "metaDescription" (max 150 chars).`;
-      const aiRes = await callGeminiWithRetry({
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              metaTitle: { type: Type.STRING },
-              metaDescription: { type: Type.STRING }
-            }
-          }
-        }
-      });
-      const parsed = JSON.parse(aiRes.text || '{}');
+      const aiText = await callAIWithFallback(prompt);
+      const parsed = JSON.parse(aiText.match(/\{[\s\S]*\}/)?.[0] || '{}');
       return res.json({
         metaTitle: parsed.metaTitle || `${productName} | Custom ${category || 'Printing'}`,
         metaDescription: parsed.metaDescription || description?.slice(0, 150) || `Buy custom ${productName} online with high quality printing.`
