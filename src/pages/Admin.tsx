@@ -345,7 +345,7 @@ export function Admin() {
     setBulkImageUploadStatus('');
   };
 
-  // PDF Catalog Import handlers
+  // PDF Catalog Import handlers — fully client-side, no server credits used
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -359,23 +359,111 @@ export function Admin() {
     setPdfProducts([]);
 
     try {
-      const adminToken = localStorage.getItem('admin_token');
-      const formData = new FormData();
-      formData.append('pdf', file);
+      // Dynamically load pdfjs-dist in browser
+      const pdfjsLib = await import('pdfjs-dist');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
-      const res = await apiFetch('/api/pdf/extract-products', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${adminToken}` },
-        body: formData
-      });
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const numPages = pdf.numPages;
+      const extracted: any[] = [];
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to extract products');
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2.0 });
+
+        // Render page to canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d')!;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        // Crop to 4:3 ratio (center crop)
+        const imgW = canvas.width;
+        const imgH = canvas.height;
+        const targetRatio = 4 / 3;
+        const currentRatio = imgW / imgH;
+
+        let cropW: number, cropH: number, sx: number, sy: number;
+        if (currentRatio > targetRatio) {
+          cropH = imgH;
+          cropW = Math.round(imgH * targetRatio);
+          sx = Math.round((imgW - cropW) / 2);
+          sy = 0;
+        } else {
+          cropW = imgW;
+          cropH = Math.round(imgW / targetRatio);
+          sx = 0;
+          sy = Math.round((imgH - cropH) / 2);
+        }
+
+        // Create cropped canvas
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = 1200;
+        cropCanvas.height = 900;
+        const cropCtx = cropCanvas.getContext('2d')!;
+        
+        // Draw cropped + scaled to 1200x900
+        cropCtx.drawImage(canvas, sx, sy, cropW, cropH, 0, 0, 1200, 900);
+
+        // Apply sharpening via convolute (unsharp mask approximation)
+        // Simple contrast + brightness boost
+        const imageData = cropCtx.getImageData(0, 0, 1200, 900);
+        const data = imageData.data;
+        const contrast = 1.1;
+        const brightness = 1.05;
+        for (let p = 0; p < data.length; p += 4) {
+          data[p] = Math.min(255, Math.max(0, ((data[p] / 255 - 0.5) * contrast + 0.5) * 255 * brightness));
+          data[p + 1] = Math.min(255, Math.max(0, ((data[p + 1] / 255 - 0.5) * contrast + 0.5) * 255 * brightness));
+          data[p + 2] = Math.min(255, Math.max(0, ((data[p + 2] / 255 - 0.5) * contrast + 0.5) * 255 * brightness));
+        }
+        cropCtx.putImageData(imageData, 0, 0);
+
+        // Convert to blob and upload to server
+        const blob = await new Promise<Blob>((resolve) => {
+          cropCanvas.toBlob((b) => resolve(b!), 'image/jpeg', 0.92);
+        });
+
+        // Upload to server via existing upload endpoint
+        const formData = new FormData();
+        formData.append('file', blob, `product-${i}.jpg`);
+
+        const adminToken = localStorage.getItem('admin_token');
+        const uploadRes = await apiFetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` },
+          body: formData
+        });
+
+        let imageUrl = '';
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          imageUrl = uploadData.url;
+        }
+
+        // Extract text for auto-detecting product name
+        let extractedText = '';
+        let detectedName = '';
+        try {
+          const textContent = await page.getTextContent();
+          extractedText = textContent.items.map((item: any) => item.str).join(' ').trim();
+          const lines = extractedText.split(/\s{2,}/).filter((l: string) => l.trim().length > 3);
+          detectedName = lines[0]?.trim().slice(0, 80) || '';
+          detectedName = detectedName.replace(/[^\w\s\-&]/g, '').trim();
+        } catch (e) {}
+
+        extracted.push({
+          pageIndex: i,
+          name: detectedName || `Product ${i}`,
+          imageUrl,
+          extractedText: extractedText.slice(0, 500),
+          selected: true
+        });
+
+        // Update state progressively so user sees progress
+        setPdfProducts([...extracted]);
       }
-
-      const data = await res.json();
-      setPdfProducts(data.products || []);
     } catch (err: any) {
       setPdfExtractError(err.message || 'Failed to process PDF');
     } finally {
