@@ -14,6 +14,7 @@ interface Catalog {
   fileSize: number;
   pageCount: number;
   createdAt: number;
+  thumbnail?: string;
 }
 
 export function Catalogs() {
