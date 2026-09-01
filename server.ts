@@ -1772,7 +1772,10 @@ const SITE_URL = 'https://www.printfieldonline.com';
           console.error(`[Upload Restore] Failed to recover ${req.params.filename} from Firestore:`, recoverErr.message);
         }
 
-        return res.redirect('https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=800&auto=format&fit=crop');
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="%23f3f4f6" width="400" height="400"/><text fill="%239ca3af" font-family="system-ui,sans-serif" font-size="16" font-weight="600" text-anchor="middle" x="200" y="200">Image unavailable</text></svg>`;
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.setHeader('Cache-Control', 'public, max-age=60');
+        return res.status(404).send(Buffer.from(svg));
       }
     } catch(e) {
       next();
@@ -1799,8 +1802,12 @@ const SITE_URL = 'https://www.printfieldonline.com';
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       res.send(buffer);
-    } catch {
-      res.redirect('https://images.unsplash.com/photo-1563229649-7eaff6322b7a?q=80&w=800&auto=format&fit=crop');
+    } catch (err: any) {
+      console.error(`[Uploads] Failed to serve ${req.path}:`, err?.message || err);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="%23f3f4f6" width="400" height="400"/><text fill="%239ca3af" font-family="system-ui,sans-serif" font-size="16" font-weight="600" text-anchor="middle" x="200" y="200">Image unavailable</text></svg>`;
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=60');
+      res.status(404).send(Buffer.from(svg));
     }
   });
 

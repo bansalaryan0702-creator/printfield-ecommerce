@@ -2022,30 +2022,6 @@ export function ProductDetail() {
               )}
             </div>
 
-            {/* 3D Preview Toggle for Polo */}
-            {isPolo && selectedColor && (
-              <div className="flex gap-2 mt-2">
-                <button
-                  onClick={() => setShow3D(false)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    !show3D ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <ImageIcon className="w-3.5 h-3.5" />
-                  Photo
-                </button>
-                <button
-                  onClick={() => setShow3D(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    show3D ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                  3D View
-                </button>
-              </div>
-            )}
-
             {/* Upload Artwork + Design Online */}
             <div className="grid grid-cols-2 gap-3">
               <Button
