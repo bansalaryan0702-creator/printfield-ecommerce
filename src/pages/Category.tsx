@@ -158,18 +158,53 @@ export function CategoryPage() {
         {/* Filters Sidebar (Hidden on mobile phone view as requested) */}
         <div className="hidden md:block md:w-64 shrink-0 space-y-8">
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4 tracking-wider text-sm uppercase">Category</h3>
+            <h3 className="font-semibold text-gray-900 mb-4 tracking-wider text-sm uppercase">
+              {(!normalizedCategoryId || normalizedCategoryId === 'all') ? 'Category' : 'Subcategory'}
+            </h3>
             <ul className="space-y-3">
-              <li key="all">
-                 <Link onClick={() => setPage(1)} to="/categories" className={`text-sm ${!normalizedCategoryId || normalizedCategoryId === 'all' ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}>All Products</Link>
-              </li>
-              {categoriesData.map(cat => (
-                <li key={cat.name}>
-                  <Link onClick={() => setPage(1)} to={`/category/${encodeURIComponent(cat.name)}`} className={`text-sm ${normalizedCategoryId === encodeURIComponent(cat.name) || normalizedCategoryId === cat.name ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}>
-                    {cat.name}
-                  </Link>
-                </li>
-              ))}
+              {(!normalizedCategoryId || normalizedCategoryId === 'all') ? (
+                <>
+                  <li key="all">
+                     <Link onClick={() => setPage(1)} to="/categories" className={`text-sm ${!normalizedCategoryId || normalizedCategoryId === 'all' ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}>All Products</Link>
+                  </li>
+                  {categoriesData.map(cat => (
+                    <li key={cat.name}>
+                      <Link onClick={() => setPage(1)} to={`/category/${encodeURIComponent(cat.name)}`} className={`text-sm ${normalizedCategoryId === encodeURIComponent(cat.name) || normalizedCategoryId === cat.name ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}>
+                        {cat.name}
+                      </Link>
+                    </li>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link onClick={() => { setSubCategory('all'); setPage(1); }} to="/categories" className="text-sm text-gray-500 hover:text-gray-900">
+                      ← All Categories
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => handleSubCategoryChange('all')}
+                      className={`text-sm text-left ${subCategory === 'all' ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}
+                    >All {category.name}</button>
+                  </li>
+                  {categoriesData.find(c => c.name === category.name || encodeURIComponent(c.name) === normalizedCategoryId)?.subCategories.map(sub => (
+                    <li key={sub}>
+                      <button
+                        onClick={() => handleSubCategoryChange(sub)}
+                        className={`text-sm text-left ${subCategory === sub ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}
+                      >{sub}</button>
+                    </li>
+                  )) || availableSubCategories?.map(sub => (
+                    <li key={sub}>
+                      <button
+                        onClick={() => handleSubCategoryChange(sub)}
+                        className={`text-sm text-left ${subCategory === sub ? 'text-purple-600 font-semibold' : 'text-gray-500 hover:text-gray-900'}`}
+                      >{sub}</button>
+                    </li>
+                  ))}
+                </>
+              )}
             </ul>
           </div>
 
