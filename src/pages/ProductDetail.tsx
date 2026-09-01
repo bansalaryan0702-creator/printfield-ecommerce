@@ -298,6 +298,7 @@ export function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVariations, setSelectedVariations] = useState<Record<string, any>>({});
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+  const [retryCount, setRetryCount] = useState<Record<string, number>>({});
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [show3D, setShow3D] = useState(false);
   const [adjust3DMode, setAdjust3DMode] = useState(false);
@@ -550,7 +551,7 @@ export function ProductDetail() {
   }, [selectedColor, hoveredColor, selectedImage, product, getColorMatchingImage]);
 
   const displayImage = useMemo(() => {
-    if (rawDisplayImage && isProductImage(rawDisplayImage) && !brokenImages[rawDisplayImage]) {
+    if (rawDisplayImage && isProductImage(rawDisplayImage) && !brokenImages[rawDisplayImage] && !brokenImages[toS3Url(rawDisplayImage)]) {
       return toS3Url(rawDisplayImage);
     }
     if (validImages.length > 0) {
@@ -625,8 +626,21 @@ export function ProductDetail() {
 
   const handleImageError = (imgUrl: string) => {
     if (!imgUrl) return;
+    const currentRetry = retryCount[imgUrl] || 0;
+    if (currentRetry < 1) {
+      setRetryCount(prev => ({ ...prev, [imgUrl]: currentRetry + 1 }));
+      const s3Url = toS3Url(imgUrl);
+      if (s3Url !== imgUrl) {
+        setRetryCount(prev => ({ ...prev, [s3Url]: (prev[s3Url] || 0) + 1 }));
+      }
+      return;
+    }
     setBrokenImages(prev => ({ ...prev, [imgUrl]: true }));
-    if (selectedImage === imgUrl) {
+    const s3Url = toS3Url(imgUrl);
+    if (s3Url !== imgUrl) {
+      setBrokenImages(prev => ({ ...prev, [s3Url]: true }));
+    }
+    if (selectedImage === imgUrl || selectedImage === s3Url) {
       setSelectedImage(null);
     }
   };
@@ -687,6 +701,15 @@ export function ProductDetail() {
     pCatLower.includes("shape cut") ||
     (cardShape && cardShape !== "Standard Rectangle" && cardShape !== "Standard" && cardShape !== "Standard Business Card" && cardShape !== "Square")
   );
+
+  useEffect(() => {
+    setBrokenImages({});
+    setRetryCount({});
+    setLoadedImages({});
+    setSelectedImage(null);
+    setSelectedColor(null);
+    setHoveredColor(null);
+  }, [product?.id]);
 
   useEffect(() => {
     if (product) {
@@ -2001,7 +2024,7 @@ export function ProductDetail() {
                     }`}
                   >
                     <img referrerPolicy="no-referrer"
-                      src={getOptimizedImage(img, 150) || undefined}
+                      src={(getOptimizedImage(img, 150) || undefined) + (retryCount[img] ? `?retry=${retryCount[img]}` : '')}
                       alt={`${product?.name} ${i + 1}`}
                       onError={() => handleImageError(img)}
                       className="w-full h-full object-contain p-1.5"
