@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Button } from '../components/ui/button';
 import { Pagination } from '../components/ui/Pagination';
-import { UploadCloud, Plus, Trash2, CheckCircle2, Shield, LogIn, Edit2, X, Wand2, Loader2, FileSpreadsheet, PackageSearch, Eye, EyeOff, Search, Sparkles } from 'lucide-react';
+import { UploadCloud, Plus, Trash2, CheckCircle2, Shield, LogIn, Edit2, X, Wand2, Loader2, FileSpreadsheet, PackageSearch, Eye, EyeOff, Search, Sparkles, Upload, FileText } from 'lucide-react';
 import { OrdersAdmin } from '../components/OrdersAdmin';
 import { ChatsAdmin } from '../components/ChatsAdmin';
 import { CustomersAdmin } from '../components/CustomersAdmin';
@@ -19,7 +19,7 @@ export function Admin() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'));
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'chats' | 'customers'>('orders');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'chats' | 'customers' | 'catalogs'>('orders');
   const [productViewMode, setProductViewMode] = useState<'form' | 'list' | 'bulk_ai'>('form');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
@@ -27,6 +27,164 @@ export function Admin() {
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  // Catalog state
+  const [catalogs, setCatalogs] = useState<any[]>([]);
+  const [catalogTitle, setCatalogTitle] = useState('');
+  const [catalogDescription, setCatalogDescription] = useState('');
+  const [catalogCategory, setCatalogCategory] = useState('Corporate Gifts');
+  const [catalogFile, setCatalogFile] = useState<File | null>(null);
+  const [catalogThumbnail, setCatalogThumbnail] = useState<File | null>(null);
+  const [catalogThumbnailUrl, setCatalogThumbnailUrl] = useState('');
+  const [isUploadingCatalog, setIsUploadingCatalog] = useState(false);
+  const [editingCatalogId, setEditingCatalogId] = useState<string | null>(null);
+  const [editCatalogTitle, setEditCatalogTitle] = useState('');
+  const [editCatalogDescription, setEditCatalogDescription] = useState('');
+  const [editCatalogCategory, setEditCatalogCategory] = useState('');
+  const [editCatalogThumbnail, setEditCatalogThumbnail] = useState<File | null>(null);
+  const [editCatalogThumbnailUrl, setEditCatalogThumbnailUrl] = useState('');
+
+  const fetchCatalogs = async () => {
+    try {
+      const res = await apiFetch('/api/catalogs');
+      if (res.ok) {
+        const data = await res.json();
+        setCatalogs(data.catalogs || []);
+      }
+    } catch {}
+  };
+
+  useEffect(() => { fetchCatalogs(); }, []);
+
+  const handleUploadCatalog = async () => {
+    if (!catalogFile || !catalogTitle.trim()) return;
+    setIsUploadingCatalog(true);
+    try {
+      const adminToken = localStorage.getItem('admin_token');
+
+      // Upload PDF file
+      const formData = new FormData();
+      formData.append('file', catalogFile);
+      const uploadRes = await apiFetch('/api/catalogs/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${adminToken}` },
+        body: formData
+      });
+      if (!uploadRes.ok) throw new Error('File upload failed');
+      const uploadData = await uploadRes.json();
+
+      // Upload thumbnail if provided
+      let thumbUrl = '';
+      if (catalogThumbnail) {
+        const thumbForm = new FormData();
+        thumbForm.append('file', catalogThumbnail);
+        const thumbRes = await apiFetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` },
+          body: thumbForm
+        });
+        if (thumbRes.ok) {
+          const thumbData = await thumbRes.json();
+          thumbUrl = thumbData.url;
+        }
+      }
+
+      // Save catalog metadata
+      const saveRes = await apiFetch('/api/catalogs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          title: catalogTitle,
+          description: catalogDescription,
+          category: catalogCategory,
+          fileUrl: uploadData.url,
+          fileName: uploadData.fileName || catalogFile.name,
+          fileSize: uploadData.fileSize || catalogFile.size,
+          pageCount: uploadData.pageCount || 0,
+          thumbnail: thumbUrl
+        })
+      });
+      if (!saveRes.ok) throw new Error('Metadata save failed');
+
+      setCatalogTitle('');
+      setCatalogDescription('');
+      setCatalogFile(null);
+      setCatalogThumbnail(null);
+      setCatalogThumbnailUrl('');
+      setStatusNotification({ type: 'success', message: 'Catalog uploaded successfully!' });
+      fetchCatalogs();
+    } catch (err: any) {
+      setStatusNotification({ type: 'error', message: `Upload failed: ${err.message}` });
+    } finally {
+      setIsUploadingCatalog(false);
+      setTimeout(() => setStatusNotification(null), 5000);
+    }
+  };
+
+  const handleDeleteCatalog = async (id: string) => {
+    if (!confirm('Delete this catalog permanently?')) return;
+    try {
+      const adminToken = localStorage.getItem('admin_token');
+      await apiFetch(`/api/catalogs/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
+      setCatalogs(prev => prev.filter(c => c.id !== id));
+      setStatusNotification({ type: 'success', message: 'Catalog deleted.' });
+    } catch (err: any) {
+      setStatusNotification({ type: 'error', message: `Delete failed: ${err.message}` });
+    }
+    setTimeout(() => setStatusNotification(null), 5000);
+  };
+
+  const handleEditCatalog = (cat: any) => {
+    setEditingCatalogId(cat.id);
+    setEditCatalogTitle(cat.title || '');
+    setEditCatalogDescription(cat.description || '');
+    setEditCatalogCategory(cat.category || '');
+    setEditCatalogThumbnail(null);
+    setEditCatalogThumbnailUrl(cat.thumbnail || '');
+  };
+
+  const handleSaveEditCatalog = async () => {
+    if (!editingCatalogId || !editCatalogTitle.trim()) return;
+    try {
+      const adminToken = localStorage.getItem('admin_token');
+      let thumbUrl = editCatalogThumbnailUrl;
+      if (editCatalogThumbnail) {
+        const thumbForm = new FormData();
+        thumbForm.append('file', editCatalogThumbnail);
+        const thumbRes = await apiFetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` },
+          body: thumbForm
+        });
+        if (thumbRes.ok) {
+          const thumbData = await thumbRes.json();
+          thumbUrl = thumbData.url;
+        }
+      }
+      await apiFetch(`/api/catalogs/${editingCatalogId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          title: editCatalogTitle,
+          description: editCatalogDescription,
+          category: editCatalogCategory,
+          thumbnail: thumbUrl
+        })
+      });
+      setEditingCatalogId(null);
+      setEditCatalogThumbnail(null);
+      setEditCatalogThumbnailUrl('');
+      fetchCatalogs();
+      setStatusNotification({ type: 'success', message: 'Catalog updated!' });
+    } catch (err: any) {
+      setStatusNotification({ type: 'error', message: `Update failed: ${err.message}` });
+    }
+    setTimeout(() => setStatusNotification(null), 5000);
+  };
+
   const [statusNotification, setStatusNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // AI Bulk Product Creator state
@@ -476,27 +634,92 @@ export function Admin() {
           extractedText = lines.join('\n');
           console.log(`[PDF Page ${i}] Lines: ${lines.length}, preview: "${lines.slice(0, 3).join(' | ')}"`);
 
-          // Find the best product name: prefer short title-case or ALL-CAPS lines near the top
-          for (const line of lines) {
-            // Remove special chars except alphanumeric, spaces, hyphens, ampersands
-            const clean = line.replace(/[^a-zA-Z0-9\s\-&\/.]/g, '').trim();
-            if (
-              clean.length >= 3 &&
-              clean.length <= 80 &&
-              !/^\d+$/.test(clean) &&       // not just numbers
-              !/^[₹$€£]/.test(clean) &&     // not a price line
-              !/^(page|pg|www|http)/i.test(clean) // not a page/URL indicator
-            ) {
-              detectedName = clean.slice(0, 80);
-              break;
+          // Find the best product name using heuristics for product catalogs
+          const skipPatterns = [
+            /^\d+$/,                          // just numbers
+            /^[₹$€£]/,                        // prices
+            /^(page|pg|www|http|www\.)/i,     // page/URL indicators
+            /^\+?\d[\d\s\-()]{7,}/,           // phone numbers
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/i, // emails
+            /^(iso|certified|certification|certified?|gst|gstin)/i, // certifications
+            /^(whitefield|bangalore|bengaluru|india|karnataka)/i,  // address/location
+            /^(printfield|print field)/i,      // company name
+            /^(www\.|http|\.com|\.in|\.net)/i, // URLs
+            /^(colour|color|size|qty|quantity|pcs|pieces|nos)\s*[:=]/i, // specs
+            /^(front|back|left|right|top|bottom|inside|outside)$/i,  // directions
+            /^(cm|mm|inch|inches|kg|gm|ml|ltr)$/i, // units
+            /^[\d\s.,]+$/,                     // just numbers/punctuation
+            /^(designed|manufactured|made|printed|produced)\s+(in|by|at)/i, // mfg info
+          ];
+
+          // Product name boost patterns
+          const boostPatterns = [
+            /\b(model|code|sku|item|product|range|series|edition)\b/i,
+            /\b(combo|set|kit|pack|bunch|collection)\b/i,
+            /\b(premium|classic|deluxe|ultra|pro|elite|royal|supreme)\b/i,
+            /\b(mug|t-?shirt|pen|diary|keychain|bottle|bag|cap|cap|trophy|award|shirt|polo|hoodie|jacket|backpack|umbrella|power.?bank|charger|cable|mouse|keyboard|speaker|headphone|earphone|watch|clock|frame|stand| holder| organizer|notebook|folder|bookmark)\b/i,
+            /\b(led|usb|wireless|bluetooth|smart|eco|organic|bamboo|leather|metal|wooden|acrylic|crystal|glass|ceramic|plastic|fabric|cotton|polyester)\b/i,
+          ];
+
+          // Score each line
+          let bestName = '';
+          let bestScore = -1;
+
+          for (let li = 0; li < lines.length && li < 20; li++) {
+            const line = lines[li];
+            const clean = line.replace(/[^a-zA-Z0-9\s\-&\/.+]$/g, '').trim();
+            if (clean.length < 3 || clean.length > 80) continue;
+
+            let score = 0;
+
+            // Penalize lines matching skip patterns
+            let skip = false;
+            for (const pat of skipPatterns) {
+              if (pat.test(clean)) { skip = true; break; }
+            }
+            if (skip) continue;
+
+            // Length score — 5-40 chars ideal for product names
+            if (clean.length >= 5 && clean.length <= 40) score += 3;
+            else if (clean.length >= 3 && clean.length <= 60) score += 1;
+
+            // Position score — top lines more likely to be product names
+            if (li <= 2) score += 4;
+            else if (li <= 5) score += 2;
+            else if (li <= 8) score += 1;
+
+            // Boost if contains product-related keywords
+            for (const pat of boostPatterns) {
+              if (pat.test(clean)) score += 3;
+            }
+
+            // Title Case or ALL CAPS boost (product names often are)
+            if (/^[A-Z][a-z]+(\s+[A-Z][a-z]+)+$/.test(clean)) score += 2; // Title Case
+            if (/^[A-Z]{3,}(\s+[A-Z]{2,})*$/.test(clean)) score += 1;     // ALL CAPS
+
+            // Penalize if starts with common non-name words
+            if (/^(the|a|an|and|or|for|with|our|we|you|all|new|best|top|high)\s/i.test(clean)) score -= 2;
+
+            // Penalize lines with lots of digits (likely codes/SKUs mixed with other info)
+            const digitRatio = (clean.match(/\d/g) || []).length / clean.length;
+            if (digitRatio > 0.5) score -= 2;
+
+            if (score > bestScore) {
+              bestScore = score;
+              bestName = clean;
             }
           }
 
-          // Fallback: first 4 words of all text
+          detectedName = bestName;
+
+          // Fallback: try to find any meaningful words in extracted text
           if (!detectedName && extractedText.length > 2) {
-            const words = extractedText.split(/\s+/).filter((w: string) => w.length > 1 && /[a-zA-Z]/.test(w));
-            if (words.length >= 1) {
-              detectedName = words.slice(0, 4).join(' ').replace(/[^a-zA-Z0-9\s\-&\/]/g, '').trim().slice(0, 80);
+            const words = extractedText.split(/\s+/).filter((w: string) => {
+              const wl = w.replace(/[^a-zA-Z0-9]/g, '');
+              return wl.length >= 2 && !/^\d+$/.test(wl) && !/^(the|a|an|and|or|for|with|our|we|you|all|com|in|www)$/i.test(wl);
+            });
+            if (words.length >= 2) {
+              detectedName = words.slice(0, 5).join(' ').replace(/[^a-zA-Z0-9\s\-&\/]/g, '').trim().slice(0, 80);
             }
           }
         } catch (e) {
@@ -1708,12 +1931,180 @@ export function Admin() {
           >
             👥 Customers Database & Bulk Email ✉️
           </button>
+
+          <button
+            onClick={() => setActiveTab('catalogs')}
+            className={`pb-3 px-5 font-bold transition-all border-b-2 whitespace-nowrap flex items-center gap-2 text-sm rounded-t-xl ${
+              activeTab === 'catalogs' ? 'border-purple-600 text-purple-700 bg-purple-50/80 shadow-xs' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            📄 Catalogs
+          </button>
         </div>
 
         {activeTab === 'customers' && <CustomersAdmin token={token} />}
         {activeTab === 'chats' && <ChatsAdmin token={token} />}
         {activeTab === 'orders' && <OrdersAdmin token={token} userRole={userRole} />}
-        
+
+        {activeTab === 'catalogs' && (
+          <div className="max-w-4xl mx-auto space-y-8">
+            {/* Upload Form */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <FileSpreadsheet className="h-5 w-5 text-purple-600" />
+                Upload PDF Catalog
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Title *</label>
+                  <input
+                    type="text"
+                    value={catalogTitle}
+                    onChange={e => setCatalogTitle(e.target.value)}
+                    placeholder="e.g. Corporate Gifts Catalog 2026"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
+                  <select
+                    value={catalogCategory}
+                    onChange={e => setCatalogCategory(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                  >
+                    {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+                  <input
+                    type="text"
+                    value={catalogDescription}
+                    onChange={e => setCatalogDescription(e.target.value)}
+                    placeholder="Short description for the catalog"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">PDF File *</label>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={e => setCatalogFile(e.target.files?.[0] || null)}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  />
+                  {catalogFile && (
+                    <p className="text-xs text-gray-500 mt-1">{catalogFile.name} ({(catalogFile.size / 1024 / 1024).toFixed(1)} MB)</p>
+                  )}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Thumbnail (optional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0] || null;
+                      setCatalogThumbnail(file);
+                      if (file) {
+                        const url = URL.createObjectURL(file);
+                        setCatalogThumbnailUrl(url);
+                      } else {
+                        setCatalogThumbnailUrl('');
+                      }
+                    }}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                  />
+                  {catalogThumbnailUrl && (
+                    <img src={catalogThumbnailUrl} alt="Thumbnail preview" className="mt-2 h-20 w-28 object-cover rounded-lg border border-gray-200" />
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={handleUploadCatalog}
+                disabled={isUploadingCatalog || !catalogFile || !catalogTitle.trim()}
+                className="mt-4 px-6 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-semibold hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                {isUploadingCatalog ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {isUploadingCatalog ? 'Uploading...' : 'Upload Catalog'}
+              </button>
+            </div>
+
+            {/* Catalogs List */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Uploaded Catalogs ({catalogs.length})</h2>
+              {catalogs.length === 0 ? (
+                <p className="text-gray-400 text-sm py-8 text-center">No catalogs uploaded yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {catalogs.map(cat => (
+                    <div key={cat.id} className="border border-gray-100 rounded-xl hover:bg-gray-50 overflow-hidden">
+                      {editingCatalogId === cat.id ? (
+                        <div className="p-4 space-y-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
+                            <input value={editCatalogTitle} onChange={e => setEditCatalogTitle(e.target.value)} className="w-full p-2 border border-gray-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                            <input value={editCatalogDescription} onChange={e => setEditCatalogDescription(e.target.value)} className="w-full p-2 border border-gray-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                            <input value={editCatalogCategory} onChange={e => setEditCatalogCategory(e.target.value)} className="w-full p-2 border border-gray-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Thumbnail</label>
+                            <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0] || null; setEditCatalogThumbnail(f); if (f) setEditCatalogThumbnailUrl(URL.createObjectURL(f)); }} className="w-full text-xs" />
+                          </div>
+                          {editCatalogThumbnailUrl && <img src={editCatalogThumbnailUrl} className="w-16 h-16 object-cover rounded-lg" alt="preview" />}
+                          <div className="flex gap-2">
+                            <button onClick={handleSaveEditCatalog} className="px-4 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold hover:bg-purple-700">Save</button>
+                            <button onClick={() => setEditingCatalogId(null)} className="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-200">Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-4 p-4">
+                          {cat.thumbnail ? (
+                            <img src={cat.thumbnail} alt={cat.title} className="w-12 h-12 object-cover rounded-xl shrink-0" />
+                          ) : (
+                            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+                              <FileText className="h-6 w-6 text-red-600" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-gray-900 truncate">{cat.title}</h3>
+                            <p className="text-xs text-gray-500">{cat.category} {cat.fileSize ? `• ${(cat.fileSize / 1024 / 1024).toFixed(1)} MB` : ''} {cat.pageCount ? `• ${cat.pageCount} pages` : ''}</p>
+                            {cat.description && <p className="text-xs text-gray-400 mt-0.5 truncate">{cat.description}</p>}
+                          </div>
+                          <a
+                            href={cat.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold hover:bg-purple-100 shrink-0"
+                          >
+                            View
+                          </a>
+                          <button
+                            onClick={() => handleEditCatalog(cat)}
+                            className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg shrink-0"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCatalog(cat.id)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {activeTab === 'products' && userRole === 'admin' && (
         <div className="space-y-6">

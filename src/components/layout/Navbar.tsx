@@ -937,6 +937,11 @@ export function Navbar() {
                 </Button>
               )}
 
+              <Link to="/catalogs" className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors">
+                <FileText className="h-4 w-4" />
+                <span className="hidden lg:inline">Catalogs</span>
+              </Link>
+
               <Button variant="default" className="flex gap-2 bg-purple-600 hover:bg-purple-700 rounded-full px-4" onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart className="h-5 w-5" />
                 <span className="font-semibold">Cart {cart.length > 0 && `(${cart.length})`}</span>
@@ -1220,6 +1225,14 @@ export function Navbar() {
                   >
                     <Phone className="w-5 h-5 text-gray-400" />
                     <span>Contact & Support</span>
+                  </Link>
+                  <Link
+                    to="/catalogs"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 text-gray-700 font-medium text-sm transition-colors"
+                  >
+                    <FileText className="w-5 h-5 text-gray-400" />
+                    <span>Product Catalogs</span>
                   </Link>
                 </div>
               </div>

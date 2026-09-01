@@ -28,6 +28,7 @@ const Privacy = lazy(() => import("./pages/Privacy").then(m => ({ default: m.Pri
 const SEOLanding = lazy(() => import("./pages/SEOLanding").then(m => ({ default: m.SEOLanding })));
 const LocationLanding = lazy(() => import("./pages/LocationLanding").then(m => ({ default: m.LocationLanding })));
 const Rating = lazy(() => import("./pages/Rating").then(m => ({ default: m.Rating })));
+const Catalogs = lazy(() => import("./pages/Catalogs").then(m => ({ default: m.Catalogs })));
 
 function LoadingFallback() {
   return (
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="/custom-printing" element={<SEOLanding />} />
           <Route path="/printing-:locationSlug" element={<LocationLanding />} />
           <Route path="/categories" element={<CategoryPage />} />
+          <Route path="/catalogs" element={<Catalogs />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/admin" element={<Admin />} />

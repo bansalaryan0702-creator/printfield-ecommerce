@@ -227,7 +227,7 @@ export function Home() {
     <Layout>
       <SEO 
         title="Printfield | Corporate Printing & Gifting in Whitefield, Bangalore" 
-        description="Corporate printing & gifting in Whitefield, Bangalore. 22+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging. Fast delivery."
+        description="Corporate printing & gifting in Whitefield, Bangalore. 10+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging. Fast delivery."
         canonicalUrl="/"
         ogImage="/logo.png"
         schema={JSON.stringify({
@@ -266,10 +266,10 @@ export function Home() {
           "openingHoursSpecification": [
             { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "10:00", "closes": "19:00" }
           ],
-          "description": "Corporate printing & gifting in Whitefield, Bangalore. 22+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging.",
+          "description": "Corporate printing & gifting in Whitefield, Bangalore. 10+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging.",
           "aggregateRating": {
             "@type": "AggregateRating",
-            "ratingValue": "4.8",
+            "ratingValue": "4.3",
             "reviewCount": "50",
             "bestRating": "5"
           },
@@ -419,10 +419,10 @@ export function Home() {
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
               {[
-                { value: "22+", label: "Years Experience", sub: "Serving Bengaluru since 2004" },
+                { value: "10+", label: "Years Experience", sub: "Serving Bengaluru since 2004" },
                 { value: "Own Unit", label: "Production Facility", sub: "Borewell Road, Whitefield" },
                 { value: "10K+", label: "Orders Delivered", sub: "Corporate & individual" },
-                { value: "4.8★", label: "Customer Rating", sub: "150+ verified reviews" },
+                { value: "4.3★", label: "Customer Rating", sub: "150+ verified reviews" },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}

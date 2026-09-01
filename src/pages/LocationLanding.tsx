@@ -124,7 +124,7 @@ const LOCATIONS: Record<string, {
     pincode: "560066",
     landmark: "Near EPIP Zone, Whitefield",
     metaTitle: "Corporate Printing & Gifting in EPIP Zone Bangalore | Printfield",
-    metaDescription: "Corporate printing & gifting in EPIP Zone, Whitefield, Bangalore. Onboarding kits, awards, apparel, brochures, signage. Own production unit, 22+ years experience. Fast delivery.",
+    metaDescription: "Corporate printing & gifting in EPIP Zone, Whitefield, Bangalore. Onboarding kits, awards, apparel, brochures, signage. Own production unit, 10+ years experience. Fast delivery.",
     heroHeading: "Corporate Printing Services in EPIP Zone",
     heroSubheading: "Trusted by 100+ companies in EPIP Zone for corporate gifting, onboarding kits, branded merchandise & promotional products.",
     nearbyAreas: ["Whitefield", "ITPL", "Brookefield", "Kadugodi", "Hoodi"],
@@ -134,9 +134,9 @@ const LOCATIONS: Record<string, {
     longitude: 77.7490,
     localKeywords: ["corporate printing EPIP zone", "corporate gifting EPIP zone bangalore", "onboarding kits EPIP zone", "promotional products EPIP zone whitefield", "printing near EPIP zone"],
     localContent: {
-      intro: "Printfield is the nearest printing shop to EPIP Zone, Whitefield with our own production unit on Borewell Road. We serve 100+ companies in EPIP Zone with corporate onboarding kits, branded apparel, awards, signage, and promotional merchandise. With 22+ years of experience, we understand the fast-paced needs of IT companies and deliver consistently.",
+      intro: "Printfield is the nearest printing shop to EPIP Zone, Whitefield with our own production unit on Borewell Road. We serve 100+ companies in EPIP Zone with corporate onboarding kits, branded apparel, awards, signage, and promotional merchandise. With 10+ years of experience, we understand the fast-paced needs of IT companies and deliver consistently.",
       services: ["Corporate Onboarding Kits", "Branded Apparel & Uniforms", "Awards & Trophies", "Signage & Wayfinding", "Brochures & Catalogues", "Promotional Merchandise"],
-      whyUs: ["5-minute drive from EPIP Zone", "Own production unit — no outsourcing", "22+ years serving Bengaluru corporates", "Express delivery for urgent orders", "Volume discounts from 10 pieces", "GST invoice for all orders"]
+      whyUs: ["5-minute drive from EPIP Zone", "Own production unit — no outsourcing", "10+ years serving Bengaluru corporates", "Express delivery for urgent orders", "Volume discounts from 10 pieces", "GST invoice for all orders"]
     }
   },
   kadugodi: {
@@ -156,7 +156,7 @@ const LOCATIONS: Record<string, {
     longitude: 77.7430,
     localKeywords: ["custom printing kadugodi", "corporate gifting kadugodi bangalore", "tshirt printing kadugodi whitefield", "signage kadugodi"],
     localContent: {
-      intro: "Printfield serves the Kadugodi community with premium custom printing services. Located on Borewell Road, just minutes from Kadugodi, we deliver t-shirt printing, corporate gifting, signage, and promotional products to homes and businesses. With 22+ years of experience and our own production unit, we guarantee quality and speed.",
+      intro: "Printfield serves the Kadugodi community with premium custom printing services. Located on Borewell Road, just minutes from Kadugodi, we deliver t-shirt printing, corporate gifting, signage, and promotional products to homes and businesses. With 10+ years of experience and our own production unit, we guarantee quality and speed.",
       services: ["Custom T-Shirt & Apparel Printing", "Corporate Gifting Solutions", "Signage, Banners & Standees", "Business Cards & Stationery", "Promotional Products", "Custom Hoodies & Caps"],
       whyUs: ["Closest print shop to Kadugodi", "Own production unit on Borewell Road", "Same-day design approval", "Bulk orders from 10 pieces", "Free online design tool", "100% quality guarantee"]
     }
@@ -168,7 +168,7 @@ const LOCATIONS: Record<string, {
     pincode: "560066",
     landmark: "Near Hoodi Main Road",
     metaTitle: "Custom Printing & Corporate Gifting in Hoodi Bangalore | Printfield",
-    metaDescription: "Custom printing & corporate gifting in Hoodi, Whitefield, Bangalore. Onboarding kits, apparel, signage, brochures. Own production unit, 22+ years. Fast delivery.",
+    metaDescription: "Custom printing & corporate gifting in Hoodi, Whitefield, Bangalore. Onboarding kits, apparel, signage, brochures. Own production unit, 10+ years. Fast delivery.",
     heroHeading: "Custom Printing Services in Hoodi",
     heroSubheading: "Professional printing services for corporates, startups & events in Hoodi, Whitefield, Bengaluru.",
     nearbyAreas: ["Whitefield", "Brookefield", "Marathahalli", "Kadugodi", "Mahadevapura"],
@@ -178,9 +178,9 @@ const LOCATIONS: Record<string, {
     longitude: 77.7420,
     localKeywords: ["custom printing hoodi", "corporate gifting hoodi bangalore", "tshirt printing hoodi whitefield", "signage hoodi", "printing services hoodi"],
     localContent: {
-      intro: "Printfield is the trusted printing partner for businesses and individuals in Hoodi, Whitefield. From corporate onboarding kits to event t-shirts and promotional signage, we handle orders of all sizes with our own production unit on Borewell Road. 22+ years of experience, same-day design approval, and delivery within 1-2 days.",
+      intro: "Printfield is the trusted printing partner for businesses and individuals in Hoodi, Whitefield. From corporate onboarding kits to event t-shirts and promotional signage, we handle orders of all sizes with our own production unit on Borewell Road. 10+ years of experience, same-day design approval, and delivery within 1-2 days.",
       services: ["Corporate Onboarding Kits", "Custom T-Shirt & Apparel Printing", "Awards & Trophies", "Signage, Banners & Flex", "Brochures, Catalogues & Flyers", "Custom Gifts & Merchandise"],
-      whyUs: ["Minutes from Hoodi on Borewell Road", "Own production unit — no outsourcing", "22+ years serving Bengaluru", "Bulk discounts from 10 pieces", "Free design consultation", "GST invoice for all orders"]
+      whyUs: ["Minutes from Hoodi on Borewell Road", "Own production unit — no outsourcing", "10+ years serving Bengaluru", "Bulk discounts from 10 pieces", "Free design consultation", "GST invoice for all orders"]
     }
   }
 };
@@ -230,7 +230,7 @@ export const LocationLanding: React.FC = () => {
     "openingHours": "Mo-Sa 10:00-19:00",
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.8",
+      "ratingValue": "4.3",
       "reviewCount": "150"
     },
     "hasOfferCatalog": {
@@ -303,7 +303,7 @@ export const LocationLanding: React.FC = () => {
       <section className="py-6 bg-white border-b border-slate-100">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-sm text-slate-600">
-            <div className="flex items-center gap-2"><Star className="h-5 w-5 text-yellow-500" /> 4.8 Rating (150+ Reviews)</div>
+            <div className="flex items-center gap-2"><Star className="h-5 w-5 text-yellow-500" /> 4.3 Rating (150+ Reviews)</div>
             <div className="flex items-center gap-2"><Truck className="h-5 w-5 text-purple-500" /> Delivery in {location.deliveryTime}</div>
             <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-green-500" /> 100% Quality Guarantee</div>
             <div className="flex items-center gap-2"><Clock className="h-5 w-5 text-blue-500" /> Same-day Design Approval</div>

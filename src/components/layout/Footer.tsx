@@ -29,6 +29,7 @@ export function Footer() {
               <li><Link to="/category/apparel" className="hover:text-purple-400 transition-colors">Custom T-Shirts</Link></li>
               <li><Link to="/category/marketing" className="hover:text-purple-400 transition-colors">Flyers & Brochures</Link></li>
               <li><Link to="/category/gifts" className="hover:text-purple-400 transition-colors">Corporate Gifts</Link></li>
+              <li><Link to="/catalogs" className="hover:text-purple-400 transition-colors">📄 Product Catalogs</Link></li>
               <li><Link to="/category/signage" className="hover:text-purple-400 transition-colors">Banners & Signboards</Link></li>
               <li><Link to="/category/trophies" className="hover:text-purple-400 transition-colors">Custom Trophies & Awards</Link></li>
             </ul>

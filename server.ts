@@ -1475,6 +1475,39 @@ const SITE_URL = 'https://www.printfieldonline.com';
     }
   });
 
+  // Catalog PDF upload — saves to uploads/catalogs/ directory
+  app.post('/api/catalogs/upload', verifyAdmin, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+      const ext = '.pdf';
+      const safeName = (req.file.originalname || 'catalog')
+        .replace(/[^a-zA-Z0-9\s\-_.]/g, '')
+        .replace(/\s+/g, '-')
+        .slice(0, 60);
+      const filename = `catalog-${Date.now()}-${safeName}${ext}`;
+      const localDir = path.join(process.cwd(), 'uploads', 'catalogs');
+      fsSync.mkdirSync(localDir, { recursive: true });
+      const localPath = path.join(localDir, filename);
+      fsSync.writeFileSync(localPath, req.file.buffer);
+
+      // Upload to S3
+      const s3Key = `uploads/catalogs/${filename}`;
+      await s3Client.send(new PutObjectCommand({
+        Bucket: s3BucketName,
+        Key: s3Key,
+        Body: req.file.buffer,
+        ContentType: 'application/pdf'
+      }));
+
+      const url = `/uploads/catalogs/${filename}`;
+      res.json({ url, fileName: req.file.originalname, fileSize: req.file.size });
+    } catch (e: any) {
+      console.error('Catalog upload error:', e);
+      res.status(500).json({ error: 'Failed to upload catalog PDF' });
+    }
+  });
+
   // PDF Catalog Import — extract pages as 4:3 cropped images with auto-detected names
   app.post('/api/pdf/extract-products', verifyUser, upload.single('pdf'), async (req, res) => {
     try {
@@ -3824,6 +3857,104 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
     } catch (err) {
       console.error('Bulk delete error:', err);
       res.status(500).json({ error: 'Failed to bulk delete products' });
+    }
+  });
+
+  // ========== PDF CATALOGS ==========
+
+  async function loadCatalogs(): Promise<any[]> {
+    try {
+      const getRes = await s3Client.send(new GetObjectCommand({ Bucket: s3BucketName, Key: 'database/catalogs.json' }));
+      const str = await getRes.Body.transformToString();
+      const catalogs = JSON.parse(str);
+      return Array.isArray(catalogs) ? catalogs : [];
+    } catch {
+      return [];
+    }
+  }
+
+  async function saveCatalogs(catalogs: any[]) {
+    const body = Buffer.from(JSON.stringify(catalogs, null, 2));
+    await s3Client.send(new PutObjectCommand({ Bucket: s3BucketName, Key: 'database/catalogs.json', Body: body, ContentType: 'application/json' }));
+  }
+
+  app.get('/api/catalogs', async (req, res) => {
+    try {
+      const catalogs = await loadCatalogs();
+      res.json({ catalogs });
+    } catch (err) {
+      console.error('Load catalogs error:', err);
+      res.status(500).json({ error: 'Failed to load catalogs' });
+    }
+  });
+
+  app.post('/api/catalogs', verifyAdmin, async (req, res) => {
+    try {
+      const { title, description, category, fileUrl, fileName, fileSize, pageCount, thumbnail } = req.body;
+      if (!title || !fileUrl) return res.status(400).json({ error: 'Title and file are required' });
+
+      const catalogs = await loadCatalogs();
+      const catalog = {
+        id: 'catalog-' + Math.random().toString(36).substr(2, 9),
+        title,
+        description: description || '',
+        category: category || '',
+        fileUrl,
+        fileName: fileName || '',
+        fileSize: fileSize || 0,
+        pageCount: pageCount || 0,
+        thumbnail: thumbnail || '',
+        createdAt: Date.now()
+      };
+      catalogs.unshift(catalog);
+      await saveCatalogs(catalogs);
+      res.json({ success: true, catalog });
+    } catch (err) {
+      console.error('Save catalog error:', err);
+      res.status(500).json({ error: 'Failed to save catalog' });
+    }
+  });
+
+  app.put('/api/catalogs/:id', verifyAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, description, category, thumbnail } = req.body;
+      const catalogs = await loadCatalogs();
+      const found = catalogs.find(c => c.id === id);
+      if (!found) return res.status(404).json({ error: 'Catalog not found' });
+      if (title !== undefined) found.title = title;
+      if (description !== undefined) found.description = description;
+      if (category !== undefined) found.category = category;
+      if (thumbnail !== undefined) found.thumbnail = thumbnail;
+      await saveCatalogs(catalogs);
+      res.json({ success: true, catalog: found });
+    } catch (err) {
+      console.error('Update catalog error:', err);
+      res.status(500).json({ error: 'Failed to update catalog' });
+    }
+  });
+
+  app.delete('/api/catalogs/:id', verifyAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      let catalogs = await loadCatalogs();
+      const found = catalogs.find(c => c.id === id);
+      if (!found) return res.status(404).json({ error: 'Catalog not found' });
+
+      // Delete file from S3
+      if (found.fileUrl) {
+        const fileKey = found.fileUrl.replace(/^\//, '');
+        try {
+          await s3Client.send(new DeleteObjectCommand({ Bucket: s3BucketName, Key: fileKey }));
+        } catch (e) { console.warn('S3 delete failed:', e); }
+      }
+
+      catalogs = catalogs.filter(c => c.id !== id);
+      await saveCatalogs(catalogs);
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Delete catalog error:', err);
+      res.status(500).json({ error: 'Failed to delete catalog' });
     }
   });
 

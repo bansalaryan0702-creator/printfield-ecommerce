@@ -235,6 +235,20 @@ function PoloModel({ color, designImage, placement, adjustment, artworks, onRead
     const sz = bounds.getSize(new THREE.Vector3());
     const ctr = bounds.getCenter(new THREE.Vector3());
 
+    // DEBUG: Print model structure
+    console.log('=== POLO MODEL DEBUG ===');
+    console.log('Scene bounds:', { minX: bounds.min.x.toFixed(3), maxX: bounds.max.x.toFixed(3), minY: bounds.min.y.toFixed(3), maxY: bounds.max.y.toFixed(3), minZ: bounds.min.z.toFixed(3), maxZ: bounds.max.z.toFixed(3) });
+    console.log('Scene center:', { x: ctr.x.toFixed(3), y: ctr.y.toFixed(3), z: ctr.z.toFixed(3) });
+    console.log('Scene size:', { x: sz.x.toFixed(3), y: sz.y.toFixed(3), z: sz.z.toFixed(3) });
+    console.log('Total meshes:', meshes.length);
+    meshes.forEach((m, i) => {
+      m.geometry.computeBoundingBox();
+      const mb = m.geometry.boundingBox!;
+      const mc = mb.getCenter(new THREE.Vector3()).applyMatrix4(m.matrixWorld);
+      const ms = mb.getSize(new THREE.Vector3());
+      console.log(`Mesh ${i}: name="${m.name || 'unnamed'}", center=(${mc.x.toFixed(3)}, ${mc.y.toFixed(3)}, ${mc.z.toFixed(3)}), size=(${ms.x.toFixed(3)}, ${ms.y.toFixed(3)}, ${ms.z.toFixed(3)}), vertices=${m.geometry.attributes.position.count}`);
+    });
+
     const newDecalMeshes: THREE.Mesh[] = [];
 
     activeArtworksList.forEach(({ placementKey }) => {
@@ -269,21 +283,53 @@ function PoloModel({ color, designImage, placement, adjustment, artworks, onRead
           break;
         }
         case 'sleeve-left': {
-          // Left sleeve badge (~16% of sleeve width)
-          const baseY = ctr.y + sz.y * 0.20 + currentAdj.offsetY * sz.y * 0.12;
-          const baseZ = ctr.z + currentAdj.offsetX * sz.z * 0.12;
-          worldRayOrigin = new THREE.Vector3(bounds.min.x - 10, baseY, baseZ);
-          worldRayDir = new THREE.Vector3(1, 0, 0);
-          baseWorldWidth = sz.x * 0.16;
+          // Left sleeve — find the leftmost mesh and place logo at its center
+          const leftMesh = meshes.reduce((leftmost, m) => {
+            m.geometry.computeBoundingBox();
+            const mb = m.geometry.boundingBox!;
+            const mCenterX = mb.getCenter(new THREE.Vector3()).applyMatrix4(m.matrixWorld).x;
+            const leftX = leftmost ? leftmost.geometry.boundingBox!.getCenter(new THREE.Vector3()).applyMatrix4(leftmost.matrixWorld).x : Infinity;
+            return mCenterX < leftX ? m : leftmost;
+          }, null as THREE.Mesh | null);
+          
+          if (leftMesh) {
+            leftMesh.geometry.computeBoundingBox();
+            const sleeveBounds = leftMesh.geometry.boundingBox!;
+            const sleeveCenter = sleeveBounds.getCenter(new THREE.Vector3()).applyMatrix4(leftMesh.matrixWorld);
+            worldRayOrigin = new THREE.Vector3(sleeveCenter.x - 10, sleeveCenter.y + currentAdj.offsetY * sz.y * 0.12, sleeveCenter.z - currentAdj.offsetX * sz.z * 0.12);
+            worldRayDir = new THREE.Vector3(1, 0, 0);
+            baseWorldWidth = sz.x * 0.155;
+          } else {
+            // Fallback to original method if no left mesh found
+            worldRayOrigin = new THREE.Vector3(bounds.min.x - 10, ctr.y + sz.y * 0.20 + currentAdj.offsetY * sz.y * 0.12, ctr.z + sz.z * 0.70 - currentAdj.offsetX * sz.z * 0.12);
+            worldRayDir = new THREE.Vector3(1, 0, 0);
+            baseWorldWidth = sz.x * 0.155;
+          }
           break;
         }
         case 'sleeve-right': {
-          // Right sleeve badge (~16% of sleeve width)
-          const baseY = ctr.y + sz.y * 0.20 + currentAdj.offsetY * sz.y * 0.12;
-          const baseZ = ctr.z - currentAdj.offsetX * sz.z * 0.12;
-          worldRayOrigin = new THREE.Vector3(bounds.max.x + 10, baseY, baseZ);
-          worldRayDir = new THREE.Vector3(-1, 0, 0);
-          baseWorldWidth = sz.x * 0.16;
+          // Right sleeve — find the rightmost mesh and place logo at its center
+          const rightMesh = meshes.reduce((rightmost, m) => {
+            m.geometry.computeBoundingBox();
+            const mb = m.geometry.boundingBox!;
+            const mCenterX = mb.getCenter(new THREE.Vector3()).applyMatrix4(m.matrixWorld).x;
+            const rightX = rightmost ? rightmost.geometry.boundingBox!.getCenter(new THREE.Vector3()).applyMatrix4(rightmost.matrixWorld).x : -Infinity;
+            return mCenterX > rightX ? m : rightmost;
+          }, null as THREE.Mesh | null);
+          
+          if (rightMesh) {
+            rightMesh.geometry.computeBoundingBox();
+            const sleeveBounds = rightMesh.geometry.boundingBox!;
+            const sleeveCenter = sleeveBounds.getCenter(new THREE.Vector3()).applyMatrix4(rightMesh.matrixWorld);
+            worldRayOrigin = new THREE.Vector3(sleeveCenter.x + 10, sleeveCenter.y + currentAdj.offsetY * sz.y * 0.12, sleeveCenter.z + currentAdj.offsetX * sz.z * 0.12);
+            worldRayDir = new THREE.Vector3(-1, 0, 0);
+            baseWorldWidth = sz.x * 0.155;
+          } else {
+            // Fallback to original method if no right mesh found
+            worldRayOrigin = new THREE.Vector3(bounds.max.x + 10, ctr.y + sz.y * 0.20 + currentAdj.offsetY * sz.y * 0.12, ctr.z - sz.z * 0.70 + currentAdj.offsetX * sz.z * 0.12);
+            worldRayDir = new THREE.Vector3(-1, 0, 0);
+            baseWorldWidth = sz.x * 0.155;
+          }
           break;
         }
         case 'front-full':
@@ -300,10 +346,20 @@ function PoloModel({ color, designImage, placement, adjustment, artworks, onRead
         }
       }
 
-      // Raycast in world coordinates against all shirt meshes
+      // Raycast in world coordinates
       const rc = new THREE.Raycaster();
       rc.set(worldRayOrigin, worldRayDir.clone().normalize());
       const hits = rc.intersectObjects(meshes, false);
+
+      // DEBUG: Log raycast results
+      if (placementKey === 'sleeve-left' || placementKey === 'sleeve-right') {
+        console.log(`[${placementKey}] Ray origin: (${worldRayOrigin.x.toFixed(2)}, ${worldRayOrigin.y.toFixed(2)}, ${worldRayOrigin.z.toFixed(2)}), dir: (${worldRayDir.x.toFixed(2)}, ${worldRayDir.y.toFixed(2)}, ${worldRayDir.z.toFixed(2)})`);
+        console.log(`[${placementKey}] Hits: ${hits.length}`);
+        hits.slice(0, 5).forEach((h, i) => {
+          const mesh = h.object as THREE.Mesh;
+          console.log(`  Hit ${i}: mesh="${mesh.name || 'unnamed'}", point=(${h.point.x.toFixed(3)}, ${h.point.y.toFixed(3)}, ${h.point.z.toFixed(3)}), distance=${h.distance.toFixed(3)}`);
+        });
+      }
 
       let targetMesh: THREE.Mesh;
       let localHitPoint: THREE.Vector3;
