@@ -1496,6 +1496,54 @@ const SITE_URL = 'https://www.printfieldonline.com';
     }
   });
 
+  // Bulk S3 upload — accepts array of {productId, filename, data(base64), contentType}, uploads + assigns
+  app.post('/api/upload-s3-bulk', verifyAdmin, async (req, res) => {
+    try {
+      const { items } = req.body;
+      if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'items array required' });
+
+      const results = [];
+      const currentProds = await loadProductsFromS3(true);
+      const prodMap = new Map(currentProds.map(p => [p.id, p]));
+
+      for (const item of items) {
+        const { productId, filename, data, contentType } = item;
+        if (!filename || !data) { results.push({ productId, error: 'missing filename/data' }); continue; }
+
+        const buffer = Buffer.from(data, 'base64');
+        const id = Date.now().toString() + Math.random().toString(36).slice(2, 6);
+        const safeName = filename.replace(/[^a-zA-Z0-9.-_]/g, '');
+        const finalName = `${id}-${safeName}`;
+        const mime = contentType || 'image/jpeg';
+
+        try {
+          await uploadFileToS3(finalName, mime, buffer);
+          const imageUrl = `/uploads/${finalName}`;
+
+          if (productId) {
+            const prod = prodMap.get(productId);
+            if (prod) {
+              prod.images = prod.images || [];
+              prod.images.unshift(imageUrl);
+              if (!prod.image) prod.image = imageUrl;
+            }
+          }
+          results.push({ productId, url: imageUrl, ok: true });
+        } catch (e: any) {
+          results.push({ productId, error: e.message });
+        }
+      }
+
+      // Save updated products
+      await saveProductsToS3(currentProds);
+      const okCount = results.filter(r => r.ok).length;
+      res.json({ success: true, uploaded: okCount, total: items.length, results });
+    } catch (e: any) {
+      console.error('Bulk S3 upload error:', e);
+      res.status(500).json({ error: 'Failed to bulk upload' });
+    }
+  });
+
   // Catalog PDF upload — saves to uploads/catalogs/ directory
   app.post('/api/catalogs/upload', verifyAdmin, upload.single('file'), async (req, res) => {
     try {
