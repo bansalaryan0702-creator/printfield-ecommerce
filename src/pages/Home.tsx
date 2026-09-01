@@ -1,28 +1,15 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/src/components/layout/Layout";
-import { Categories } from "@/src/data/products";
 import { ProductCard } from "@/src/components/ui/ProductCard";
 import { 
-  ArrowRight, Contact, Shirt, Megaphone, Gift, Signpost, Package, Star,
+  ArrowRight, Package, Star,
   GraduationCap, Factory, Store, Utensils, HeartPulse, Building2, Laptop, Home as HomeIcon, X, Check, Loader2
 } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
 import { motion, useScroll, useTransform } from "motion/react";
 import { apiFetch } from "../lib/api";
 import { SEO } from "../components/SEO";
-
-const getCategoryIcon = (iconName: string) => {
-  switch (iconName) {
-    case "contact": return <Contact className="h-8 w-8" />;
-    case "shirt": return <Shirt className="h-8 w-8" />;
-    case "megaphone": return <Megaphone className="h-8 w-8" />;
-    case "gift": return <Gift className="h-8 w-8" />;
-    case "signpost": return <Signpost className="h-8 w-8" />;
-    case "package": return <Package className="h-8 w-8" />;
-    default: return <Package className="h-8 w-8" />;
-  }
-};
 
 const getIndustryIcon = (iconName: string) => {
   switch (iconName) {

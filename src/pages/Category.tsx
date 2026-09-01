@@ -5,7 +5,6 @@ import { Categories } from "@/src/data/products";
 import { ProductCard } from "@/src/components/ui/ProductCard";
 import { ArrowLeft, Trophy, Info } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
-import { Button } from '@/src/components/ui/button';
 import { Pagination } from "@/src/components/ui/Pagination";
 import { SEO } from "../components/SEO";
 

@@ -88,5 +88,3 @@ export const Categories: Category[] = [
     "image": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1200&auto=format&fit=crop&q=80"
   }
 ];
-
-export const PopularProducts: Product[] = [];

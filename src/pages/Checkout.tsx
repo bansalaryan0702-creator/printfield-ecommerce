@@ -6,25 +6,9 @@ import { Button } from '@/src/components/ui/button';
 import { AppContext } from '../context/AppContext';
 import { Layout } from '../components/layout/Layout';
 import { SEO } from '../components/SEO';
-import { CheckCircle2, RotateCcw, CreditCard } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { getFeaturedImage } from '../lib/imageUtils';
 import { getGoogleAccessToken } from '../lib/firebase';
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
 
 const INDIAN_STATES = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
@@ -244,8 +228,6 @@ export function Checkout() {
       setLoading(false);
     }
   };
-
-  const total = cart.reduce((acc: number, item: any) => acc + (item.product.price * item.quantity), 0);
 
   if (orderComplete) {
     return (

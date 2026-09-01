@@ -7,7 +7,6 @@ import { getColorStyle, isColorCategory } from "@/src/utils/colorUtils";
 
 interface ProductCardProps {
   product: Product;
-  key?: any;
 }
 
 export function ProductCard({ product }: ProductCardProps) {

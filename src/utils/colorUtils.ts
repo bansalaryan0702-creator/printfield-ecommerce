@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface ColorStyle {
   background: string;
   borderNeeded?: boolean;

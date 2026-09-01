@@ -5,7 +5,7 @@ import { cleanAndDeduplicateImages, isProductImage, getFallbackImage, getOptimiz
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/src/components/layout/Layout";
 import { SEO } from "@/src/components/SEO";
-import { Product, PopularProducts } from "@/src/data/products";
+import { Product } from "@/src/data/products";
 import { Button } from "@/src/components/ui/button";
 import { ProductCard } from "@/src/components/ui/ProductCard";
 import {
@@ -21,13 +21,11 @@ import {
   FileText,
   Trash2,
   Sparkles,
-  Search,
   Loader2,
   X,
   AlertTriangle,
   CheckCircle,
   Image as ImageIcon,
-  Scissors,
   MessageSquarePlus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -40,9 +38,7 @@ import { DesignEditor } from "../components/DesignEditor";
 import { PoloTshirtPreview } from "../components/PoloTshirtPreview";
 
 import { type ArtworkAdjustment, DEFAULT_ADJUSTMENT } from "../components/Polo3DPreview";
-const Polo3DPreview = React.lazy(() => import("../components/Polo3DPreview").then(m => ({ default: m.Polo3DPreview })));
 
-import { googleProvider, signInWithGoogle, getGoogleAccessToken } from '../lib/firebase';
 import { getColorStyle, isColorCategory } from "@/src/utils/colorUtils";
 
 type PlacementId =
@@ -257,7 +253,7 @@ export function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [productsLoading, setProductsLoading] = useState(true);
 
-  const { addToCart, token, user } = useContext(AppContext);
+  const { addToCart, token } = useContext(AppContext);
   const { products: allProducts } = useProducts();
   const [isAdding, setIsAdding] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
@@ -300,8 +296,6 @@ export function ProductDetail() {
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const [retryCount, setRetryCount] = useState<Record<string, number>>({});
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
-  const [show3D, setShow3D] = useState(false);
-  const [adjust3DMode, setAdjust3DMode] = useState(false);
   const [adjust3D, setAdjust3D] = useState<ArtworkAdjustment>(DEFAULT_ADJUSTMENT);
 
   // Load saved adjustment when product/placement changes
@@ -314,12 +308,6 @@ export function ProductDetail() {
       else setAdjust3D(DEFAULT_ADJUSTMENT);
     } catch { setAdjust3D(DEFAULT_ADJUSTMENT); }
   }, [product?.id, activePlacement]);
-
-  const saveAdjustment = useCallback(() => {
-    if (!product?.id || !activePlacement) return;
-    const key = `artwork-pos-${product.id}-${activePlacement}`;
-    localStorage.setItem(key, JSON.stringify(adjust3D));
-  }, [product?.id, activePlacement, adjust3D]);
 
   const handleImageLoaded = (imgUrl: string) => {
     if (!imgUrl) return;
@@ -681,26 +669,6 @@ export function ProductDetail() {
   const isDieCutProduct = Boolean(String(product?.name || '').toLowerCase().includes("die cut") || String(product?.name || '').toLowerCase().includes("shape cut") || String(product?.category || '').toLowerCase().includes("shape cut") || cardShape.includes("Die Cut"));
   const isBusinessCard = isActualBusinessCard || isIdCard || isVisitingCard || isDieCutProduct;
 
-  const pNameLower = String(product?.name || '').toLowerCase() || "";
-  const pCatLower = String(product?.category || '').toLowerCase() || "";
-  const isCustomShapeCard = Boolean(
-    pNameLower.includes("u-shape") ||
-    pNameLower.includes("u shape") ||
-    pNameLower.includes("arch") ||
-    pNameLower.includes("half moon") ||
-    pNameLower.includes("leaf") ||
-    pNameLower.includes("die cut") ||
-    pNameLower.includes("shape cut") ||
-    pNameLower.includes("custom shape") ||
-    pNameLower.includes("cutout") ||
-    pNameLower.includes("single round") ||
-    pNameLower.includes("1 round") ||
-    pNameLower.includes("2 round") ||
-    pNameLower.includes("oval") ||
-    pNameLower.includes("circle") ||
-    pCatLower.includes("shape cut") ||
-    (cardShape && cardShape !== "Standard Rectangle" && cardShape !== "Standard" && cardShape !== "Standard Business Card" && cardShape !== "Square")
-  );
 
   useEffect(() => {
     setBrokenImages({});
@@ -1370,7 +1338,6 @@ export function ProductDetail() {
   }, [loadedDesignId, token]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   if (productsLoading) {
     return (
@@ -1641,20 +1608,6 @@ export function ProductDetail() {
     }
   };
 
-  const setScale = (scale: number) => {
-    setArtworks((prev) => ({
-      ...prev,
-      [activePlacement]: { ...prev[activePlacement], scale },
-    }));
-  };
-
-  const handleUpdateArtwork = (placement: string, updates: Partial<Artwork>) => {
-    setArtworks((prev) => ({
-      ...prev,
-      [placement]: { ...prev[placement], ...updates },
-    }));
-  };
-
   const handleSaveCustomDesign = async (file: File, canvasState?: any) => {
     const isImage = file.type.startsWith("image/");
     const localPreviewUrl = isImage ? URL.createObjectURL(file) : null;
@@ -1887,7 +1840,6 @@ export function ProductDetail() {
           {/* Product Image */}
           <div className="space-y-3 sm:space-y-4 min-w-0">
             <div
-              ref={containerRef}
               className="w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-gray-100 relative shadow-sm"
             >
               <div className={`w-full relative transition-transform duration-700 ease-in-out ${
@@ -1899,7 +1851,7 @@ export function ProductDetail() {
                   
 {/* Polo T-Shirt Live Preview - keep mounted but hidden */}
                     {isPolo && selectedColor && (
-                      <div className={`absolute inset-0 z-30 flex items-center justify-center bg-white ${!show3D ? 'block' : 'hidden'}`}>
+                      <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
                         <PoloTshirtPreview
                           color={selectedColor}
                           productImages={validImages}
@@ -1908,38 +1860,7 @@ export function ProductDetail() {
                           designImage={artworks?.[activePlacement]?.previewUrl || null}
                           placement={activePlacement}
                         />
-                      </div>
-                    )}
-
-{/* 3D Preview - keep mounted but hidden to preserve GLTF cache */}
-                    {isPolo && selectedColor && (
-                      <div className={`absolute inset-0 z-30 bg-white ${show3D ? 'block' : 'hidden'}`}>
-                        <React.Suspense fallback={
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-white">
-                            <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin mb-3" />
-                            <p className="text-sm font-medium text-gray-600">Loading 3D Preview...</p>
-                          </div>
-                        }>
-<Polo3DPreview
-                              color={(() => {
-                                if (!selectedColor) return '#2962a3';
-                                if (typeof selectedColor === 'object') {
-                                  return selectedColor.hex || '#2962a3';
-                                }
-                                if (typeof selectedColor === 'string' && selectedColor.startsWith('#')) return selectedColor;
-                                const found = (product?.colors || []).find((c: any) => c.name?.toLowerCase() === String(selectedColor).toLowerCase());
-                                return found?.hex || '#2962a3';
-                              })()}
-                              designImage={artworks?.[activePlacement]?.previewUrl || null}
-                              placement={activePlacement}
-                              artworks={artworks}
-                              adjustment={adjust3D}
-                              adjustmentMode={adjust3DMode}
-                              onAdjustChange={setAdjust3D}
-                              className="w-full h-full"
-                            />
-                        </React.Suspense>
-                      </div>
+                       </div>
                     )}
 
                    {/* Base Transparent Mockup */}
@@ -2004,8 +1925,6 @@ export function ProductDetail() {
                     }}
                     onClick={() => {
                       setSelectedImage(img);
-                      setShowStandardImages(true);
-                      setShow3D(false);
                       if (product?.colors && product?.colors.length > 0) {
                         const matchedCol = product?.colors.find((c: any) => {
                           const cName = typeof c === 'string' ? c : (c?.name || '');

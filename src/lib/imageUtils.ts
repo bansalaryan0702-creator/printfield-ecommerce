@@ -97,8 +97,6 @@ export function getFallbackImage(product?: { name?: string | null; category?: st
   return `data:image/svg+xml,${svg}`;
 }
 
-const DEFAULT_FALLBACK_IMAGE = "";
-
 export function getFeaturedImage(product: { image?: string | null; images?: any; name?: string | null; category?: string | null; subCategory?: string | null } | null | undefined): string {
   const fallback = getFallbackImage(product);
   if (!product) return fallback;
@@ -167,20 +165,5 @@ export function getOptimizedImage(url: string | null | undefined, width: number)
     const sep = url.includes('?') ? '&' : '?';
     return `${url}${sep}w=${width}`;
   }
-  // Remove slow supabase image optimization for now, fallback to original
-  /*
-  if (url.includes('.supabase.co/storage/v1/object/public/')) {
-    const sep = url.includes('?') ? '&' : '?';
-    const optimizedUrl = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
-    let finalUrl = optimizedUrl;
-    if (!optimizedUrl.includes('width=')) {
-      finalUrl = `${finalUrl}${sep}width=${width}`;
-    }
-    if (!finalUrl.includes('resize=')) {
-      finalUrl = `${finalUrl}&resize=contain`;
-    }
-    return finalUrl;
-  }
-  */
   return url;
 }

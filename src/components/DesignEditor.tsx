@@ -19,7 +19,6 @@ import { Eraser,
   X, 
   Plus, 
   Minus, 
-  Download, 
   LayoutTemplate, 
   Palette, 
   Image as ImageIcon, 
@@ -35,19 +34,16 @@ import { Eraser,
   Smile,
   Heart,
   Flame,
-  Award,
   Crown,
   Lock,
   Unlock,
-  Check,
   RefreshCw,
   Wand2,
   Brain,
   AlertTriangle,
-  Sparkle,
   RotateCcw,
   ChevronsUp, ChevronsDown,
-  Crop, Zap, Keyboard, Copy, ImageOff, Maximize, PanelLeft, PanelRight, Eye, EyeOff } from "lucide-react";
+  Crop, Keyboard, ImageOff, Maximize, PanelLeft, PanelRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 
 // Font families to choose from
@@ -377,7 +373,7 @@ interface DesignEditorProps {
 }
 
 
-export function DesignEditor({ product, activePlacement, selectedColor, onSave, onClose, initialCanvasState }: DesignEditorProps) { console.log("DesignEditor rendered!", product, activePlacement);
+export function DesignEditor({ product, activePlacement, selectedColor, onSave, onClose, initialCanvasState }: DesignEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

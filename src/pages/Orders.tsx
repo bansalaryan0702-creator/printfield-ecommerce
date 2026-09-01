@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import { Layout } from '../components/layout/Layout';
 import { SEO } from '../components/SEO';
-import { Package, RotateCcw, Clock, MapPin, ChevronDown, ChevronUp, FileText, CheckCircle2 } from 'lucide-react';
+import { Package, RotateCcw, Clock, FileText, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
 
 export function Orders() {
@@ -14,7 +14,6 @@ export function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [requestingGst, setRequestingGst] = useState<string | null>(null);
   const [gstRequested, setGstRequested] = useState<string[]>([]);
 
@@ -91,10 +90,6 @@ export function Orders() {
       setIsCartOpen(true);
       navigate('/checkout'); // Direct to checkout to make it fast!
     }
-  };
-
-  const toggleExpand = (orderId: string) => {
-    setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
   if (loading) {

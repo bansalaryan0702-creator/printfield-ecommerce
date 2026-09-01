@@ -8,7 +8,6 @@ import {
   Check, 
   User, 
   Clock, 
-  Calendar,
   AlertCircle,
   ArrowRight,
   Bot,

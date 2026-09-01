@@ -1,6 +1,6 @@
 import { apiFetch } from '../lib/api';
 import { useState, useEffect } from 'react';
-import { Product, PopularProducts, Categories } from '../data/products';
+import { Product, Categories } from '../data/products';
 import { getFeaturedImage } from '../lib/imageUtils';
 
 export function useProducts(page = 1, limit = 20, category?: string, sort?: string, search?: string, subCategory?: string, brand?: string) {

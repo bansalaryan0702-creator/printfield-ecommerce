@@ -1,5 +1,5 @@
 import { getOptimizedImage } from "@/src/lib/imageUtils";
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Button } from '@/src/components/ui/button';
 import { AppContext } from '../context/AppContext';
 import { X, Plus, Minus, CreditCard, Trash2 } from 'lucide-react';
@@ -16,7 +16,7 @@ export function CartDrawer() {
 
   const handleCheckout = () => {
     setIsCartOpen(false);
-    if (!token && !user) {
+    if (!token) {
       navigate('/login?redirect=checkout');
     } else {
       navigate('/checkout');

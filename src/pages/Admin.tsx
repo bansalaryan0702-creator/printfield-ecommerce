@@ -1,9 +1,9 @@
 import { apiFetch } from '../lib/api';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Button } from '../components/ui/button';
 import { Pagination } from '../components/ui/Pagination';
-import { UploadCloud, Plus, Trash2, CheckCircle2, Shield, LogIn, Edit2, X, Wand2, Loader2, FileSpreadsheet, PackageSearch, Eye, EyeOff, Search, Sparkles, Upload, FileText } from 'lucide-react';
+import { UploadCloud, Plus, Trash2, CheckCircle2, Edit2, X, Wand2, Loader2, FileSpreadsheet, Eye, EyeOff, Search, Sparkles, Upload, FileText } from 'lucide-react';
 import { OrdersAdmin } from '../components/OrdersAdmin';
 import { ChatsAdmin } from '../components/ChatsAdmin';
 import { CustomersAdmin } from '../components/CustomersAdmin';
@@ -12,7 +12,6 @@ import * as XLSX from 'xlsx';
 
 import { Categories as INITIAL_CATEGORIES } from '../data/products';
 
-// Remove custom Shield as it's imported from lucide-react
 import { SEO } from "../components/SEO";
 
 export function Admin() {
@@ -201,32 +200,6 @@ export function Admin() {
   const [bulkImageUploadStatus, setBulkImageUploadStatus] = useState('');
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [galleryUploadProgress, setGalleryUploadProgress] = useState('');
-
-  const getStockImageForCategory = (cat: string, sub: string, name: string) => {
-    const query = `${sub || cat || 'product'} premium luxury`;
-    const normalizedCat = String(cat || '').toLowerCase();
-    
-    if (normalizedCat.includes('apparel') || normalizedCat.includes('t-shirt') || normalizedCat.includes('shirt')) {
-      return ''
-    }
-    if (normalizedCat.includes('card') || normalizedCat.includes('business')) {
-      return ''
-    }
-    if (normalizedCat.includes('trophies') || normalizedCat.includes('trophy') || normalizedCat.includes('award')) {
-      return ''
-    }
-    if (normalizedCat.includes('gift') || normalizedCat.includes('corporate')) {
-      return ''
-    }
-    if (normalizedCat.includes('signage') || normalizedCat.includes('poster') || normalizedCat.includes('banner')) {
-      return ''
-    }
-    if (normalizedCat.includes('packaging') || normalizedCat.includes('box')) {
-      return ''
-    }
-    
-    return ''
-  };
 
   const [categoriesData, setCategoriesData] = useState<{name: string, subCategories: string[]}[]>(() => {
     const map = new Map<string, Set<string>>();
@@ -1121,18 +1094,6 @@ export function Admin() {
     }
   };
   
-  // Ignore old handleAddColor
-  const oldHandleAddColor = () => {
-    if (colorName && colorHex && colorImage) {
-      setColors([...colors, { name: colorName, hex: colorHex, image: colorImage }]);
-      setColorName('');
-      setColorHex('#000000');
-      setColorImage('');
-    } else {
-      alert("Please provide name, hex code and image for the color.");
-    }
-  };
-
   const handleRemoveColor = (index: number) => {
     setColors(colors.filter((_, i) => i !== index));
   };
@@ -1471,8 +1432,6 @@ export function Admin() {
     }
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const handleBulkImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !token) return;
@@ -1582,6 +1541,7 @@ export function Admin() {
         metaDescription,
         image: formattedMainImage,
         images,
+        features,
         isDisabled,
         isBestseller,
         inMegaMenu,
@@ -1709,10 +1669,6 @@ export function Admin() {
     } else if (productOrId && typeof productOrId === 'object') {
       setProductToDelete(productOrId);
     }
-  };
-
-  const handleDeleteProduct = (id: string, e?: React.MouseEvent) => {
-    promptDeleteProduct(id, e);
   };
 
   const confirmAndExecuteDelete = async () => {
@@ -3408,7 +3364,7 @@ export function Admin() {
                         const names = el.value.split('\n').map(n => n.trim()).filter(Boolean);
                         const rows = names.map(name => ({
                           name,
-                          image: getStockImageForCategory(bulkCategory, bulkSubCategory, name),
+                          image: '',
                           description: '',
                           cardDescription: ''
                         }));
@@ -3811,8 +3767,8 @@ export function Admin() {
                             category: p.category || bulkCategory,
                             subCategory: p.subCategory || bulkSubCategory,
                             price: 499,
-                            image: p.image || getStockImageForCategory(p.category || bulkCategory, p.subCategory || bulkSubCategory, p.name),
-                            images: [p.image || getStockImageForCategory(p.category || bulkCategory, p.subCategory || bulkSubCategory, p.name)],
+                            image: p.image || '',
+                            images: [p.image || ''],
                             description: p.description || `Discover the ${p.name}, a dependable ${(p.category || bulkCategory).toLowerCase()} product for everyday use. Available with custom printing at Printfield, Whitefield Bangalore.`,
                             cardDescription: p.cardDescription || `Make your brand stand out with the ${p.name}. Custom printing available at Printfield.`,
                             metaTitle: p.metaTitle || `${p.name} - Custom ${p.category || bulkCategory} | Printfield`,

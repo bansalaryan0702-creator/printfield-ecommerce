@@ -5,11 +5,9 @@ import {
   Building2, 
   FileSpreadsheet, 
   Search, 
-  Download, 
   Mail, 
   Phone, 
   ShoppingBag, 
-  Calendar, 
   UserCheck, 
   RefreshCw,
   Eye,
@@ -23,7 +21,6 @@ import {
   Square,
   AlertCircle,
   Trash2,
-  FileText,
   MailCheck,
   Layers
 } from 'lucide-react';

@@ -33,26 +33,6 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Global guard for Response.json() to prevent WebKit/Safari "The string did not match the expected pattern." crashes
-// when the server returns HTML (e.g. during restarts, server errors, or timeouts) instead of JSON.
-if (typeof window !== 'undefined' && window.Response) {
-  const originalJson = Response.prototype.json;
-  Response.prototype.json = async function () {
-    try {
-      const text = await this.text();
-      try {
-        return JSON.parse(text);
-      } catch (parseErr) {
-        console.warn("[Global Response.json Guard] Failed to parse JSON, returning error object. Response text:", text.substring(0, 150));
-        return { error: text || "Invalid JSON response" };
-      }
-    } catch (err) {
-      console.error("[Global Response.json Guard] Error reading response body:", err);
-      return { error: "Failed to read response body" };
-    }
-  };
-}
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

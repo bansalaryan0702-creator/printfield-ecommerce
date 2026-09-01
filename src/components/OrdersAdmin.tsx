@@ -2,20 +2,14 @@ import { getOptimizedImage } from "@/src/lib/imageUtils";
 import { apiFetch } from '../lib/api';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/src/components/ui/button';
-import { Eye, Download, MapPin, User, Package, DownloadCloud, RefreshCw } from 'lucide-react';
-// Removed firebase imports
+import { MapPin, User, Package, DownloadCloud } from 'lucide-react';
 
 export function OrdersAdmin({ token, userRole = 'admin' }: { token: string, userRole?: string }) {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [isIframe, setIsIframe] = useState(false);
   const [itemPrices, setItemPrices] = useState<{ [key: string]: string }>({});
   const [sendingQuote, setSendingQuote] = useState(false);
-
-  useEffect(() => {
-    setIsIframe(window.self !== window.top);
-  }, []);
 
   useEffect(() => {
     if (selectedOrder?.items) {
