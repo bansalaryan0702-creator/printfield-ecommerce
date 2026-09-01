@@ -1475,6 +1475,27 @@ const SITE_URL = 'https://www.printfieldonline.com';
     }
   });
 
+  // Direct S3 upload — accepts base64, skips disk (for Vercel serverless)
+  app.post('/api/upload-s3', verifyAdmin, async (req, res) => {
+    try {
+      const { filename, data, contentType } = req.body;
+      if (!filename || !data) return res.status(400).json({ error: 'filename and data (base64) required' });
+
+      const buffer = Buffer.from(data, 'base64');
+      const id = Date.now().toString();
+      const safeName = filename.replace(/[^a-zA-Z0-9.-_]/g, '');
+      const finalName = `${id}-${safeName}`;
+      const mime = contentType || 'image/jpeg';
+
+      await uploadFileToS3(finalName, mime, buffer);
+      const url = `/uploads/${finalName}`;
+      res.json({ success: true, url });
+    } catch (e: any) {
+      console.error('S3 upload error:', e);
+      res.status(500).json({ error: 'Failed to upload to S3' });
+    }
+  });
+
   // Catalog PDF upload — saves to uploads/catalogs/ directory
   app.post('/api/catalogs/upload', verifyAdmin, upload.single('file'), async (req, res) => {
     try {
