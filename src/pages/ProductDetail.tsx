@@ -1,7 +1,7 @@
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { apiFetch, apiClient } from '../lib/api';
 import React, { useState, useRef, useEffect, useContext, useMemo, useCallback } from "react";
-import { cleanAndDeduplicateImages, isProductImage, getFallbackImage, getOptimizedImage } from "@/src/lib/imageUtils";
+import { cleanAndDeduplicateImages, isProductImage, getFallbackImage, getOptimizedImage, toS3Url } from "@/src/lib/imageUtils";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/src/components/layout/Layout";
 import { SEO } from "@/src/components/SEO";
@@ -551,7 +551,7 @@ export function ProductDetail() {
 
   const displayImage = useMemo(() => {
     if (rawDisplayImage && isProductImage(rawDisplayImage) && !brokenImages[rawDisplayImage]) {
-      return rawDisplayImage;
+      return toS3Url(rawDisplayImage);
     }
     if (validImages.length > 0) {
       return validImages[0];

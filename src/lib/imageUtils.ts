@@ -76,7 +76,7 @@ export function cleanAndDeduplicateImages(urls: (string | null | undefined)[]): 
     // For uploaded local files (/uploads/...), preserve exact files without signature deduplication
     if (url.includes('/uploads/') || url.startsWith('data:')) {
       seenExactUrls.add(exactKey);
-      uniqueUrls.push(url);
+      uniqueUrls.push(toS3Url(url));
       continue;
     }
 
@@ -146,14 +146,23 @@ export function getFeaturedImage(product: { image?: string | null; images?: any;
   }
 
   if (validCandidates.length > 0) {
-    return validCandidates[0];
+    return toS3Url(validCandidates[0]);
   }
-  return fallback;
+  return toS3Url(fallback);
 }
 
 
+export const S3_BASE_URL = 'https://printfielddigital.s3.ap-south-1.amazonaws.com';
+
+export function toS3Url(path: string | null | undefined): string {
+  if (!path) return path || '';
+  if (path.startsWith('/uploads/')) return `${S3_BASE_URL}${path}`;
+  return path;
+}
+
 export function getOptimizedImage(url: string | null | undefined, width: number): string | null | undefined {
   if (!url) return url;
+  if (url.startsWith('/uploads/')) return toS3Url(url);
   if (url.includes('printo-s3.dietpixels.net') && !url.includes('w=')) {
     const sep = url.includes('?') ? '&' : '?';
     return `${url}${sep}w=${width}`;
