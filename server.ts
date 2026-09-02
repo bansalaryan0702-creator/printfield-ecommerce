@@ -3822,11 +3822,15 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
         currentProds.unshift({
           id,
           name: p.name || 'New Product',
+          model: p.model || '',
           category: p.category || 'General',
           subCategory: p.subCategory || '',
           price: Number(p.price || 0),
           stockQty: p.stockQty !== undefined ? p.stockQty : null,
           isDisabled: !!p.isDisabled,
+          isActive: p.isActive !== undefined ? !!p.isActive : true,
+          isBestseller: !!p.isBestseller,
+          isFeatured: !!p.isFeatured,
           image: finalImage,
           images: finalImages,
           description: p.description || '',
@@ -3836,6 +3840,9 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
           features: Array.isArray(p.features) ? p.features : [],
           colors: Array.isArray(p.colors) ? p.colors : [],
           variations: Array.isArray(p.variations) ? p.variations : [],
+          sizes: Array.isArray(p.sizes) ? p.sizes : [],
+          hsnCode: p.hsnCode || '',
+          gstRate: p.gstRate || 18,
           createdAt: now,
           updatedAt: now
         });
