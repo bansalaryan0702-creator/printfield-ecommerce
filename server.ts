@@ -3761,11 +3761,15 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
       const newObj = {
         id,
         name: p.name || 'New Product',
+        model: p.model || '',
         category: p.category || 'General',
         subCategory: p.subCategory || '',
         price: Number(p.price || 0),
         stockQty: p.stockQty !== undefined ? p.stockQty : null,
         isDisabled: !!p.isDisabled,
+        isActive: p.isActive !== undefined ? !!p.isActive : true,
+        isBestseller: !!p.isBestseller,
+        isFeatured: !!p.isFeatured,
         image: finalImage,
         images: finalImages,
         description: p.description || '',
@@ -3775,6 +3779,9 @@ async function moveImagesToS3(image: string, images: string[]): Promise<{ image:
         features: Array.isArray(p.features) ? p.features : [],
         colors: Array.isArray(p.colors) ? p.colors : [],
         variations: Array.isArray(p.variations) ? p.variations : [],
+        sizes: Array.isArray(p.sizes) ? p.sizes : [],
+        hsnCode: p.hsnCode || '',
+        gstRate: p.gstRate || 18,
         createdAt: Date.now(),
         updatedAt: Date.now()
       };
@@ -4845,6 +4852,10 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
 
   // Dynamic Meta Tags Injection for Product Pages (SEO optimization for crawlers & bots)
   app.get('/product/:id(*)', async (req, res, next) => {
+    // In dev mode, skip SSR meta injection — let Vite handle the response
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      return next();
+    }
     try {
       const prodId = req.params.id;
       if (!prodId) return next();
@@ -4938,6 +4949,10 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
 
   // Dynamic Meta Tags Injection for Category Pages
   app.get('/category/:id(*)', async (req, res, next) => {
+    // In dev mode, skip SSR meta injection — let Vite handle the response
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      return next();
+    }
     try {
       const catId = req.params.id;
       if (!catId) return next();
