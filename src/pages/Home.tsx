@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/src/components/layout/Layout";
 import { ProductCard } from "@/src/components/ui/ProductCard";
+import { Product } from "@/src/data/products";
 import { 
   ArrowRight, Package, Star,
   GraduationCap, Factory, Store, Utensils, HeartPulse, Building2, Laptop, Home as HomeIcon, X, Check, Loader2
@@ -10,6 +11,7 @@ import { useProducts } from "../hooks/useProducts";
 import { motion, useScroll, useTransform } from "motion/react";
 import { apiFetch } from "../lib/api";
 import { SEO } from "../components/SEO";
+import { getFeaturedImage } from "@/src/lib/imageUtils";
 
 const getIndustryIcon = (iconName: string) => {
   switch (iconName) {
@@ -149,8 +151,63 @@ const INDUSTRIES = [
 ];
 
 export function Home() {
-  const { products, loading } = useProducts(1, 6);
   const containerRef = useRef(null);
+  
+  // Fetch products from multiple categories for diverse "Trending Now" section
+  const trendingCategories = ['apparel', 'drinkware', 'corporate-gifts', 'trophies', 'business-stationery', 'signage'];
+  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+  const [trendingLoading, setTrendingLoading] = useState(true);
+  
+  const { products, loading } = useProducts(1, 6);
+  
+  // Fetch diverse products from multiple categories
+  useEffect(() => {
+    let isCancelled = false;
+    
+    async function fetchDiverseProducts() {
+      setTrendingLoading(true);
+      try {
+        const allProducts: Product[] = [];
+        
+        // Fetch 2 products from each category
+        for (const catId of trendingCategories) {
+          try {
+            const url = `/api/products?limit=2&category=${catId}&sort=newest`;
+            const response = await apiFetch(url);
+            if (response.ok) {
+              const resData = await response.json();
+              const catProducts = (resData.data || [])
+                .filter((p: any) => !p.isDisabled && getFeaturedImage(p))
+                .slice(0, 2);
+              allProducts.push(...catProducts);
+            }
+          } catch (e) {
+            console.warn(`Failed to fetch products for ${catId}:`, e);
+          }
+        }
+        
+        // Shuffle and take 6 products
+        if (!isCancelled) {
+          const shuffled = allProducts.sort(() => Math.random() - 0.5).slice(0, 6);
+          setTrendingProducts(shuffled);
+        }
+      } catch (error) {
+        console.error("Error fetching diverse products:", error);
+        // Fallback to default products
+        if (!isCancelled) {
+          setTrendingProducts(products);
+        }
+      } finally {
+        if (!isCancelled) setTrendingLoading(false);
+      }
+    }
+    
+    fetchDiverseProducts();
+  }, [products, trendingCategories]);
+  
+  // Use diverse products if available, otherwise fallback to default
+  const displayProducts = trendingProducts.length > 0 ? trendingProducts : products;
+  const displayLoading = trendingLoading || loading;
 
   // Industry Solutions States
   const [selectedIndustry, setSelectedIndustry] = useState<typeof INDUSTRIES[number] | null>(null);
@@ -534,12 +591,12 @@ export function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loading ? (
+            {displayLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="bg-slate-100 animate-pulse rounded-2xl h-[450px]"></div>
               ))
             ) : (
-              products.slice(0, 6).map((product, i) => (
+              displayProducts.slice(0, 6).map((product, i) => (
                 <motion.div 
                   key={product.id}
                   initial={{ opacity: 0, y: 50 }}
