@@ -353,7 +353,15 @@ export function ProductDetail() {
 
     const filtered = available.filter(img => typeof img === 'string' && img.trim() !== '' && !brokenImages[img]);
 
-    // Deduplicate variant images by color so we don't show 3 images of the same color
+    // Separate main product images from color variant images
+    // Variant images (from Supabase with /variant/ or color-specific) should only show when color is selected
+    const variantImages = filtered.filter(u => u.toLowerCase().includes('/variant/') || 
+      (product?.colors && product.colors.some((c: any) => c.image === u)));
+    
+    // Main product images = all images minus variant images
+    const mainProductImages = filtered.filter(u => !variantImages.includes(u));
+
+    // Deduplicate variant images by color so we don't show multiple images of the same color
     let colorsList: any[] = (product as any).colors || [];
     if (colorsList.length === 0 && (product as any).variations) {
       const colorVar = (product as any).variations.find((v: any) => {
@@ -378,40 +386,11 @@ export function ProductDetail() {
       }
     });
 
-    const variantImages = filtered.filter(u => u.toLowerCase().includes('/variant/'));
-    let deduplicatedFiltered = filtered;
-    if (variantImages.length > 0) {
-      const deduplicated: string[] = [];
-      filtered.forEach(img => {
-        const isVariant = img.toLowerCase().includes('/variant/');
-        if (isVariant) {
-          if (representativeColorImages.size > 0) {
-            if (representativeColorImages.has(img) && !deduplicated.includes(img)) {
-              deduplicated.push(img);
-            }
-          } else {
-            if (!deduplicated.includes(img)) {
-              deduplicated.push(img);
-            }
-          }
-        } else {
-          if (!deduplicated.includes(img)) {
-            deduplicated.push(img);
-          }
-        }
-      });
+    // For the gallery, ONLY show main product images (not color variants)
+    // Color variant images will be shown via color selection logic
+    let deduplicatedFiltered = mainProductImages;
 
-      representativeColorImages.forEach(img => {
-        if (!deduplicated.includes(img) && filtered.includes(img)) {
-          deduplicated.push(img);
-        }
-      });
-
-      if (deduplicated.length > 0) {
-        deduplicatedFiltered = deduplicated;
-      }
-    }
-
+    // For apparel products, swap first two images to show better angle first
     const isApparelProduct = ["Apparel", "Clothing & Bags", "Custom Apparel", "T-Shirts", "Corporate Uniforms"].includes(product?.category || "") || (product?.name && (String(product?.name || '').toLowerCase().includes("t-shirt") || String(product?.name || '').toLowerCase().includes("polo") || String(product?.name || '').toLowerCase().includes("hoodie") || String(product?.name || '').toLowerCase().includes("jacket") || String(product?.name || '').toLowerCase().includes("sweatshirt") || String(product?.name || '').toLowerCase().includes("wear")));
     if (isApparelProduct && deduplicatedFiltered.length >= 2) {
       deduplicatedFiltered = [...deduplicatedFiltered];
