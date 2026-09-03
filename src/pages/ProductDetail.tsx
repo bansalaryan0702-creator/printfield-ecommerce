@@ -3105,6 +3105,17 @@ export function ProductDetail() {
                     src={validImages[productGalleryLightboxIndex]}
                     alt={`${product?.name} preview ${productGalleryLightboxIndex + 1}`}
                     className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      const currentSrc = target.src;
+                      // Try without any query params
+                      if (!currentSrc.includes('?')) {
+                        target.src = currentSrc + '?v=' + Date.now();
+                      } else {
+                        target.src = currentSrc.split('?')[0] + '?v=' + Date.now();
+                      }
+                    }}
+                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                   />
                 </AnimatePresence>
               </div>
@@ -3137,6 +3148,12 @@ export function ProductDetail() {
                       referrerPolicy="no-referrer"
                       src={img}
                       alt={`Thumbnail ${i + 1}`}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (!target.src.includes('?')) {
+                          target.src = target.src + '?v=' + Date.now();
+                        }
+                      }}
                       className="w-full h-full object-cover"
                     />
                   </button>
