@@ -195,7 +195,7 @@ export function Home() {
         console.error("Error fetching diverse products:", error);
         // Fallback to default products
         if (!isCancelled) {
-          setTrendingProducts(products);
+          setTrendingProducts(fallbackProductsRef.current);
         }
       } finally {
         if (!isCancelled) setTrendingLoading(false);
@@ -203,7 +203,11 @@ export function Home() {
     }
     
     fetchDiverseProducts();
-  }, [products, trendingCategories]);
+  }, []);
+  
+  // Fallback products ref (avoids dependency on products)
+  const fallbackProductsRef = useRef(products);
+  fallbackProductsRef.current = products;
   
   // Use diverse products if available, otherwise fallback to default
   const displayProducts = trendingProducts.length > 0 ? trendingProducts : products;
