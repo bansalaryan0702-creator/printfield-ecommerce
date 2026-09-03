@@ -73,8 +73,8 @@ export function cleanAndDeduplicateImages(urls: (string | null | undefined)[]): 
 
     if (seenExactUrls.has(exactKey)) continue;
 
-    // For uploaded local files (/uploads/...), preserve exact files without signature deduplication
-    if (url.includes('/uploads/') || url.startsWith('data:')) {
+    // For uploaded local files (/uploads/...) and Supabase URLs, preserve exact files without signature deduplication
+    if (url.includes('/uploads/') || url.startsWith('data:') || url.includes('ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/')) {
       seenExactUrls.add(exactKey);
       uniqueUrls.push(toS3Url(url));
       continue;
@@ -162,6 +162,11 @@ export function getOptimizedImage(url: string | null | undefined, width: number)
   if (!url) return url;
   if (url.startsWith('/uploads/')) return toS3Url(url);
   if (url.includes('printo-s3.dietpixels.net') && !url.includes('w=')) {
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}w=${width}`;
+  }
+  // Handle Supabase storage URLs - add width parameter for optimization
+  if (url.includes('ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/') && !url.includes('w=')) {
     const sep = url.includes('?') ? '&' : '?';
     return `${url}${sep}w=${width}`;
   }
