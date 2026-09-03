@@ -7,6 +7,7 @@ import { ArrowLeft, Trophy, Info } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { SEO } from "../components/SEO";
+import { generateBreadcrumbSchema, generateCategoryItemListSchema } from "../lib/schema";
 
 const ALIAS_MAP: Record<string, string> = {
   'promotional-materials': 'marketing',
@@ -83,6 +84,14 @@ export function CategoryPage() {
         description={`Buy custom ${String(category.name || '').toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${String(category.name || '').toLowerCase()} with fast delivery. Order online at Printfield.`}
         canonicalUrl={`/category/${categoryId || 'all'}`}
         ogImage={category.image}
+        schema={JSON.stringify([
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Categories', url: '/categories' },
+            { name: category.name, url: `/category/${categoryId || 'all'}` },
+          ]),
+          generateCategoryItemListSchema(category.name, displayProducts),
+        ])}
       />
       {/* Category Header */}
       <div className="relative h-[280px] md:h-[340px] w-full overflow-hidden bg-slate-950 border-b border-slate-800">

@@ -5,6 +5,7 @@ import { cleanAndDeduplicateImages, isProductImage, getFallbackImage, getOptimiz
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/src/components/layout/Layout";
 import { SEO } from "@/src/components/SEO";
+import { generateBreadcrumbSchema } from "@/src/lib/schema";
 import { Product } from "@/src/data/products";
 import { Button } from "@/src/components/ui/button";
 import { ProductCard } from "@/src/components/ui/ProductCard";
@@ -1741,60 +1742,67 @@ export function ProductDetail() {
 
   return (
     <>
-      <SEO 
+<SEO 
         title={product?.metaTitle || `${product?.name || 'Product Details'} - Custom Printing | Printfield`}
         description={product?.metaDescription || product?.cardDescription || product?.description || 'Custom printing services with fast turnaround and high quality at Printfield.'}
         canonicalUrl={`/product/${product?.slug || product?.id || ''}`}
         ogImage={product?.image}
-        schema={product ? JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Product",
-          "name": product?.name,
-          "image": [product?.image, ...(Array.isArray(product?.images) ? product?.images : [])].filter(Boolean),
-          "description": product?.metaDescription || product?.cardDescription || product?.description || `Custom printed ${product?.name} with high-quality material and finish.`,
-          "sku": product?.id,
-          "brand": {
-            "@type": "Brand",
-            "name": "Printfield"
-          },
-          "offers": {
-            "@type": "Offer",
-            "price": product?.price || 0,
-            "priceCurrency": "INR",
-            "priceValidUntil": "2026-12-31",
-            "validFrom": "2026-01-01",
-            "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://www.printfieldonline.com/product/${product?.slug || product?.id}`,
-            "itemCondition": "https://schema.org/NewCondition",
-            "availability": product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
-            "seller": {
-              "@type": "Organization",
-              "name": "Printfield",
-              "areaServed": ["Whitefield", "Brookefield", "Marathahalli", "ITPL", "Mahadevapura", "Bengaluru"]
+        schema={product ? JSON.stringify([
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: product?.category || 'Products', url: `/category/${encodeURIComponent(product?.category || '')}` },
+            { name: product?.name || 'Product', url: `/product/${product?.slug || product?.id || ''}` },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": product?.name,
+            "image": [product?.image, ...(Array.isArray(product?.images) ? product?.images : [])].filter(Boolean),
+            "description": product?.metaDescription || product?.cardDescription || product?.description || `Custom printed ${product?.name} with high-quality material and finish.`,
+            "sku": product?.id,
+            "brand": {
+              "@type": "Brand",
+              "name": "Printfield"
             },
-            "shippingDetails": {
-              "@type": "OfferShippingDetails",
-              "shippingRate": {
-                "@type": "MonetaryAmount",
-                "value": "0",
-                "currency": "INR"
+            "offers": {
+              "@type": "Offer",
+              "price": product?.price || 0,
+              "priceCurrency": "INR",
+              "priceValidUntil": "2026-12-31",
+              "validFrom": "2026-01-01",
+              "url": typeof window !== 'undefined' ? window.location.origin + `/product/${product?.slug || product?.id}` : `https://www.printfieldonline.com/product/${product?.slug || product?.id}`,
+              "itemCondition": "https://schema.org/NewCondition",
+              "availability": product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+              "seller": {
+                "@type": "Organization",
+                "name": "Printfield",
+                "areaServed": ["Whitefield", "Brookefield", "Marathahalli", "ITPL", "Mahadevapura", "Bengaluru"]
               },
-              "shippingDestination": {
-                "@type": "DefinedRegion",
-                "addressCountry": "IN"
-              },
-              "deliveryTime": {
-                "@type": "ShippingDeliveryTime",
-                "handlingTime": {
-                  "@type": "QuantitativeValue",
-                  "minValue": 1,
-                  "maxValue": 3,
-                  "unitCode": "DAY"
+              "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                  "@type": "MonetaryAmount",
+                  "value": "0",
+                  "currency": "INR"
                 },
-                "transitTime": {
-                  "@type": "QuantitativeValue",
-                  "minValue": 1,
-                  "maxValue": 5,
-                  "unitCode": "DAY"
+                "shippingDestination": {
+                  "@type": "DefinedRegion",
+                  "addressCountry": "IN"
+                },
+                "deliveryTime": {
+                  "@type": "ShippingDeliveryTime",
+                  "handlingTime": {
+                    "@type": "QuantitativeValue",
+                    "minValue": 1,
+                    "maxValue": 3,
+                    "unitCode": "DAY"
+                  },
+                  "transitTime": {
+                    "@type": "QuantitativeValue",
+                    "minValue": 1,
+                    "maxValue": 5,
+                    "unitCode": "DAY"
+                  }
                 }
               }
             },
@@ -1812,7 +1820,7 @@ export function ProductDetail() {
               }
             }
           }
-        }) : undefined}
+        ]) : undefined}
       />
       {showCustomizer && (
         <ErrorBoundary><DesignEditor
