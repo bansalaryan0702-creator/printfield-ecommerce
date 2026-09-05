@@ -34,6 +34,9 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/sitemap.xml", "destination": "/api" },
+    { "source": "/product/(.*)", "destination": "/api" },
+    { "source": "/printing-(.*)", "destination": "/api" },
+    { "source": "/category/(.*)", "destination": "/api" },
     { "source": "/xiomi", "destination": "/api" },
     { "source": "/alanwalker", "destination": "/api" },
     { "source": "/wp-admin", "destination": "/api" },
