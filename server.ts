@@ -4954,6 +4954,264 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     next();
   });
 
+  // Dynamic Meta Tags Injection for Location Pages (printing-whitefield, printing-itpl, etc.)
+  app.get('/printing-:locationSlug', async (req, res, next) => {
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      return next();
+    }
+    try {
+      const locationSlug = req.params.locationSlug;
+      if (!locationSlug) return next();
+
+      // Location data matching LocationLanding.tsx LOCATIONS
+      const LOCATIONS: Record<string, any> = {
+        whitefield: {
+          name: "Whitefield", area: "Whitefield", city: "Bengaluru", pincode: "560066",
+          landmark: "Opp. Chaitanya Swojas, Borewell Road",
+          metaTitle: "Custom T-Shirt Printing in Whitefield Bangalore | Printfield",
+          metaDescription: "Best custom t-shirt printing, corporate gifting & promotional products in Whitefield, Bengaluru 560066. Fast delivery, bulk orders, free design studio. Order online.",
+          heroHeading: "Custom Printing Services in Whitefield",
+          heroSubheading: "Premium t-shirt printing, corporate gifts, signage & promotional products. Delivered to your doorstep in Whitefield, Bengaluru.",
+          nearbyAreas: ["Marathahalli", "Brookefield", "ITPL", "Mahadevapura", "Kadugodi"],
+          deliveryTime: "1-2 days",
+          mapQuery: "Printfield+Whitefield+Bengaluru",
+          latitude: 12.9698, longitude: 77.7500,
+          localKeywords: ["custom tshirt printing whitefield", "printing services whitefield bangalore", "corporate gifts whitefield", "bulk tshirt printing whitefield bengaluru", "signage whitefield"],
+          localContent: {
+            intro: "Printfield is Whitefield's most trusted custom printing shop, located on Borewell Road. We serve startups, corporates, and individuals with high-quality t-shirt printing, embroidery, corporate gifting, signage, and promotional merchandise. With over 12 years of experience, we deliver to all areas within Whitefield including ITPL, Brookefield, and Marathahalli.",
+            services: ["Custom T-Shirt Printing (DTF, Screen Print, Embroidery)", "Corporate Gifts & Merchandise", "Signage, Banners & Standees", "Business Cards & Stationery", "Promotional Products", "Custom Hoodies, Caps & Apparels"],
+            whyUs: ["Same-day design approval", "Bulk orders from 10 pieces", "Free online 3D design tool", "Delivery within Whitefield in 1-2 days", "GST invoice for all orders", "12+ years serving Bengaluru"]
+          }
+        },
+        itpl: {
+          name: "ITPL", area: "ITPL / Whitefield", city: "Bengaluru", pincode: "560048",
+          landmark: "Near ITPL Main Road",
+          metaTitle: "Custom T-Shirt Printing near ITPL Bangalore | Printfield",
+          metaDescription: "Custom t-shirt printing & corporate gifting near ITPL, Whitefield, Bengaluru. Fast delivery to ITPL Tech Park, Wipro SEZ, and surrounding areas. Bulk orders welcome.",
+          heroHeading: "Custom Printing Services near ITPL",
+          heroSubheading: "Trusted by 200+ companies in ITPL Tech Park for custom apparel, corporate gifts & branded merchandise.",
+          nearbyAreas: ["Whitefield", "Brookefield", "Marathahalli", "Kadugodi", "Hope Farm"],
+          deliveryTime: "1-2 days",
+          mapQuery: "Printfield+ITPL+Whitefield+Bengaluru",
+          latitude: 12.9850, longitude: 77.7460,
+          localKeywords: ["custom tshirt printing ITPL", "corporate printing ITPL bangalore", "bulk tshirt ITPL whitefield", "promotional products ITPL tech park"],
+          localContent: {
+            intro: "Located just minutes from ITPL Tech Park, Printfield is the go-to printing partner for companies in and around ITPL. From startup launch merchandise to corporate uniform printing, we handle orders of all sizes with quick turnaround.",
+            services: ["Corporate Uniform Printing", "Event T-Shirts & Merchandise", "Branded Corporate Gifts", "Office Signage & Wayfinding", "Business Cards & Letterheads", "Custom Hoodies & Jackets"],
+            whyUs: ["5-minute drive from ITPL", "Express delivery for urgent orders", "Volume discounts for 100+ pieces", "Dedicated account manager for corporates", "Free design consultation", "Trusted by 200+ IT companies"]
+          }
+        },
+        brookefield: {
+          name: "Brookefield", area: "Brookefield", city: "Bengaluru", pincode: "560037",
+          landmark: "Near Brookefield Main Road",
+          metaTitle: "Custom T-Shirt Printing in Brookefield Bangalore | Printfield",
+          metaDescription: "Best custom t-shirt printing services in Brookefield, Bengaluru. Corporate gifting, promotional products & bulk apparel printing. Fast delivery to Brookefield & nearby areas.",
+          heroHeading: "Custom Printing Services in Brookefield",
+          heroSubheading: "Your neighborhood printing partner for custom t-shirts, corporate gifts, banners & promotional products in Brookefield, Bengaluru.",
+          nearbyAreas: ["Whitefield", "Marathahalli", "Koramangala", "HSR Layout", "Bellandur"],
+          deliveryTime: "1-2 days",
+          mapQuery: "Printfield+Brookefield+Bengaluru",
+          latitude: 12.9670, longitude: 77.7450,
+          localKeywords: ["custom tshirt printing brookefield", "printing services brookefield bangalore", "corporate gifts brookefield", "bulk tshirt brookefield bengaluru"],
+          localContent: {
+            intro: "Printfield serves the Brookefield community with premium custom printing services. Whether you need t-shirts for a college fest, corporate uniforms for your startup, or promotional giveaways for an event, we've got you covered. Located in Whitefield, we deliver to all parts of Brookefield within 1-2 days.",
+            services: ["Custom T-Shirt & Apparel Printing", "Corporate Gifting Solutions", "Event & Promotional Products", "Signage & Banners", "Business Cards & Flyers", "Custom Caps & Accessories"],
+            whyUs: ["Serving Brookefield since 2012", "Free design mockups before printing", "Starting at just ₹99 per piece", "Same-day dispatch for ready designs", "Pickup or delivery options", "100% quality guarantee"]
+          }
+        },
+        marathahalli: {
+          name: "Marathahalli", area: "Marathahalli", city: "Bengaluru", pincode: "560037",
+          landmark: "Near Marathahalli Bridge",
+          metaTitle: "Custom T-Shirt Printing in Marathahalli Bangalore | Printfield",
+          metaDescription: "Custom t-shirt printing, corporate gifting & promotional products in Marathahalli, Bengaluru. Bulk orders, fast delivery, free design support. Order online now.",
+          heroHeading: "Custom Printing Services in Marathahalli",
+          heroSubheading: "Professional printing services for corporates, startups & events in Marathahalli, Bengaluru. Quality prints, fast turnaround.",
+          nearbyAreas: ["Whitefield", "Brookefield", "Bellandur", "Sarjapur Road", "ORR"],
+          deliveryTime: "1-2 days",
+          mapQuery: "Printfield+Marathahalli+Bengaluru",
+          latitude: 12.9560, longitude: 77.7010,
+          localKeywords: ["custom tshirt printing marathahalli", "printing services marathahalli bangalore", "corporate gifts marathahalli", "bulk tshirt marathahalli bengaluru"],
+          localContent: {
+            intro: "Printfield brings premium custom printing to Marathahalli. As one of Bengaluru's busiest commercial hubs, Marathahalli demands fast, reliable printing services — and that's exactly what we deliver. From tech park companies to local businesses and colleges, we serve everyone with the same commitment to quality.",
+            services: ["Corporate T-Shirt Printing", "Event & Promotional Merchandise", "Custom Hoodies & Apparels", "Signage, Flex & Standees", "Business Cards & Stationery", "Custom Mugs, Bottles & Gifts"],
+            whyUs: ["Quick delivery to Marathahalli", "Trusted by 500+ businesses", "Online design studio — design from home", "Bulk discounts from 10 pieces", "Premium print quality guaranteed", "GST invoice for all orders"]
+          }
+        },
+        'epip-zone': {
+          name: "EPIP Zone", area: "EPIP Zone, Whitefield", city: "Bengaluru", pincode: "560066",
+          landmark: "Near EPIP Zone, Whitefield",
+          metaTitle: "Corporate Printing & Gifting in EPIP Zone Bangalore | Printfield",
+          metaDescription: "Corporate printing & gifting in EPIP Zone, Whitefield, Bangalore. Onboarding kits, awards, apparel, brochures, signage. Own production unit, 10+ years experience. Fast delivery.",
+          heroHeading: "Corporate Printing Services in EPIP Zone",
+          heroSubheading: "Trusted by 100+ companies in EPIP Zone for corporate gifting, onboarding kits, branded merchandise & promotional products.",
+          nearbyAreas: ["Whitefield", "ITPL", "Brookefield", "Kadugodi", "Hoodi"],
+          deliveryTime: "1-2 days",
+          mapQuery: "EPIP+Zone+Whitefield+Bengaluru",
+          latitude: 12.9780, longitude: 77.7490,
+          localKeywords: ["corporate printing EPIP zone", "corporate gifting EPIP zone bangalore", "onboarding kits EPIP zone", "promotional products EPIP zone whitefield", "printing near EPIP zone"],
+          localContent: {
+            intro: "Printfield is the nearest printing shop to EPIP Zone, Whitefield with our own production unit on Borewell Road. We serve 100+ companies in EPIP Zone with corporate onboarding kits, branded apparel, awards, signage, and promotional merchandise.",
+            services: ["Corporate Onboarding Kits", "Branded Apparel & Uniforms", "Awards & Trophies", "Signage & Wayfinding", "Brochures & Catalogues", "Promotional Merchandise"],
+            whyUs: ["5-minute drive from EPIP Zone", "Own production unit — no outsourcing", "10+ years serving Bengaluru corporates", "Express delivery for urgent orders", "Volume discounts from 10 pieces", "GST invoice for all orders"]
+          }
+        },
+        kadugodi: {
+          name: "Kadugodi", area: "Kadugodi", city: "Bengaluru", pincode: "560066",
+          landmark: "Near Kadugodi Main Road",
+          metaTitle: "Custom Printing & Corporate Gifting in Kadugodi Bangalore | Printfield",
+          metaDescription: "Custom printing & corporate gifting in Kadugodi, Whitefield, Bangalore. T-shirts, apparel, signage, brochures. Own production unit on Borewell Road. Fast delivery.",
+          heroHeading: "Custom Printing Services in Kadugodi",
+          heroSubheading: "Your local printing partner for custom apparel, corporate gifts, signage & promotional products in Kadugodi, Whitefield.",
+          nearbyAreas: ["Whitefield", "ITPL", "Brookefield", "Hoodi", "Hope Farm"],
+          deliveryTime: "1-2 days",
+          mapQuery: "Kadugodi+Whitefield+Bengaluru",
+          latitude: 12.9820, longitude: 77.7430,
+          localKeywords: ["custom printing kadugodi", "corporate gifting kadugodi bangalore", "tshirt printing kadugodi whitefield", "signage kadugodi"],
+          localContent: {
+            intro: "Printfield serves the Kadugodi community with premium custom printing services. Located on Borewell Road, just minutes from Kadugodi, we deliver t-shirt printing, corporate gifting, signage, and promotional products to homes and businesses.",
+            services: ["Custom T-Shirt & Apparel Printing", "Corporate Gifting Solutions", "Signage, Banners & Standees", "Business Cards & Stationery", "Promotional Products", "Custom Hoodies & Caps"],
+            whyUs: ["Closest print shop to Kadugodi", "Own production unit on Borewell Road", "Same-day design approval", "Bulk orders from 10 pieces", "Free online design tool", "100% quality guarantee"]
+          }
+        },
+        hoodi: {
+          name: "Hoodi", area: "Hoodi", city: "Bengaluru", pincode: "560066",
+          landmark: "Near Hoodi Main Road",
+          metaTitle: "Custom Printing & Corporate Gifting in Hoodi Bangalore | Printfield",
+          metaDescription: "Custom printing & corporate gifting in Hoodi, Whitefield, Bangalore. Onboarding kits, apparel, signage, brochures. Own production unit, 10+ years. Fast delivery.",
+          heroHeading: "Custom Printing Services in Hoodi",
+          heroSubheading: "Professional printing services for corporates, startups & events in Hoodi, Whitefield, Bengaluru.",
+          nearbyAreas: ["Whitefield", "Brookefield", "Marathahalli", "Kadugodi", "Mahadevapura"],
+          deliveryTime: "1-2 days",
+          mapQuery: "Hoodi+Whitefield+Bengaluru",
+          latitude: 12.9750, longitude: 77.7420,
+          localKeywords: ["custom printing hoodi", "corporate gifting hoodi bangalore", "tshirt printing hoodi whitefield", "signage hoodi", "printing services hoodi"],
+          localContent: {
+            intro: "Printfield is the trusted printing partner for businesses and individuals in Hoodi, Whitefield. From corporate onboarding kits to event t-shirts and promotional signage, we handle orders of all sizes with our own production unit on Borewell Road.",
+            services: ["Corporate Onboarding Kits", "Custom T-Shirt & Apparel Printing", "Awards & Trophies", "Signage, Banners & Flex", "Brochures, Catalogues & Flyers", "Custom Gifts & Merchandise"],
+            whyUs: ["Minutes from Hoodi on Borewell Road", "Own production unit — no outsourcing", "10+ years serving Bengaluru", "Bulk discounts from 10 pieces", "Free design consultation", "GST invoice for all orders"]
+          }
+        }
+      };
+
+      const location = LOCATIONS[locationSlug];
+      if (!location) return next();
+
+      const baseUrl = SITE_URL;
+      const title = location.metaTitle;
+      const desc = location.metaDescription;
+      const canonicalUrlFull = `${SITE_URL}/printing-${locationSlug}`;
+
+      const distPath = path.join(process.cwd(), 'dist');
+      const indexPath = path.join(distPath, 'index.html');
+
+      if (!fsSync.existsSync(indexPath)) return next();
+
+      let html = fsSync.readFileSync(indexPath, 'utf8');
+
+      function escapeAttr(str: string) { return String(str || '').replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"'); }
+      function escapeJson(str: string) { return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r'); }
+
+      // LocalBusiness Schema
+      const localBusinessJsonLd = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": `Printfield - Custom Printing ${location.area}`,
+        "description": location.metaDescription,
+        "url": canonicalUrlFull,
+        "image": "https://www.printfieldonline.com/logo.png",
+        "telephone": "+919606371222",
+        "email": "Aryan@printfield.in",
+        "foundingDate": "2004",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": `No 96, Mini Villa, ${location.landmark}`,
+          "addressLocality": location.area,
+          "addressRegion": location.city,
+          "postalCode": location.pincode,
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": location.latitude,
+          "longitude": location.longitude
+        },
+        "areaServed": [location.area, ...location.nearbyAreas],
+        "priceRange": "₹99 - ₹5000",
+        "openingHoursSpecification": [
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "10:00", "closes": "19:00" }
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.3",
+          "reviewCount": "150",
+          "bestRating": "5"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Custom Printing Services",
+          "itemListElement": location.localContent.services.map((service, idx) => ({
+            "@type": "Offer",
+            "itemOffered": { "@type": "Service", "name": service }
+          }))
+        }
+      });
+
+      // Breadcrumb Schema
+      const breadcrumbJsonLd = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.printfieldonline.com/" },
+          { "@type": "ListItem", "position": 2, "name": `Printing in ${location.area}`, "item": canonicalUrlFull }
+        ]
+      });
+
+      // FAQ Schema
+      const faqJsonLd = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {"@type": "Question", "name": `Do you offer custom t-shirt printing in ${location.area}?`, "acceptedAnswer": {"@type": "Answer", "text": `Yes, Printfield is located in ${location.area}, ${location.city}. We offer DTF printing, screen printing, and embroidery on t-shirts, hoodies, polo shirts, and caps. Orders start from just 10 pieces.`}},
+          {"@type": "Question", "name": "What are your printing prices?", "acceptedAnswer": {"@type": "Answer", "text": "Our custom t-shirt printing starts at ₹99 per piece for screen printing (50+ pieces). DTF printing starts at ₹149 per print. Corporate gifts, signage, and business cards have separate pricing. Contact us for a custom quote."}},
+          {"@type": "Question", "name": `Do you deliver to ${location.nearbyAreas.slice(0, 3).join(', ')}?`, "acceptedAnswer": {"@type": "Answer", "text": `Yes, we deliver to ${location.area}, ${location.nearbyAreas.join(', ')} and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders.`}},
+          {"@type": "Question", "name": "What printing methods do you offer?", "acceptedAnswer": {"@type": "Answer", "text": "We offer DTF (Direct-to-Film) printing for full-color designs, screen printing for bulk orders, and embroidery for premium corporate wear. We also do sublimation printing for mugs and gifts."}},
+          {"@type": "Question", "name": "Do you provide corporate gifting solutions?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, we are a leading corporate gifting company in ${location.area}. We offer custom mugs, trophies, plaques, pens, bags, t-shirts, and more with your company logo. GST invoice provided for all orders."}},
+          {"@type": "Question", "name": "What is the minimum order quantity?", "acceptedAnswer": {"@type": "Answer", "text": "For DTF printing, minimum order is 10 pieces. For screen printing, minimum is 50 pieces. For corporate gifts and trophies, there is no minimum — even single pieces are welcome."}}
+        ]
+      });
+
+      const metaTags = `
+    <title>${escapeAttr(title)}</title>
+    <meta name="description" content="${escapeAttr(desc)}" />
+    <link rel="canonical" href="${canonicalUrlFull}" />
+    <meta property="og:title" content="${escapeAttr(title)}" />
+    <meta property="og:description" content="${escapeAttr(desc)}" />
+    <meta property="og:image" content="https://www.printfieldonline.com/logo.png" />
+    <meta property="og:url" content="${canonicalUrlFull}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Printfield" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeAttr(title)}" />
+    <meta name="twitter:description" content="${escapeAttr(desc)}" />
+    <meta name="twitter:image" content="https://www.printfieldonline.com/logo.png" />
+    <script type="application/ld+json">${escapeJson(localBusinessJsonLd)}</script>
+    <script type="application/ld+json">${escapeJson(breadcrumbJsonLd)}</script>
+    <script type="application/ld+json">${escapeJson(faqJsonLd)}</script>
+`;
+
+      html = html.replace(/<title>.*?<\/title>/gi, '');
+      html = html.replace(/<link rel="canonical".*?\/>/gi, '');
+      html = html.replace(/<meta property="og:.*?\/>/gi, '');
+      html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
+      html = html.replace('</head>', `${metaTags}\n</head>`);
+
+      return res.setHeader('Content-Type', 'text/html').send(html);
+    } catch (err) {
+      console.warn('Location page SSR meta injection error:', err);
+    }
+    next();
+  });
+
   // Dynamic Meta Tags Injection for Category Pages
   app.get('/category/:id(*)', async (req, res, next) => {
     // In dev mode, skip SSR meta injection — let Vite handle the response
