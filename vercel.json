@@ -44,7 +44,7 @@
     { "source": "/wp-includes", "destination": "/api" },
     { "source": "/wordpress", "destination": "/api" },
     { "source": "/reviews", "destination": "/api" },
-    { "source": "/((?!api|_next|assets|uploads).*)", "destination": "/index.html" }
+    { "source": "/((?!api|_next|assets|uploads).*)", "destination": "/api" }
   ],
   "headers": [
     {
