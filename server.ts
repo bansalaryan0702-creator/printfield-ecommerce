@@ -5298,10 +5298,30 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+
+    app.get('/', (req, res) => {
+      const indexPath = path.join(distPath, 'index.html');
+      if (!fsSync.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      }
+      let html = fsSync.readFileSync(indexPath, 'utf8');
+      const meta = pageMeta['/'];
+      function escAtr(s: string) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      const canonicalUrl = `${SITE_URL}${meta.canonical}`;
+      const tags = `<title>${escAtr(meta.title)}</title>\n    <meta name="description" content="${escAtr(meta.description)}" />\n    <link rel="canonical" href="${canonicalUrl}" />\n    <meta property="og:title" content="${escAtr(meta.title)}" />\n    <meta property="og:description" content="${escAtr(meta.description)}" />\n    <meta property="og:url" content="${canonicalUrl}" />\n    <meta property="og:type" content="website" />\n    <meta property="og:site_name" content="Printfield" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:title" content="${escAtr(meta.title)}" />\n    <meta name="twitter:description" content="${escAtr(meta.description)}" />`;
+      html = html.replace(/<link rel="canonical".*?\/>/gi, '');
+      html = html.replace(/<meta name="description".*?\/>/gi, '');
+      html = html.replace(/<title>.*?<\/title>/gi, '');
+      html = html.replace(/<meta property="og:.*?\/>/gi, '');
+      html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
+      html = html.replace('</head>', `${tags}\n</head>`);
+      return res.setHeader('Content-Type', 'text/html').send(html);
+    });
+
     app.use(express.static(distPath));
 
     const pageMeta: Record<string, { title: string; description: string; canonical: string }> = {
-      '/': { title: 'Printfield | Corporate Printing & Gifting in Whitefield, Bangalore', description: 'Corporate printing & gifting in Whitefield, Bangalore. 22+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging. Fast delivery.', canonical: '/' },
+      '/': { title: 'Printfield | Custom Printing, Corporate Gifts & Trophies in Whitefield, Bangalore', description: 'Best printing shop in Whitefield, Bangalore. Custom t-shirt printing, corporate gifts, trophies, signage, business cards & apparel. 22+ years, own production unit. Bulk orders, fast delivery. Call +91 96063 71222.', canonical: '/' },
       '/about': { title: 'About Us - Printfield Digital Solutions', description: 'Learn about Printfield Digital Solutions, your trusted printing partner in Whitefield, Bengaluru.', canonical: '/about' },
       '/faq': { title: 'FAQ - Printfield Printing Services', description: 'Frequently asked questions about Printfield printing services, delivery, pricing, and customization.', canonical: '/faq' },
       '/contact': { title: 'Contact Us - Printfield Whitefield Bangalore', description: 'Contact Printfield for custom printing services. Call +91 96063 71222 or visit us in Whitefield, Bengaluru.', canonical: '/contact' },
@@ -5350,7 +5370,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
 
       for (const spam of spamPrefixes) {
         if (reqPath === spam || reqPath.startsWith(spam + '/')) {
-          return res.redirect(301, '/');
+          return res.status(404).set('X-Robots-Tag', 'noindex, nofollow').send(notFoundPage);
         }
       }
 

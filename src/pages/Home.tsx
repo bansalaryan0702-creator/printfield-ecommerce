@@ -274,8 +274,8 @@ export function Home() {
   return (
     <Layout>
       <SEO 
-        title="Printfield | Corporate Printing & Gifting in Whitefield, Bangalore" 
-        description="Corporate printing & gifting in Whitefield, Bangalore. 10+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging. Fast delivery."
+        title="Printfield | Custom Printing, Corporate Gifts & Trophies in Whitefield, Bangalore" 
+        description="Best printing shop in Whitefield, Bangalore. Custom t-shirt printing, corporate gifts, trophies, signage, business cards & apparel. 22+ years, own production unit. Bulk orders, fast delivery. Call +91 96063 71222."
         canonicalUrl="/"
         ogImage="/logo.png"
         schema={JSON.stringify({
@@ -314,7 +314,7 @@ export function Home() {
           "openingHoursSpecification": [
             { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "10:00", "closes": "19:00" }
           ],
-          "description": "Corporate printing & gifting in Whitefield, Bangalore. 10+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging.",
+          "description": "Corporate printing & gifting in Whitefield, Bangalore. 22+ years, own production unit on Borewell Road. Onboarding kits, awards, apparel, brochures, signage, packaging.",
           "aggregateRating": {
             "@type": "AggregateRating",
             "ratingValue": "4.3",
@@ -467,7 +467,7 @@ export function Home() {
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
               {[
-                { value: "10+", label: "Years Experience", sub: "Serving Bengaluru since 2004" },
+                { value: "22+", label: "Years Experience", sub: "Serving Bengaluru since 2004" },
                 { value: "Own Unit", label: "Production Facility", sub: "Borewell Road, Whitefield" },
                 { value: "10K+", label: "Orders Delivered", sub: "Corporate & individual" },
                 { value: "4.3★", label: "Customer Rating", sub: "150+ verified reviews" },
@@ -516,28 +516,32 @@ export function Home() {
                 name: "Promotional Materials",
                 displayName: "PROMOTIONAL MATERIALS",
                 image: "/api/proxy-image/1v3a0JHejsM-7YXyIyyQCqghoV-YLIv4O?w=800",
-                gridClass: "md:col-span-2"
+                gridClass: "md:col-span-2",
+                seoPath: "/corporate-gifts"
               },
               {
                 id: "apparel",
                 name: "Corporate Apparel",
                 displayName: "CORPORATE APPAREL",
                 image: "/api/proxy-image/16ZtTAEAnOgcY4FoheVizu_oiHSlwNDoK?w=600",
-                gridClass: "md:col-span-1 md:row-span-2 h-full min-h-[400px] md:min-h-full"
+                gridClass: "md:col-span-1 md:row-span-2 h-full min-h-[400px] md:min-h-full",
+                seoPath: "/apparel"
               },
               {
                 id: "drinkware",
                 name: "Drinkware & Sippers",
                 displayName: "DRINKWARE & SIPPERS",
                 image: "/api/proxy-image/1To3eajzVf05oiEfAkarRx_H4_Sn98neU?w=800",
-                gridClass: "md:col-span-1"
+                gridClass: "md:col-span-1",
+                seoPath: "/drinkware"
               },
               {
                 id: "business-stationery",
                 name: "Business Stationery",
                 displayName: "BUSINESS STATIONERY",
                 image: "/api/proxy-image/1omKI3woeT0iM3E34ApSsp5WwGPqxSCfQ?w=800",
-                gridClass: "md:col-span-1"
+                gridClass: "md:col-span-1",
+                seoPath: "/business-stationery"
               }
             ].map((cat, i) => (
               <motion.div
@@ -552,7 +556,7 @@ export function Home() {
                   <img 
                     referrerPolicy="no-referrer" 
                     src={cat.image} 
-                    alt={cat.name} 
+                    alt={`${cat.name} - Custom printing services in Whitefield Bangalore`} 
                     className="w-full h-full object-cover object-center opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" 
                     loading="lazy"
                     width="800"
@@ -560,7 +564,7 @@ export function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black/80"></div>
                 </div>
-                <Link to={`/category/${cat.id}`} className="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                <Link to={cat.seoPath || `/category/${cat.id}`} className="absolute inset-0 p-8 flex flex-col justify-between z-10">
                   <div>
                     <span className="text-white/95 text-xs font-bold tracking-wider uppercase bg-black/20 backdrop-blur-sm px-2.5 py-1 rounded-md drop-shadow-sm">
                       {cat.name}

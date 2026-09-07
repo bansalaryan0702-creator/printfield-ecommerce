@@ -7,5 +7,12 @@ Disallow: /checkout
 Disallow: /login
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /xiomi
+Disallow: /wp-admin
+Disallow: /wp-content
+Disallow: /wp-includes
+Disallow: /wordpress
+Disallow: /alanwalker
+Disallow: /reviews
 
 Sitemap: https://www.printfieldonline.com/sitemap.xml

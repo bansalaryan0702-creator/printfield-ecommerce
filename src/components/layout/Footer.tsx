@@ -25,13 +25,14 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Products</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/category/business-cards" className="hover:text-purple-400 transition-colors">Business Cards</Link></li>
-              <li><Link to="/category/apparel" className="hover:text-purple-400 transition-colors">Custom T-Shirts</Link></li>
-              <li><Link to="/category/marketing" className="hover:text-purple-400 transition-colors">Flyers & Brochures</Link></li>
-              <li><Link to="/category/gifts" className="hover:text-purple-400 transition-colors">Corporate Gifts</Link></li>
-              <li><Link to="/catalogs" className="hover:text-purple-400 transition-colors">📄 Product Catalogs</Link></li>
-              <li><Link to="/category/signage" className="hover:text-purple-400 transition-colors">Banners & Signboards</Link></li>
-              <li><Link to="/category/trophies" className="hover:text-purple-400 transition-colors">Custom Trophies & Awards</Link></li>
+              <li><Link to="/business-stationery" className="hover:text-purple-400 transition-colors">Business Cards & Stationery</Link></li>
+              <li><Link to="/apparel" className="hover:text-purple-400 transition-colors">Custom T-Shirts & Apparel</Link></li>
+              <li><Link to="/corporate-gifts" className="hover:text-purple-400 transition-colors">Corporate Gifts</Link></li>
+              <li><Link to="/trophies" className="hover:text-purple-400 transition-colors">Trophies & Awards</Link></li>
+              <li><Link to="/drinkware" className="hover:text-purple-400 transition-colors">Drinkware & Bottles</Link></li>
+              <li><Link to="/signage" className="hover:text-purple-400 transition-colors">Signage & Banners</Link></li>
+              <li><Link to="/personalised-gifts" className="hover:text-purple-400 transition-colors">Personalised Gifts</Link></li>
+              <li><Link to="/catalogs" className="hover:text-purple-400 transition-colors">Product Catalogs</Link></li>
             </ul>
           </div>
 
