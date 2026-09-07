@@ -4884,7 +4884,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         const img = product.image || '';
         const canonicalSlug = product.slug || product.id;
         const canonicalUrl = `${baseUrl}/product/${encodeURIComponent(canonicalSlug)}`;
-        const ogImageUrl = img.startsWith('http') ? img : `${baseUrl}${img}`;
+        const ogImageUrl = img.startsWith('http') ? img : (img.startsWith('/uploads/') ? `https://printfielddigital.s3.ap-south-1.amazonaws.com${img}` : `${baseUrl}${img}`);
 
     const distPath = path.join(process.cwd(), 'dist');
     const spaFile = fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html';
@@ -4905,7 +4905,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
             "@context": "https://schema.org",
             "@type": "Product",
             "name": product.name,
-            "image": [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean),
+            "image": [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean).map((img: string) => img.startsWith('http') ? img : (img.startsWith('/uploads/') ? `https://printfielddigital.s3.ap-south-1.amazonaws.com${img}` : `${SITE_URL}${img}`)),
             "description": desc,
             "sku": product.id,
             "brand": { "@type": "Brand", "name": "Printfield" },
@@ -5246,7 +5246,8 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       const catDesc = `Buy custom ${canonicalCat.toLowerCase()} in Whitefield, Bangalore 560066. Premium quality ${canonicalCat.toLowerCase()} with fast delivery. Order online at Printfield.`;
       const canonicalUrl = `${SITE_URL}/category/${encodeURIComponent(canonicalCat)}`;
       const catProducts = allProducts.filter((p: any) => p.category === canonicalCat && !p.isDisabled);
-      const catImage = catProducts[0]?.image || 'https://www.printfieldonline.com/logo.png';
+      const rawCatImg = catProducts[0]?.image || '';
+      const catImage = rawCatImg.startsWith('http') ? rawCatImg : (rawCatImg.startsWith('/uploads/') ? `https://printfielddigital.s3.ap-south-1.amazonaws.com${rawCatImg}` : (rawCatImg || 'https://www.printfieldonline.com/logo.png'));
 
       const distPath = path.join(process.cwd(), 'dist');
       const indexPath = path.join(distPath, fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html');
