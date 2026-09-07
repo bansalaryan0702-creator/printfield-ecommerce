@@ -162,8 +162,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'fire
 
 import Razorpay from 'razorpay';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { initializeApp as initAdminApp, getApps as getAdminApps, cert as adminCert } from 'firebase-admin/app';
-import { getAuth as getAdminAuth } from 'firebase-admin/auth';
+import admin from 'firebase-admin';
 
 const s3BucketName = process.env.AWS_S3_BUCKET || 'printfielddigital';
 const s3Region = process.env.AWS_REGION || 'ap-south-1';
@@ -605,29 +604,30 @@ try {
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseStorage = getStorage(firebaseApp);
 
-let adminAuth: any = null;
 try {
-  let adminApp: any;
-  if (!getAdminApps().length) {
-    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-      adminApp = initAdminApp({
-        credential: adminCert({
-          projectId: firebaseConfig.projectId,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
+  if (!admin?.apps?.length) {
+    if (admin?.credential?.applicationDefault) {
+      admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
         projectId: firebaseConfig.projectId,
       });
     } else {
-      adminApp = initAdminApp({
-        projectId: firebaseConfig.projectId,
-      });
+      admin.initializeApp();
     }
-  } else {
-    adminApp = getAdminApps()[0];
   }
-  adminAuth = getAdminAuth(adminApp);
-  console.log('[Firebase Admin] Initialized successfully for project:', firebaseConfig.projectId);
+  if (!admin?.apps?.length && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: firebaseConfig.projectId,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      }),
+      projectId: firebaseConfig.projectId,
+    });
+  }
+  if (admin.apps?.[0]) {
+    console.log('[Firebase Admin] Initialized successfully for project:', firebaseConfig.projectId);
+  }
 } catch (e2: any) {
   console.warn('Firebase Admin SDK initialization skipped or warning:', (e2 as Error).message);
 }
@@ -2156,10 +2156,9 @@ const SITE_URL = 'https://www.printfieldonline.com';
       
       // 1. Try Firebase Admin ID token verification
       try {
-        if (adminAuth) {
-          decodedToken = await adminAuth.verifyIdToken(token);
-        } else if (getAdminApps().length) {
-          decodedToken = await getAdminAuth(getAdminApps()[0]).verifyIdToken(token);
+        if (admin?.apps?.length) {
+          const { getAuth } = await import('firebase-admin/auth');
+          decodedToken = await getAuth(admin.apps[0]).verifyIdToken(token);
         }
       } catch (verifyErr: any) {
         console.warn('Firebase Admin verifyIdToken note:', verifyErr.message);
