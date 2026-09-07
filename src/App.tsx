@@ -29,6 +29,7 @@ const SEOLanding = lazy(() => import("./pages/SEOLanding").then(m => ({ default:
 const LocationLanding = lazy(() => import("./pages/LocationLanding").then(m => ({ default: m.LocationLanding })));
 const Rating = lazy(() => import("./pages/Rating").then(m => ({ default: m.Rating })));
 const Catalogs = lazy(() => import("./pages/Catalogs").then(m => ({ default: m.Catalogs })));
+const CategoryLanding = lazy(() => import("./pages/CategoryLanding").then(m => ({ default: m.CategoryLanding })));
 
 function LoadingFallback() {
   return (
@@ -58,6 +59,14 @@ export default function App() {
           <Route path="/printing-:locationSlug" element={<LocationLanding />} />
           <Route path="/categories" element={<CategoryPage />} />
           <Route path="/catalogs" element={<Catalogs />} />
+          <Route path="/corporate-gifts" element={<CategoryLanding />} />
+          <Route path="/trophies" element={<CategoryLanding />} />
+          <Route path="/apparel" element={<CategoryLanding />} />
+          <Route path="/business-stationery" element={<CategoryLanding />} />
+          <Route path="/drinkware" element={<CategoryLanding />} />
+          <Route path="/signage" element={<CategoryLanding />} />
+          <Route path="/personalised-gifts" element={<CategoryLanding />} />
+          <Route path="/education-institutions" element={<CategoryLanding />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/admin" element={<Admin />} />

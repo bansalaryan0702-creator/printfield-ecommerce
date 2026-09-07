@@ -4816,6 +4816,15 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         { path: '/', priority: '1.0', changefreq: 'daily' },
         { path: '/categories', priority: '0.9', changefreq: 'daily' },
         { path: '/custom-printing', priority: '0.8', changefreq: 'weekly' },
+        { path: '/corporate-gifts', priority: '0.9', changefreq: 'weekly' },
+        { path: '/trophies', priority: '0.9', changefreq: 'weekly' },
+        { path: '/apparel', priority: '0.9', changefreq: 'weekly' },
+        { path: '/business-stationery', priority: '0.8', changefreq: 'weekly' },
+        { path: '/drinkware', priority: '0.8', changefreq: 'weekly' },
+        { path: '/signage', priority: '0.8', changefreq: 'weekly' },
+        { path: '/personalised-gifts', priority: '0.8', changefreq: 'weekly' },
+        { path: '/education-institutions', priority: '0.8', changefreq: 'weekly' },
+        { path: '/catalogs', priority: '0.7', changefreq: 'weekly' },
         { path: '/printing-whitefield', priority: '0.9', changefreq: 'weekly' },
         { path: '/printing-itpl', priority: '0.8', changefreq: 'weekly' },
         { path: '/printing-brookefield', priority: '0.8', changefreq: 'weekly' },
@@ -5309,6 +5318,14 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       '/printing-kadugodi': { title: 'Custom Printing & Corporate Gifting in Kadugodi Bangalore | Printfield', description: 'Custom printing & corporate gifting in Kadugodi, Whitefield, Bangalore. T-shirts, apparel, signage, brochures. Own production unit. Fast delivery.', canonical: '/printing-kadugodi' },
       '/printing-hoodi': { title: 'Custom Printing & Corporate Gifting in Hoodi Bangalore | Printfield', description: 'Custom printing & corporate gifting in Hoodi, Whitefield, Bangalore. Onboarding kits, apparel, signage, brochures. 22+ years experience. Fast delivery.', canonical: '/printing-hoodi' },
       '/categories': { title: 'All Categories - Printfield Printing Services', description: 'Browse all printing categories at Printfield. Trophies, apparel, corporate gifts, signage, photo prints & more.', canonical: '/categories' },
+      '/corporate-gifts': { title: 'Corporate Gifts in Whitefield Bangalore | Custom branded Gifts | Printfield', description: 'Best corporate gifts in Whitefield, Bangalore. Custom branded mugs, pens, tech accessories, gift sets & onboarding kits. Bulk orders, GST invoice, fast delivery.', canonical: '/corporate-gifts' },
+      '/trophies': { title: 'Custom Trophies & Awards in Whitefield Bangalore | Crystal, Wooden, Metal | Printfield', description: 'Best custom trophies in Whitefield, Bangalore. Crystal, wooden, metal & fibre trophies. Award plaques, mementos & recognition awards. Bulk orders, fast delivery.', canonical: '/trophies' },
+      '/apparel': { title: 'Custom T-Shirt Printing & Apparel in Whitefield Bangalore | DTF, Screen Print | Printfield', description: 'Best custom t-shirt printing in Whitefield, Bangalore. DTF printing, screen printing & embroidery on t-shirts, polo shirts, hoodies & jackets. Bulk orders from 10 pcs.', canonical: '/apparel' },
+      '/business-stationery': { title: 'Business Cards, Letterheads & Stationery in Whitefield Bangalore | Printfield', description: 'Best business cards, letterheads & stationery printing in Whitefield, Bangalore. Premium cards, envelopes, folders, stamps & certificates.', canonical: '/business-stationery' },
+      '/drinkware': { title: 'Custom Water Bottles, Mugs & Drinkware in Whitefield Bangalore | Printfield', description: 'Best custom drinkware in Whitefield, Bangalore. Printed water bottles, coffee mugs, tumblers & sipper bottles. Logo printing, bulk orders, fast delivery.', canonical: '/drinkware' },
+      '/signage': { title: 'Custom Signage, Banners & Standees in Whitefield Bangalore | Printfield', description: 'Best signage & banner printing in Whitefield, Bangalore. Roll-up standees, outdoor banners, sunboard, acrylic signs, LED light boxes. Fast delivery.', canonical: '/signage' },
+      '/personalised-gifts': { title: 'Personalised & Customised Gifts in Whitefield Bangalore | Photo Mugs, Frames, Keychains | Printfield', description: 'Best personalised gifts in Whitefield, Bangalore. Custom photo mugs, photo frames, canvas prints, keychains & photo books. Fast delivery, single pieces.', canonical: '/personalised-gifts' },
+      '/education-institutions': { title: 'Custom Printing for Schools & Educational Institutions in Whitefield Bangalore | Printfield', description: 'Printing services for schools & colleges in Whitefield, Bangalore. ID cards, certificates, event t-shirts, badges, annual day banners.', canonical: '/education-institutions' },
       '/checkout': { title: 'Checkout - Printfield', description: 'Complete your order at Printfield.', canonical: '/checkout' },
       '/login': { title: 'Login - Printfield', description: 'Login to your Printfield account.', canonical: '/login' },
       '/admin': { title: 'Admin Dashboard - Printfield', description: 'Printfield admin dashboard.', canonical: '/admin' },
@@ -5320,7 +5337,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
 
     const notFoundPage = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Page Not Found - Printfield</title><meta name="robots" content="noindex"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1f2937}.card{background:#fff;border-radius:16px;padding:48px;max-width:480px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}h1{font-size:64px;color:#f59e0b;margin-bottom:8px}p{color:#6b7280;margin:12px 0 24px;line-height:1.6}a{display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;transition:background .2s}a:hover{background:#d97706}</style></head><body><div class="card"><h1>404</h1><p>The page you're looking for doesn't exist or has been moved.</p><a href="/">Go to Homepage</a></div></body></html>`;
 
-    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/printing-whitefield', '/printing-itpl', '/printing-brookefield', '/printing-marathahalli', '/printing-epip-zone', '/printing-kadugodi', '/printing-hoodi', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
+    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/corporate-gifts', '/trophies', '/apparel', '/business-stationery', '/drinkware', '/signage', '/personalised-gifts', '/education-institutions', '/printing-whitefield', '/printing-itpl', '/printing-brookefield', '/printing-marathahalli', '/printing-epip-zone', '/printing-kadugodi', '/printing-hoodi', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
     const invalidExtensions = /\.(php|asp|aspx|jsp|cgi|pl|py|rb|do|action|xml|json|txt|csv|doc|docx|pdf|xls|xlsx|zip|rar|exe|dmg|apk)(\?|$)/i;
     const spamPrefixes = ['/xiomi', '/alanwalker', '/wp-admin', '/wp-content', '/wp-includes', '/wordpress'];
 
