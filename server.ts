@@ -4941,7 +4941,11 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <script type="application/ld+json">${escapeJson(breadcrumbJsonLd)}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the price of ${escapeAttr(product.name)}?","acceptedAnswer":{"@type":"Answer","text":"The price for ${escapeAttr(product.name)} is available on request. Contact us at +91 96063 71222 for bulk pricing and custom orders."}},{"@type":"Question","name":"Can I customize ${escapeAttr(product.name)}?","acceptedAnswer":{"@type":"Answer","text":"Yes, all our products are fully customizable. You can add your logo, text, or custom design to ${escapeAttr(product.name)}. We offer DTF printing, screen printing, and embroidery options."}},{"@type":"Question","name":"What is the minimum order quantity?","acceptedAnswer":{"@type":"Answer","text":"For most products, minimum order is 10 pieces. For bulk screen printing, minimum is 50 pieces. Contact us for specific requirements."}},{"@type":"Question","name":"Do you deliver to Whitefield and nearby areas?","acceptedAnswer":{"@type":"Answer","text":"Yes, we deliver to Whitefield, ITPL, Brookefield, Marathahalli, and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders."}}]}</script>
 `;
+          html = html.replace(/<link rel="canonical" href="[^"]*" \/>/gi, '');
+          html = html.replace(/<meta name="description" content="[^"]*" \/>/gi, '');
           html = html.replace(/<title>.*?<\/title>/gi, '');
+          html = html.replace(/<meta property="og:.*?\/>/gi, '');
+          html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
           html = html.replace('</head>', `${metaTags}\n</head>`);
           return res.setHeader('Content-Type', 'text/html').send(html);
         }
@@ -5262,7 +5266,11 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <meta name="twitter:image" content="${escapeAttr(catImage)}" />
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE_URL}/"},{"@type":"ListItem","position":2,"name":"${escapeAttr(canonicalCat)}","item":"${canonicalUrl}"}]}</script>
 `;
+        html = html.replace(/<link rel="canonical" href="[^"]*" \/>/gi, '');
+        html = html.replace(/<meta name="description" content="[^"]*" \/>/gi, '');
         html = html.replace(/<title>.*?<\/title>/gi, '');
+        html = html.replace(/<meta property="og:.*?\/>/gi, '');
+        html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
         html = html.replace('</head>', `${metaTags}\n</head>`);
         return res.setHeader('Content-Type', 'text/html').send(html);
       }
