@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install --include=dev",
-  "buildCommand": "npm run build && npm prune --omit=dev",
+  "buildCommand": "npm run build && mv dist/index.html dist/_spa.html && npm prune --omit=dev",
   "outputDirectory": "dist",
   "framework": null,
   "functions": {

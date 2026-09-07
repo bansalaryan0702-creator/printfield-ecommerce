@@ -4888,8 +4888,9 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         const canonicalUrl = `${baseUrl}/product/${encodeURIComponent(canonicalSlug)}`;
         const ogImageUrl = img.startsWith('http') ? img : `${baseUrl}${img}`;
 
-        const distPath = path.join(process.cwd(), 'dist');
-        const indexPath = path.join(distPath, 'index.html');
+    const distPath = path.join(process.cwd(), 'dist');
+    const spaFile = fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html';
+        const indexPath = path.join(distPath, spaFile);
 
         if (fsSync.existsSync(indexPath)) {
           let html = fsSync.readFileSync(indexPath, 'utf8');
@@ -5115,7 +5116,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       const canonicalUrlFull = `${SITE_URL}/printing-${locationSlug}`;
 
       const distPath = path.join(process.cwd(), 'dist');
-      const indexPath = path.join(distPath, 'index.html');
+      const indexPath = path.join(distPath, fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html');
 
       if (!fsSync.existsSync(indexPath)) return next();
 
@@ -5250,7 +5251,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       const catImage = catProducts[0]?.image || 'https://www.printfieldonline.com/logo.png';
 
       const distPath = path.join(process.cwd(), 'dist');
-      const indexPath = path.join(distPath, 'index.html');
+      const indexPath = path.join(distPath, fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html');
 
       if (fsSync.existsSync(indexPath)) {
         let html = fsSync.readFileSync(indexPath, 'utf8');
@@ -5298,9 +5299,10 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+    const spaFile = fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html';
 
     app.get('/', (req, res) => {
-      const indexPath = path.join(distPath, 'index.html');
+      const indexPath = path.join(distPath, spaFile);
       if (!fsSync.existsSync(indexPath)) {
         return res.sendFile(indexPath);
       }
@@ -5388,7 +5390,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
 
       const meta = pageMeta[reqPath];
       if (meta) {
-        const indexPath = path.join(distPath, 'index.html');
+        const indexPath = path.join(distPath, spaFile);
         if (fsSync.existsSync(indexPath)) {
           let html = fsSync.readFileSync(indexPath, 'utf8');
           function escapeAttr(str: string) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -5416,7 +5418,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         }
       }
 
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(path.join(distPath, spaFile));
     });
   }
 
