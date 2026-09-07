@@ -5386,8 +5386,9 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <meta name="twitter:title" content="${escapeAttr(meta.title)}" />
     <meta name="twitter:description" content="${escapeAttr(meta.description)}" />
 `;
-          html = html.replace(/<title>.*?<\/title>/gi, '');
           html = html.replace(/<link rel="canonical".*?\/>/gi, '');
+          html = html.replace(/<meta name="description".*?\/>/gi, '');
+          html = html.replace(/<title>.*?<\/title>/gi, '');
           html = html.replace(/<meta property="og:.*?\/>/gi, '');
           html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
           html = html.replace('</head>', `${pageMetaTags}\n</head>`);
