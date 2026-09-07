@@ -136,11 +136,24 @@ export function getFeaturedImage(product: { image?: string | null; images?: any;
   let validCandidates = allCandidates.filter(u => isProductImage(u));
   validCandidates = cleanAndDeduplicateImages(validCandidates);
   
-  const isApparel = ["Apparel", "Clothing & Bags", "Custom Apparel", "T-Shirts", "Corporate Uniforms"].includes(product.category || "") || (product.name && (String(product.name || '').toLowerCase().includes("t-shirt") || String(product.name || '').toLowerCase().includes("polo") || String(product.name || '').toLowerCase().includes("hoodie")));
-  if (isApparel && validCandidates.length >= 2) {
-    const temp = validCandidates[0];
-    validCandidates[0] = validCandidates[1];
-    validCandidates[1] = temp;
+  // If any candidate explicitly has "featured" or is an uploaded product card image, promote it to the front
+  const isUploadUrl = (u: string) => {
+    const lower = u.toLowerCase();
+    return lower.includes('/uploads/optimized/') || lower.includes('/uploads/featured-') || lower.includes('featured-') || lower.includes('/featured/') || lower.startsWith('/uploads/');
+  };
+  const featuredIdx = validCandidates.findIndex(u => isUploadUrl(u));
+
+  if (featuredIdx > -1) {
+    const feat = validCandidates.splice(featuredIdx, 1)[0];
+    validCandidates.unshift(feat);
+  } else {
+    // For legacy apparel products where the 4:3 card mockup was placed at index 1 and square cutout at index 0:
+    const isApparel = ["Apparel", "Clothing & Bags", "Custom Apparel", "T-Shirts", "Corporate Uniforms"].includes(product.category || "") || (product.name && (String(product.name || '').toLowerCase().includes("t-shirt") || String(product.name || '').toLowerCase().includes("polo") || String(product.name || '').toLowerCase().includes("hoodie") || String(product.name || '').toLowerCase().includes("jacket") || String(product.name || '').toLowerCase().includes("sweatshirt")));
+    if (isApparel && validCandidates.length >= 2 && !validCandidates[0].includes('/uploads/')) {
+      const temp = validCandidates[0];
+      validCandidates[0] = validCandidates[1];
+      validCandidates[1] = temp;
+    }
   }
 
   if (validCandidates.length > 0) {
@@ -162,11 +175,6 @@ export function getOptimizedImage(url: string | null | undefined, width: number)
   if (!url) return url;
   if (url.startsWith('/uploads/')) return toS3Url(url);
   if (url.includes('printo-s3.dietpixels.net') && !url.includes('w=')) {
-    const sep = url.includes('?') ? '&' : '?';
-    return `${url}${sep}w=${width}`;
-  }
-  // Handle Supabase storage URLs - add width parameter for optimization
-  if (url.includes('ghzovkqxldotbwpumqzh.supabase.co/storage/v1/object/public/') && !url.includes('w=')) {
     const sep = url.includes('?') ? '&' : '?';
     return `${url}${sep}w=${width}`;
   }

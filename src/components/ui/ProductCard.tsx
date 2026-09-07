@@ -16,6 +16,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const rawImage = getFeaturedImage(product);
   const fallbackImage = getFallbackImage(product);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [rawImage]);
+
   const baseImage = imageError ? fallbackImage : (getOptimizedImage(rawImage, 400) || fallbackImage);
   const activeDisplayImage = hoveredColorImage 
     ? (getOptimizedImage(hoveredColorImage, 400) || hoveredColorImage) 
@@ -84,7 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <Link 
       to={`/product/${product.slug || product.id}${hoveredColorName ? `?color=${encodeURIComponent(hoveredColorName)}` : ''}`} 
       data-product-id={product.id}
-      className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
+      className="group relative flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
     >
       <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100 relative">
         {product.isBestseller && (

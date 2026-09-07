@@ -162,7 +162,8 @@ import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'fire
 
 import Razorpay from 'razorpay';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import admin from 'firebase-admin';
+import { initializeApp as initAdminApp, getApps as getAdminApps, cert as adminCert } from 'firebase-admin/app';
+import { getAuth as getAdminAuth } from 'firebase-admin/auth';
 
 const s3BucketName = process.env.AWS_S3_BUCKET || 'printfielddigital';
 const s3Region = process.env.AWS_REGION || 'ap-south-1';
@@ -249,6 +250,82 @@ function isBannedProduct(p: any): boolean {
   return false;
 }
 
+function cleanProductImages(p: any): string[] {
+  const rawImages: string[] = Array.isArray(p.images) ? p.images : (typeof p.images === 'string' ? [p.images] : []);
+  const mainImg = p.image && typeof p.image === 'string' ? p.image.trim() : null;
+  const all = [mainImg, ...rawImages].filter(Boolean);
+
+  // Exact URL deduplication
+  const seenExact = new Set<string>();
+  const uniqueUrls: string[] = [];
+  for (const u of all) {
+    if (!u || typeof u !== 'string') continue;
+    const key = u.split('?')[0].trim().toLowerCase();
+    if (!seenExact.has(key)) {
+      seenExact.add(key);
+      uniqueUrls.push(u);
+    }
+  }
+
+  const colors = p.colors || [];
+  if (colors.length === 0) {
+    return uniqueUrls;
+  }
+
+  // 1 image per color logic
+  const result: string[] = [];
+  const seenImgs = new Set<string>();
+  const seenColors = new Set<string>();
+
+  const featured = uniqueUrls.find(u => {
+    const l = u.toLowerCase();
+    return l.includes('featured-') || l.includes('/featured/') || l.includes('/uploads/optimized/') || l.startsWith('/uploads/');
+  });
+
+  if (featured) {
+    result.push(featured);
+    seenImgs.add(featured.toLowerCase());
+  } else if (mainImg) {
+    result.push(mainImg);
+    seenImgs.add(mainImg.toLowerCase());
+  }
+
+  colors.forEach((c: any) => {
+    const cName = (c?.name || (typeof c === 'string' ? c : '')).toLowerCase().trim();
+    if (seenColors.has(cName)) return;
+
+    let chosen: string | null = null;
+    if (c?.image && !seenImgs.has(c.image.toLowerCase())) {
+      chosen = c.image;
+    } else {
+      const clean = cName.replace(/[\s\-_]+/g, '');
+      const match = uniqueUrls.find(u => {
+        if (seenImgs.has(u.toLowerCase())) return false;
+        const lower = u.toLowerCase();
+        return lower.includes(clean) || lower.includes(cName);
+      });
+      if (match) chosen = match;
+    }
+
+    if (chosen) {
+      result.push(chosen);
+      seenImgs.add(chosen.toLowerCase());
+      seenColors.add(cName);
+    }
+  });
+
+  if (result.length < colors.length) {
+    uniqueUrls.forEach(u => {
+      if (result.length >= colors.length) return;
+      if (seenImgs.has(u.toLowerCase())) return;
+      result.push(u);
+      seenImgs.add(u.toLowerCase());
+    });
+  }
+
+  return result.length > 0 ? result : uniqueUrls;
+}
+
 async function loadProductsFromS3(forceRefresh = false): Promise<any[]> {
   const now = Date.now();
   if (!forceRefresh && s3ProductsInMemory && (now - lastS3FetchTime < 15000)) {
@@ -261,7 +338,43 @@ async function loadProductsFromS3(forceRefresh = false): Promise<any[]> {
       const str = await getRes.Body.transformToString();
       const prods = JSON.parse(str);
       if (Array.isArray(prods) && prods.length > 0) {
-        // Automatically inject Size variation for apparel products if missing
+        // Restore optimized card thumbnails for apparel products (these exist on S3 but the product data lost the references)
+        const APPAREL_THUMBNAILS: Record<string, string> = {
+          "72258f2a-558e-48ca-bcd7-b89f2bcada1b": "/uploads/optimized/26866c95e93e.webp",
+          "83a8dde4-e431-4e93-9bfe-5b0249b22bb3": "/uploads/optimized/e1d314f00244.webp",
+          "107e502f-d993-421b-b153-d8c1ffd3c432": "/uploads/optimized/af667d297dc0.webp",
+          "fe14d793-860f-4965-8598-2a6719aa452e": "/uploads/optimized/958268137b17.webp",
+          "ef3e51dc-3e39-4800-9db0-cfbf85a6c209": "/uploads/optimized/683119aa1283.webp",
+          "50a116ff-7411-4b54-a220-c1fee7d473dd": "/uploads/optimized/9a17a2e164c0.webp",
+          "f9ed6532-8081-4dc3-9b6f-124938bd8baa": "/uploads/optimized/a7eb8926bbb2.webp",
+          "c6e50ae9-5aba-4d64-9a82-34ccec3554a2": "/uploads/optimized/013a2d8e7f08.webp",
+          "64e93576-519a-4f01-a378-9f17b40b8a4e": "/uploads/optimized/c9f58443c001.webp",
+          "d84cbe28-ca6f-4b32-8a53-488b2a0e487f": "/uploads/optimized/06f80d36c866.webp",
+          "1adec005-8223-41c6-a9f9-69a9d65e7f09": "/uploads/optimized/0382712257f7.webp",
+          "b7fdb6f2-819a-4af8-a8e0-4e8a4db6ae08": "/uploads/optimized/86475956abdd.webp",
+          "4b85defc-7847-4b53-b2f6-c6e3990f7b79": "/uploads/optimized/56dbe2d84982.webp",
+          "98a85faf-0458-4756-959c-aced16e5d90f": "/uploads/optimized/7e2573db3a86.webp",
+          "870b144d-b371-469c-af62-aa85ee1ab10a": "/uploads/optimized/cb6fb3867da5.webp",
+          "a21a37c9-a937-4e70-82c5-e71e5f8fdaef": "/uploads/optimized/5941639464cd.webp",
+          "7d5970a0-49a2-46be-a468-01e5a0c13a38": "/uploads/optimized/1afd0cc1ba8a.webp",
+          "6866664d-ca64-4f5e-81ee-4a7fdc422e31": "/uploads/optimized/e1365f76b503.webp",
+          "a86fae94-55a6-497a-9ea2-e35bdf083956": "/uploads/optimized/5541423c1a34.webp",
+          "a426a21e-e8ff-4ae7-aef1-b2e340fd2559": "/uploads/optimized/038268daa47c.webp",
+          "86d89f3e-60d9-4836-b884-ea458bca16bb": "/uploads/optimized/109f4b9eac3e.webp",
+          "2ca9cd71-2b91-4745-bef7-ec35b924244e": "/uploads/optimized/483905b6631d.webp",
+          "969ecd07-4c46-4c62-aed2-e46fca720c10": "/uploads/optimized/031f244cbcc4.webp"
+        };
+        prods.forEach((p: any) => {
+          const thumb = APPAREL_THUMBNAILS[p.id];
+          if (thumb) {
+            p.image = thumb;
+            if (!Array.isArray(p.images)) p.images = [];
+            // Ensure thumbnail is first in the images array
+            p.images = [thumb, ...p.images.filter((i: string) => i !== thumb)];
+          }
+        });
+
+        let cleanedAny = false;
         prods.forEach((p: any) => {
           const isApparel = p.category === "Apparel" || p.category === "Clothing & Bags" || p.category === "Custom Apparel" || p.category === "T-Shirts" || p.category === "Corporate Uniforms";
           const nameLower = (p.name || "").toLowerCase();
@@ -284,10 +397,22 @@ async function loadProductsFromS3(forceRefresh = false): Promise<any[]> {
               });
             }
           }
+
+          const cleanedImgs = cleanProductImages(p);
+          if (JSON.stringify(cleanedImgs) !== JSON.stringify(p.images)) {
+            p.images = cleanedImgs;
+            if (cleanedImgs.length > 0 && (!p.image || !p.image.startsWith('/uploads/'))) {
+              p.image = cleanedImgs[0];
+            }
+            cleanedAny = true;
+          }
         });
         
         s3ProductsInMemory = prods.filter((p: any) => !isBannedProduct(p));
         lastS3FetchTime = now;
+        if (cleanedAny) {
+          saveProductsToS3(prods).catch(() => {});
+        }
         return s3ProductsInMemory;
       }
     } catch (e: any) {
@@ -298,7 +423,7 @@ async function loadProductsFromS3(forceRefresh = false): Promise<any[]> {
       const localStr = await fs.readFile('./data/products.json', 'utf-8');
       const localProds = JSON.parse(localStr);
       if (Array.isArray(localProds) && localProds.length > 0) {
-        // Automatically inject Size variation for apparel products if missing
+        let cleanedAny = false;
         localProds.forEach((p: any) => {
           const isApparel = p.category === "Apparel" || p.category === "Clothing & Bags" || p.category === "Custom Apparel" || p.category === "T-Shirts" || p.category === "Corporate Uniforms";
           const nameLower = (p.name || "").toLowerCase();
@@ -321,9 +446,21 @@ async function loadProductsFromS3(forceRefresh = false): Promise<any[]> {
               });
             }
           }
+
+          const cleanedImgs = cleanProductImages(p);
+          if (JSON.stringify(cleanedImgs) !== JSON.stringify(p.images)) {
+            p.images = cleanedImgs;
+            if (cleanedImgs.length > 0 && (!p.image || !p.image.startsWith('/uploads/'))) {
+              p.image = cleanedImgs[0];
+            }
+            cleanedAny = true;
+          }
         });
         s3ProductsInMemory = localProds.filter((p: any) => !isBannedProduct(p));
         lastS3FetchTime = now;
+        if (cleanedAny) {
+          saveProductsToS3(localProds).catch(() => {});
+        }
         return s3ProductsInMemory;
       }
     } catch (e) {}
@@ -468,31 +605,31 @@ try {
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseStorage = getStorage(firebaseApp);
 
-if (!admin?.apps?.length) {
-  try {
-    if (admin?.credential?.applicationDefault) {
-      admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
+let adminAuth: any = null;
+try {
+  let adminApp: any;
+  if (!getAdminApps().length) {
+    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+      adminApp = initAdminApp({
+        credential: adminCert({
+          projectId: firebaseConfig.projectId,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
         projectId: firebaseConfig.projectId,
       });
     } else {
-      admin.initializeApp();
+      adminApp = initAdminApp({
+        projectId: firebaseConfig.projectId,
+      });
     }
-  } catch (e) {
-    try {
-      if (admin?.credential?.cert && process.env.FIREBASE_CLIENT_EMAIL) {
-        admin.initializeApp({
-          credential: admin.credential.cert({
-            projectId: firebaseConfig.projectId,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-          }),
-        });
-      }
-    } catch (e2) {
-      console.warn('Firebase Admin SDK initialization skipped:', (e2 as Error).message);
-    }
+  } else {
+    adminApp = getAdminApps()[0];
   }
+  adminAuth = getAdminAuth(adminApp);
+  console.log('[Firebase Admin] Initialized successfully for project:', firebaseConfig.projectId);
+} catch (e2: any) {
+  console.warn('Firebase Admin SDK initialization skipped or warning:', (e2 as Error).message);
 }
 
 
@@ -2015,20 +2152,40 @@ const SITE_URL = 'https://www.printfieldonline.com';
       const { token, googleAccessToken } = req.body;
       if (!token) return res.status(400).json({ error: 'Token required' });
       
-      let decodedToken: any;
-      try {
-if (!admin.getApps().length) {
-          return res.status(500).json({ error: 'Authentication service unavailable' });
-        }
-        decodedToken = await admin.auth().verifyIdToken(token);
-      } catch (verifyErr: any) {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-      }
-      const { email, name, uid } = decodedToken;
+      let decodedToken: any = null;
       
-      if (!email) {
-        return res.status(401).json({ error: 'Token missing email claim' });
+      // 1. Try Firebase Admin ID token verification
+      try {
+        if (adminAuth) {
+          decodedToken = await adminAuth.verifyIdToken(token);
+        } else if (getAdminApps().length) {
+          decodedToken = await getAdminAuth(getAdminApps()[0]).verifyIdToken(token);
+        }
+      } catch (verifyErr: any) {
+        console.warn('Firebase Admin verifyIdToken note:', verifyErr.message);
       }
+
+      // 2. Fallback: verify directly with Google OAuth2 tokeninfo endpoint
+      if (!decodedToken || !decodedToken.email) {
+        try {
+          const resp = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
+          if (resp.data && resp.data.email && (resp.data.email_verified === 'true' || resp.data.email_verified === true)) {
+            decodedToken = {
+              email: resp.data.email,
+              name: resp.data.name || resp.data.email.split('@')[0],
+              uid: resp.data.sub || resp.data.user_id,
+            };
+          }
+        } catch (tokeninfoErr: any) {
+          console.warn('Google tokeninfo verification failed:', tokeninfoErr.message);
+        }
+      }
+
+      if (!decodedToken || !decodedToken.email) {
+        return res.status(401).json({ error: 'Invalid or expired Google token' });
+      }
+
+      const { email, name, uid } = decodedToken;
       
       if (googleAccessToken && email) {
         googleTokensCache.set(email.toLowerCase().trim(), googleAccessToken);
@@ -2041,7 +2198,7 @@ if (!admin.getApps().length) {
       let user;
       if (qs.empty) {
         const id = uid || crypto.randomUUID();
-        user = { id, email, name: name || '', role: 'customer' };
+        user = { id, email, name: name || '', role: 'customer', phone: '', companyName: '' };
         await setDoc(doc(db, 'users', id), {
           email, name: name || '', role: 'customer', savedAddresses: '[]', createdAt: Date.now(),
           googleAccessToken: googleAccessToken || null
@@ -2061,11 +2218,11 @@ if (!admin.getApps().length) {
         }
       }
       
-      const jwtToken = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
-      res.json({ token: jwtToken, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+      const jwtToken = jwt.sign({ id: user.id, role: user.role, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+      res.json({ token: jwtToken, user: { id: user.id, email: user.email, name: user.name, phone: user.phone || '', companyName: user.companyName || '', role: user.role } });
     } catch (err: any) {
       console.error('Google login error:', err);
-      res.status(401).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

@@ -353,15 +353,7 @@ export function ProductDetail() {
 
     const filtered = available.filter(img => typeof img === 'string' && img.trim() !== '' && !brokenImages[img]);
 
-    // Separate main product images from color variant images
-    // Variant images (from Supabase with /variant/ or color-specific) should only show when color is selected
-    const variantImages = filtered.filter(u => u.toLowerCase().includes('/variant/') || 
-      (product?.colors && product.colors.some((c: any) => c.image === u)));
-    
-    // Main product images = all images minus variant images
-    const mainProductImages = filtered.filter(u => !variantImages.includes(u));
-
-    // Deduplicate variant images by color so we don't show multiple images of the same color
+    // Determine available colors
     let colorsList: any[] = (product as any).colors || [];
     if (colorsList.length === 0 && (product as any).variations) {
       const colorVar = (product as any).variations.find((v: any) => {
@@ -373,30 +365,87 @@ export function ProductDetail() {
       }
     }
 
-    const representativeColorImages = new Set<string>();
-    colorsList.forEach((c: any) => {
-      if (typeof c === 'object' && c?.image) {
-        representativeColorImages.add(c.image);
-      } else {
+    let deduplicatedFiltered: string[] = [];
+
+    if (colorsList.length > 0) {
+      // 1 image of 1 colour only logic
+      const seenImages = new Set<string>();
+      const seenColors = new Set<string>();
+
+      // Check if product has an explicit featured image (e.g. 4:3 card banner), which represents color #0
+      const featured = filtered.find(u => {
+        const lower = u.toLowerCase();
+        return lower.includes('featured-') || lower.includes('/featured/');
+      });
+
+      if (featured) {
+        deduplicatedFiltered.push(featured);
+        seenImages.add(featured.toLowerCase());
+        const firstColName = typeof colorsList[0] === 'string' ? colorsList[0] : (colorsList[0]?.name || '');
+        if (firstColName) seenColors.add(firstColName.toLowerCase().trim());
+      }
+
+      // For each color, pick exactly 1 image
+      colorsList.forEach((c: any) => {
         const cName = typeof c === 'string' ? c : (c?.name || '');
-        if (cName) {
-          const match = filtered.find(u => u.toLowerCase().includes(cName.toLowerCase().replace(/\s+/g, '')));
-          if (match) representativeColorImages.add(match);
+        const cNameLower = cName.toLowerCase().trim();
+        if (seenColors.has(cNameLower)) return; // Already represented by featured image
+
+        const cImg = typeof c === 'object' ? c?.image : null;
+        let chosenImg: string | null = null;
+
+        if (cImg && !brokenImages[cImg] && !seenImages.has(cImg.toLowerCase())) {
+          chosenImg = cImg;
+        } else {
+          // Find an image in filtered matching this color name
+          const cleanName = cNameLower.replace(/[\s\-_]+/g, '');
+          const match = filtered.find(u => {
+            if (seenImages.has(u.toLowerCase()) || brokenImages[u]) return false;
+            const lower = u.toLowerCase();
+            return lower.includes(cleanName) || lower.includes(cNameLower);
+          });
+          if (match) chosenImg = match;
+        }
+
+        if (chosenImg) {
+          deduplicatedFiltered.push(chosenImg);
+          seenImages.add(chosenImg.toLowerCase());
+          seenColors.add(cNameLower);
+        }
+      });
+
+      // If some colors had no specific image found, but there are unused images in filtered, assign 1 per remaining color
+      if (deduplicatedFiltered.length < colorsList.length) {
+        filtered.forEach(u => {
+          if (deduplicatedFiltered.length >= colorsList.length) return;
+          if (seenImages.has(u.toLowerCase()) || brokenImages[u]) return;
+          deduplicatedFiltered.push(u);
+          seenImages.add(u.toLowerCase());
+        });
+      }
+    } else {
+      // For products without colors, show unique deduplicated images
+      deduplicatedFiltered = filtered;
+
+      // For legacy apparel products without explicit color options, prioritize featured image
+      const featuredIdx = deduplicatedFiltered.findIndex(u => {
+        const lower = u.toLowerCase();
+        return lower.includes('featured-') || lower.includes('/featured/') || lower.includes('featured');
+      });
+
+      if (featuredIdx > -1) {
+        deduplicatedFiltered = [...deduplicatedFiltered];
+        const feat = deduplicatedFiltered.splice(featuredIdx, 1)[0];
+        deduplicatedFiltered.unshift(feat);
+      } else {
+        const isApparelProduct = ["Apparel", "Clothing & Bags", "Custom Apparel", "T-Shirts", "Corporate Uniforms"].includes(product?.category || "") || (product?.name && (String(product?.name || '').toLowerCase().includes("t-shirt") || String(product?.name || '').toLowerCase().includes("polo") || String(product?.name || '').toLowerCase().includes("hoodie") || String(product?.name || '').toLowerCase().includes("jacket") || String(product?.name || '').toLowerCase().includes("sweatshirt") || String(product?.name || '').toLowerCase().includes("wear")));
+        if (isApparelProduct && deduplicatedFiltered.length >= 2) {
+          deduplicatedFiltered = [...deduplicatedFiltered];
+          const temp = deduplicatedFiltered[0];
+          deduplicatedFiltered[0] = deduplicatedFiltered[1];
+          deduplicatedFiltered[1] = temp;
         }
       }
-    });
-
-    // For the gallery, ONLY show main product images (not color variants)
-    // Color variant images will be shown via color selection logic
-    let deduplicatedFiltered = mainProductImages;
-
-    // For apparel products, swap first two images to show better angle first
-    const isApparelProduct = ["Apparel", "Clothing & Bags", "Custom Apparel", "T-Shirts", "Corporate Uniforms"].includes(product?.category || "") || (product?.name && (String(product?.name || '').toLowerCase().includes("t-shirt") || String(product?.name || '').toLowerCase().includes("polo") || String(product?.name || '').toLowerCase().includes("hoodie") || String(product?.name || '').toLowerCase().includes("jacket") || String(product?.name || '').toLowerCase().includes("sweatshirt") || String(product?.name || '').toLowerCase().includes("wear")));
-    if (isApparelProduct && deduplicatedFiltered.length >= 2) {
-      deduplicatedFiltered = [...deduplicatedFiltered];
-      const temp = deduplicatedFiltered[0];
-      deduplicatedFiltered[0] = deduplicatedFiltered[1];
-      deduplicatedFiltered[1] = temp;
     }
 
     if (deduplicatedFiltered.length === 0) {

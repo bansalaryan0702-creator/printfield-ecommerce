@@ -42,7 +42,7 @@ export function EmailDiagnostics({ token }: { token: string | null }) {
     setAuthError(null);
     try {
       // 1. Trigger the standard Google popup sign-in with Gmail scopes configured on client
-      await signInWithGoogle();
+      await signInWithGoogle({ withGmailScope: true });
       
       // 2. Fetch the ID token from current authorized user
       const idToken = await auth.currentUser?.getIdToken(true);
