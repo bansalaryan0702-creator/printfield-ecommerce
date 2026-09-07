@@ -530,16 +530,14 @@ async function callGeminiWithRetry(params: {
   config?: any;
 }): Promise<any> {
   const aiClient = getAI();
-  const requestedModel = params.model || 'gemini-2.5-flash';
+  const requestedModel = params.model || 'gemini-3.6-flash';
   
   // Free-tier Gemini models — generous daily quota
   const fallbackCandidates = [
     requestedModel,
-    'gemini-2.5-flash',
-    'gemini-2.5-flash-lite',
+    'gemini-3.6-flash',
     'gemini-3.5-flash',
     'gemini-3.5-flash-lite',
-    'gemini-3.6-flash',
     'gemini-3.1-flash-lite'
   ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
@@ -2760,7 +2758,7 @@ Requirements:
             let data: any = null;
       try {
         const response = await callGeminiWithRetry({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.6-flash',
           contents: prompt,
           config: {
             responseMimeType: 'application/json',
@@ -3048,7 +3046,7 @@ Texting & Style Guidelines (CRITICAL for sounding natural and NOT like an AI):
 - Ensure responses are concise, clear, and focused (max 150 words).`;
 
       const aiResponse = await callGeminiWithRetry({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents,
         config: {
           systemInstruction,
@@ -3186,7 +3184,7 @@ ${chatLog}
 `;
 
       const aiResponse = await callGeminiWithRetry({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt
       });
 
@@ -3384,7 +3382,7 @@ ${chatLog}
 URLs:
 ${linksArray.slice(0, 300).join('\n')}`;
         const aiResponse = await callGeminiWithRetry({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.6-flash',
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           config: {
             temperature: 0.1,
@@ -3503,7 +3501,7 @@ ${linksArray.slice(0, 300).join('\n')}`;
       let data: any = null;
       try {
         const response = await callGeminiWithRetry({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.6-flash',
           contents: prompt,
           config: {
             responseMimeType: 'application/json',
