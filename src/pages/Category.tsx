@@ -97,7 +97,7 @@ export function CategoryPage() {
       <div className="relative h-[280px] md:h-[340px] w-full overflow-hidden bg-slate-950 border-b border-slate-800">
         <img referrerPolicy="no-referrer" 
           src={category.image || ""}
-          alt={category.name}
+          alt={`${category.name} - Custom printing services in Whitefield, Bangalore | Printfield`}
           className="w-full h-full object-cover object-center opacity-50 filter saturate-[1.1] contrast-[1.05]"
           loading="eager"
           width="1600"
