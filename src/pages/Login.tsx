@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/src/components/ui/button";
 import { AppContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
-import { signInWithGoogle, getGoogleAccessToken } from "../lib/firebase";
+import { signInWithGoogle, signInWithGoogleRedirect, checkGoogleRedirectResult, getGoogleAccessToken } from "../lib/firebase";
 
 import { SEO } from "../components/SEO";
 
@@ -32,6 +32,43 @@ export function Login() {
       navigate("/");
     }
   };
+
+  // Check if returning from a Google redirect authentication
+  React.useEffect(() => {
+    let active = true;
+    async function checkRedirect() {
+      try {
+        const result = await checkGoogleRedirectResult();
+        if (result && active) {
+          setGoogleLoading(true);
+          const idToken = result.idToken || (await result.getIdToken());
+          const googleAccessToken = result.googleAccessToken || (await getGoogleAccessToken());
+
+          const res = await apiFetch("/api/users/google-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: idToken, googleAccessToken }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.error || "Google authentication failed");
+          }
+
+          setToken(data.token);
+          setUser(data.user);
+          handlePostAuthRedirect();
+        }
+      } catch (err: any) {
+        console.error("Google redirect auth error:", err);
+        if (active) setError(err.message || "Failed to complete Google sign in");
+      } finally {
+        if (active) setGoogleLoading(false);
+      }
+    }
+    checkRedirect();
+    return () => { active = false; };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +127,18 @@ export function Login() {
       console.error("Google sign-in error:", err);
       setError(err.message || "Failed to sign in with Google");
     } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleRedirectSignIn = async () => {
+    setError("");
+    setGoogleLoading(true);
+    try {
+      await signInWithGoogleRedirect();
+    } catch (err: any) {
+      console.error("Google redirect initiate error:", err);
+      setError(err.message || "Failed to initiate Google sign in");
       setGoogleLoading(false);
     }
   };
@@ -270,6 +319,16 @@ export function Login() {
                   </>
                 )}
               </Button>
+            </div>
+            <div className="mt-2 text-center">
+              <button
+                type="button"
+                onClick={handleGoogleRedirectSignIn}
+                disabled={loading || googleLoading}
+                className="text-xs text-purple-600 hover:text-purple-700 hover:underline cursor-pointer"
+              >
+                Popup blank or blocked? Sign in via direct redirect &rarr;
+              </button>
             </div>
           </div>
 

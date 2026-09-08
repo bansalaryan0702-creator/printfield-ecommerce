@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const customConfig = {
@@ -48,6 +48,30 @@ export const signInWithGoogle = async (options?: { withGmailScope?: boolean }) =
       const host = typeof window !== 'undefined' ? window.location.hostname : 'your current domain';
       throw new Error(`Domain not authorized: "${host}". Please add "${host}" to Firebase Console → Authentication → Settings → Authorized domains.`);
     }
+    throw error;
+  }
+};
+
+export const signInWithGoogleRedirect = async (options?: { withGmailScope?: boolean }) => {
+  const provider = options?.withGmailScope ? gmailGoogleProvider : standardGoogleProvider;
+  await signInWithRedirect(auth, provider);
+};
+
+export const checkGoogleRedirectResult = async () => {
+  try {
+    const result = await getRedirectResult(auth);
+    if (!result || !result.user) return null;
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (credential?.accessToken) {
+      cachedAccessToken = credential.accessToken;
+    }
+    const idToken = await result.user.getIdToken();
+    return Object.assign(result.user, {
+      idToken,
+      googleAccessToken: credential?.accessToken || null
+    });
+  } catch (error: any) {
+    console.error("Error getting redirect result:", error);
     throw error;
   }
 };
