@@ -1367,6 +1367,7 @@ const SITE_URL = 'https://www.printfieldonline.com';
   app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   }));
   app.use(cors({
     origin: ['https://www.printfieldonline.com', 'https://printfieldonline.com', 'http://localhost:3000', 'http://localhost:5173'],
