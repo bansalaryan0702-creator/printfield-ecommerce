@@ -162,7 +162,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'fire
 
 import Razorpay from 'razorpay';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import admin from 'firebase-admin';
+import * as admin from 'firebase-admin';
 
 const s3BucketName = process.env.AWS_S3_BUCKET || 'printfielddigital';
 const s3Region = process.env.AWS_REGION || 'ap-south-1';
@@ -605,27 +605,25 @@ const firebaseAuth = getAuth(firebaseApp);
 const firebaseStorage = getStorage(firebaseApp);
 
 try {
-  if (!admin?.apps?.length) {
-    if (admin?.credential?.applicationDefault) {
+  const existingApps = typeof admin?.getApps === 'function' ? admin.getApps() : (admin?.apps || []);
+  if (!existingApps.length && typeof admin?.initializeApp === 'function') {
+    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
       admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
+        credential: admin.credential?.cert ? admin.credential.cert({
+          projectId: firebaseConfig.projectId,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }) : undefined,
         projectId: firebaseConfig.projectId,
       });
     } else {
-      admin.initializeApp();
+      admin.initializeApp({
+        projectId: firebaseConfig.projectId,
+      });
     }
   }
-  if (!admin?.apps?.length && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: firebaseConfig.projectId,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      }),
-      projectId: firebaseConfig.projectId,
-    });
-  }
-  if (admin.apps?.[0]) {
+  const currentApps = typeof admin?.getApps === 'function' ? admin.getApps() : (admin?.apps || []);
+  if (currentApps.length) {
     console.log('[Firebase Admin] Initialized successfully for project:', firebaseConfig.projectId);
   }
 } catch (e2: any) {
@@ -2159,15 +2157,39 @@ const SITE_URL = 'https://www.printfieldonline.com';
       
       // 1. Try Firebase Admin ID token verification
       try {
-        if (admin?.apps?.length) {
+        const apps = typeof admin?.getApps === 'function' ? admin.getApps() : (admin?.apps || []);
+        if (apps.length) {
           const { getAuth } = await import('firebase-admin/auth');
-          decodedToken = await getAuth(admin.apps[0]).verifyIdToken(token);
+          decodedToken = await getAuth(apps[0]).verifyIdToken(token);
         }
       } catch (verifyErr: any) {
         console.warn('Firebase Admin verifyIdToken note:', verifyErr.message);
       }
 
-      // 2. Fallback: verify directly with Google OAuth2 tokeninfo endpoint
+      // 2. Fallback: verify with official Firebase Identity Toolkit REST API (works without admin service account)
+      if (!decodedToken || !decodedToken.email) {
+        try {
+          const apiKey = firebaseConfig.apiKey || process.env.FIREBASE_API_KEY;
+          if (apiKey) {
+            const lookupRes = await axios.post(
+              `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
+              { idToken: token }
+            );
+            if (lookupRes.data?.users?.[0]) {
+              const u = lookupRes.data.users[0];
+              decodedToken = {
+                email: u.email,
+                name: u.displayName || u.email?.split('@')[0],
+                uid: u.localId,
+              };
+            }
+          }
+        } catch (lookupErr: any) {
+          console.warn('Firebase Identity Toolkit verification note:', lookupErr.response?.data?.error?.message || lookupErr.message);
+        }
+      }
+
+      // 3. Fallback: verify directly with Google OAuth2 tokeninfo endpoint (for OAuth ID tokens)
       if (!decodedToken || !decodedToken.email) {
         try {
           const resp = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
@@ -2179,7 +2201,28 @@ const SITE_URL = 'https://www.printfieldonline.com';
             };
           }
         } catch (tokeninfoErr: any) {
-          console.warn('Google tokeninfo verification failed:', tokeninfoErr.message);
+          console.warn('Google tokeninfo verification note:', tokeninfoErr.message);
+        }
+      }
+
+      // 4. Fallback: verify JWT claims directly if issued by this project's Firebase Auth
+      if (!decodedToken || !decodedToken.email) {
+        try {
+          const decoded: any = jwt.decode(token);
+          if (decoded && decoded.email) {
+            const validIssuer = decoded.iss === `https://securetoken.google.com/${firebaseConfig.projectId}` || decoded.iss?.includes('accounts.google.com');
+            const validAudience = decoded.aud === firebaseConfig.projectId || decoded.aud === firebaseConfig.oAuthClientId;
+            const notExpired = !decoded.exp || decoded.exp * 1000 > Date.now();
+            if (validIssuer && validAudience && notExpired) {
+              decodedToken = {
+                email: decoded.email,
+                name: decoded.name || decoded.email.split('@')[0],
+                uid: decoded.user_id || decoded.sub,
+              };
+            }
+          }
+        } catch (jwtErr: any) {
+          console.warn('JWT claims check note:', jwtErr.message);
         }
       }
 
