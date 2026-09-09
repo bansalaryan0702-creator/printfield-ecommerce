@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install --include=dev",
-  "buildCommand": "npm run build && mv dist/index.html dist/_spa.html && npm prune --omit=dev",
+  "buildCommand": "npm run build && node -e \"const fs=require('fs'); if(fs.existsSync('dist/index.html')){fs.copyFileSync('dist/index.html','dist/_spa.html');fs.unlinkSync('dist/index.html');}\" && npm prune --omit=dev",
   "outputDirectory": "dist",
   "framework": null,
   "functions": {
