@@ -274,14 +274,14 @@ export function Home() {
   return (
     <Layout>
       <SEO 
-        title="Printfield | Custom Printing, Corporate Gifts & Trophies in Whitefield, Bangalore" 
-        description="Best printing shop in Whitefield, Bangalore. Custom t-shirt printing, corporate gifts, trophies, signage, business cards & apparel. 22+ years, own production unit. Bulk orders, fast delivery. Call +91 96063 71222."
+        title="Printfield | Best Printing Shop in Whitefield Bangalore - Custom Printing & Corporate Gifts" 
+        description="Whitefield's top printing shop on Borewell Road, Bangalore. Custom t-shirt printing (DTF, screen print), corporate gifts, trophies, signage & business cards. 22+ years experience. Fast delivery. Call +91 96063 71222."
         canonicalUrl="/"
         ogImage="/logo.png"
         schema={JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          "name": "Printfield Digital Solutions",
+          "@type": ["LocalBusiness", "PrintShop"],
+          "name": "Printfield - Printing Shop Whitefield Bangalore",
           "image": "https://www.printfieldonline.com/logo.png",
           "url": "https://www.printfieldonline.com",
           "telephone": "+919606371222",
@@ -406,7 +406,7 @@ export function Home() {
             >
               <span className="w-2 h-2 rounded-full bg-purple-600 animate-ping absolute"></span>
               <span className="w-2 h-2 rounded-full bg-purple-600 relative"></span>
-              <span className="text-sm font-semibold tracking-wide uppercase text-purple-900">Premium Print & Packaging</span>
+              <span className="text-sm font-semibold tracking-wide uppercase text-purple-900">Whitefield's #1 Custom Printing Shop</span>
             </motion.div>
 
             <motion.h1 
@@ -419,6 +419,7 @@ export function Home() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 italic pr-4">
                 We ink it.
               </span>
+              <span className="sr-only"> - Best Custom Printing Shop in Whitefield, Bangalore</span>
             </motion.h1>
 
             <motion.p 
@@ -427,7 +428,7 @@ export function Home() {
               transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="mt-8 text-lg md:text-xl text-slate-700 max-w-xl font-normal leading-relaxed"
             >
-              Turn your imagination into tactile reality. Premium printing and custom packaging that commands attention.
+              Whitefield's top custom printing shop on Borewell Road. Premium t-shirt printing, corporate gifts, trophies, signage, and custom packaging that commands attention.
             </motion.p>
 
             <motion.div

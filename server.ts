@@ -5780,7 +5780,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     const spaFile = fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html';
 
     const pageMeta: Record<string, { title: string; description: string; canonical: string }> = {
-      '/': { title: 'Printfield | Custom Printing, Corporate Gifts & Trophies in Whitefield, Bangalore', description: 'Best printing shop in Whitefield, Bangalore. Custom t-shirt printing, corporate gifts, trophies, signage, business cards & apparel. 22+ years, own production unit. Bulk orders, fast delivery. Call +91 96063 71222.', canonical: '/' },
+      '/': { title: 'Printfield | Best Printing Shop in Whitefield Bangalore - Custom Printing & Corporate Gifts', description: 'Whitefield\'s top printing shop on Borewell Road, Bangalore. Custom t-shirt printing (DTF, screen print), corporate gifts, trophies, signage & business cards. 22+ years experience. Fast delivery.', canonical: '/' },
       '/about': { title: 'About Us - Printfield Digital Solutions', description: 'Learn about Printfield Digital Solutions, your trusted printing partner in Whitefield, Bengaluru.', canonical: '/about' },
       '/faq': { title: 'FAQ - Printfield Printing Services', description: 'Frequently asked questions about Printfield printing services, delivery, pricing, and customization.', canonical: '/faq' },
       '/contact': { title: 'Contact Us - Printfield Whitefield Bangalore', description: 'Contact Printfield for custom printing services. Call +91 96063 71222 or visit us in Whitefield, Bengaluru.', canonical: '/contact' },
@@ -5835,7 +5835,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       const tags = `<title>${escAtr(meta.title)}</title>\n    <meta name="description" content="${escAtr(meta.description)}" />\n    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />\n    <link rel="canonical" href="${canonicalUrl}" />\n    <meta property="og:title" content="${escAtr(meta.title)}" />\n    <meta property="og:description" content="${escAtr(meta.description)}" />\n    <meta property="og:url" content="${canonicalUrl}" />\n    <meta property="og:type" content="website" />\n    <meta property="og:site_name" content="Printfield" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:title" content="${escAtr(meta.title)}" />\n    <meta name="twitter:description" content="${escAtr(meta.description)}" />`;
       const homeSsrBody = `
     <main style="max-width:1100px;margin:0 auto;padding:32px 16px;font-family:system-ui,-apple-system,sans-serif;">
-      <h1 style="font-size:32px;font-weight:bold;margin-bottom:16px;color:#111827;">Printfield | Custom Printing, Corporate Gifts &amp; Trophies in Whitefield, Bangalore</h1>
+      <h1 style="font-size:32px;font-weight:bold;margin-bottom:16px;color:#111827;">Printfield | Best Printing Shop in Whitefield, Bangalore</h1>
       <p style="font-size:17px;line-height:1.7;color:#4b5563;margin-bottom:24px;">
         Best custom printing shop in Whitefield, Bangalore. Located on Borewell Road with 22+ years of experience and our own production unit. We specialize in custom t-shirt printing (DTF, screen printing, embroidery), corporate gifts, awards &amp; trophies, business cards, drinkware, signage, and onboarding kits.
       </p>
