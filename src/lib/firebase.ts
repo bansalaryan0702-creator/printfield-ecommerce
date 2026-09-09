@@ -26,7 +26,19 @@ let cachedAccessToken: string | null = null;
 export const signInWithGoogle = async (options?: { withGmailScope?: boolean }) => {
   try {
     const provider = options?.withGmailScope ? gmailGoogleProvider : standardGoogleProvider;
-    const result = await signInWithPopup(auth, provider);
+    
+    // 35-second safety timeout so popup never hangs indefinitely
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error("Google sign-in timed out. Please try again or use direct redirect."));
+      }, 35000);
+    });
+
+    const result = await Promise.race([
+      signInWithPopup(auth, provider),
+      timeoutPromise
+    ]);
+
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (credential?.accessToken) {
       cachedAccessToken = credential.accessToken;
@@ -39,10 +51,10 @@ export const signInWithGoogle = async (options?: { withGmailScope?: boolean }) =
   } catch (error: any) {
     console.error("Error signing in with Google:", error);
     if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-      throw new Error("Google sign-in was cancelled. Please try again.");
+      throw new Error("Google sign-in popup was closed before completing. Please try again.");
     }
     if (error.code === 'auth/popup-blocked') {
-      throw new Error("Google sign-in popup was blocked by your browser. Please allow popups for this site.");
+      throw new Error("Google sign-in popup was blocked by your browser. Please allow popups or use direct redirect.");
     }
     if (error.code === 'auth/unauthorized-domain') {
       const host = typeof window !== 'undefined' ? window.location.hostname : 'your current domain';

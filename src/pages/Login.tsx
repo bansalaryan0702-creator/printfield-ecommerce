@@ -320,12 +320,23 @@ export function Login() {
                 )}
               </Button>
             </div>
+            {googleLoading && (
+              <div className="mt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setGoogleLoading(false)}
+                  className="text-xs text-gray-500 hover:text-gray-700 underline cursor-pointer"
+                >
+                  Cancel / Reset
+                </button>
+              </div>
+            )}
             <div className="mt-2 text-center">
               <button
                 type="button"
                 onClick={handleGoogleRedirectSignIn}
-                disabled={loading || googleLoading}
-                className="text-xs text-purple-600 hover:text-purple-700 hover:underline cursor-pointer"
+                disabled={loading}
+                className="text-xs font-medium text-purple-600 hover:text-purple-700 hover:underline cursor-pointer"
               >
                 Popup blank or blocked? Sign in via direct redirect &rarr;
               </button>
