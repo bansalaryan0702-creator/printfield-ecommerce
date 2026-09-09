@@ -7,6 +7,7 @@ import { UploadCloud, Plus, Trash2, CheckCircle2, Edit2, X, Wand2, Loader2, File
 import { OrdersAdmin } from '../components/OrdersAdmin';
 import { ChatsAdmin } from '../components/ChatsAdmin';
 import { CustomersAdmin } from '../components/CustomersAdmin';
+import { MarketingAdmin } from '../components/MarketingAdmin';
 import { getFeaturedImage } from '../lib/imageUtils';
 import * as XLSX from 'xlsx';
 
@@ -18,7 +19,7 @@ export function Admin() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'));
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'chats' | 'customers' | 'catalogs'>('orders');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'chats' | 'customers' | 'catalogs' | 'marketing'>('orders');
   const [productViewMode, setProductViewMode] = useState<'form' | 'list' | 'bulk_ai'>('form');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
@@ -1896,11 +1897,21 @@ export function Admin() {
           >
             📄 Catalogs
           </button>
+
+          <button
+            onClick={() => setActiveTab('marketing')}
+            className={`pb-3 px-5 font-bold transition-all border-b-2 whitespace-nowrap flex items-center gap-2 text-sm rounded-t-xl ${
+              activeTab === 'marketing' ? 'border-purple-600 text-purple-700 bg-purple-50/80 shadow-xs' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            ✨ AI Marketing Studio
+          </button>
         </div>
 
         {activeTab === 'customers' && <CustomersAdmin token={token} />}
         {activeTab === 'chats' && <ChatsAdmin token={token} />}
         {activeTab === 'orders' && <OrdersAdmin token={token} userRole={userRole} />}
+        {activeTab === 'marketing' && <MarketingAdmin token={token} />}
 
         {activeTab === 'catalogs' && (
           <div className="max-w-4xl mx-auto space-y-8">

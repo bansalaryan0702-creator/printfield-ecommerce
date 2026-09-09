@@ -3067,6 +3067,9 @@ Requirements:
   });
 
   // ----- AI CHAT API ROUTES (SAVED SECURELY IN BACKEND) -----
+  // In-memory fallback cache for chat sessions to ensure 100% resilience if Firestore is unreachable
+  const localChatStore = new Map<string, { messages: any[]; customerName: string | null; userId?: any; platform?: string; updatedAt: number }>();
+
   app.get('/api/chat/history', async (req, res) => {
     try {
       const { sessionId } = req.query;
@@ -3074,15 +3077,30 @@ Requirements:
         return res.status(400).json({ error: 'sessionId is required' });
       }
 
-      const docSnap = await getDoc(doc(db, 'chats', sessionId as string));
-      if (docSnap.exists()) {
-        const d = docSnap.data();
-        return res.json({ 
-          messages: d.messages || [], 
-          customerName: d.customerName || null 
-        });
+      let messages = [];
+      let customerName = null;
+      const local = localChatStore.get(sessionId as string);
+      if (local) {
+        messages = local.messages || [];
+        customerName = local.customerName || null;
+      } else {
+        try {
+          const docSnap: any = await Promise.race([
+            getDoc(doc(db, 'chats', sessionId as string)),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 1000))
+          ]);
+          if (docSnap && docSnap.exists()) {
+            const d = docSnap.data();
+            messages = d.messages || [];
+            customerName = d.customerName || null;
+            localChatStore.set(sessionId as string, { messages, customerName, updatedAt: Date.now() });
+          }
+        } catch (firestoreErr: any) {
+          console.warn('Firestore read error in chat/history (using local cache):', firestoreErr.message);
+        }
       }
-      return res.json({ messages: [], customerName: null });
+
+      return res.json({ messages, customerName });
     } catch (error: any) {
       console.error('Failed to fetch chat history:', error);
       res.status(500).json({ error: 'Failed to fetch chat history' });
@@ -3096,22 +3114,21 @@ Requirements:
         return res.status(400).json({ error: 'sessionId and name are required' });
       }
 
-      const docSnap = await getDoc(doc(db, 'chats', sessionId));
-      let data: any = {
+      const trimmedName = name.trim();
+      const existing = localChatStore.get(sessionId) || { messages: [], customerName: null, updatedAt: Date.now() };
+      existing.customerName = trimmedName;
+      existing.updatedAt = Date.now();
+      localChatStore.set(sessionId, existing);
+
+      // Fire-and-forget Firestore backup
+      setDoc(doc(db, 'chats', sessionId), {
         id: sessionId,
         sessionId,
-        customerName: name.trim(),
+        customerName: trimmedName,
         updatedAt: Date.now()
-      };
-      if (docSnap.exists()) {
-        data = {
-          ...docSnap.data(),
-          customerName: name.trim(),
-          updatedAt: Date.now()
-        };
-      }
-      await setDoc(doc(db, 'chats', sessionId), data);
-      res.json({ success: true, customerName: name.trim() });
+      }, { merge: true }).catch((err: any) => console.warn('Firestore write error in chat/name:', err.message));
+
+      res.json({ success: true, customerName: trimmedName });
     } catch (error: any) {
       console.error('Failed to save customer name:', error);
       res.status(500).json({ error: 'Failed to save customer name' });
@@ -3155,7 +3172,7 @@ Requirements:
 
   app.post('/api/chat/message', async (req, res) => {
     try {
-      const { message, sessionId } = req.body;
+      const { message, sessionId, currentPage, pageTitle } = req.body;
       if (!message || !sessionId) {
         return res.status(400).json({ error: 'message and sessionId are required' });
       }
@@ -3174,13 +3191,27 @@ Requirements:
       }
 
       // 1. Retrieve or start history
-      const docSnap = await getDoc(doc(db, 'chats', sessionId));
-      let messages = [];
-      let customerName = null;
-      if (docSnap.exists()) {
-        const d = docSnap.data();
-        messages = d.messages || [];
-        customerName = d.customerName || null;
+      let messages: any[] = [];
+      let customerName: string | null = null;
+      const local = localChatStore.get(sessionId);
+      if (local) {
+        messages = local.messages || [];
+        customerName = local.customerName || null;
+      } else {
+        try {
+          const docSnap: any = await Promise.race([
+            getDoc(doc(db, 'chats', sessionId)),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 1000))
+          ]);
+          if (docSnap && docSnap.exists()) {
+            const d = docSnap.data();
+            messages = d.messages || [];
+            customerName = d.customerName || null;
+            localChatStore.set(sessionId, { messages, customerName, updatedAt: Date.now() });
+          }
+        } catch (firestoreErr: any) {
+          console.warn('Firestore read in chat/message skipped/failed:', firestoreErr.message);
+        }
       }
 
       // Append new user message
@@ -3212,6 +3243,10 @@ Your mission is to help customers design, customize, choose, and order standard 
 Provide helpful, specific, and professional guidance. Suggest materials (such as premium 300 GSM paper, thick matte cards, elegant custom envelopes, textured letterheads, etc.), answer design/print questions, recommend quantity options, and guide them gracefully through the ordering process.
 
 ${customerName ? `The customer's name is ${customerName}. Address them by name naturally (e.g., "Hi ${customerName}," or "Sure, ${customerName}, we can...") in your messages to make the interaction feel personalized and warm.` : ""}
+
+${currentPage ? `ACTIVE BROWSING CONTEXT:
+The customer is currently looking at: "${pageTitle || 'Printfield'}" (URL: ${currentPage}).
+If they ask questions like "can I customize this?", "what colors are available?", or ask for recommendations, directly reference the product or category they are currently looking at and suggest complementary items that match it.` : ""}
 
 PRODUCT CATALOG (use this to recommend specific products with links):
 ${productCatalog}
@@ -3268,13 +3303,24 @@ Texting & Style Guidelines (CRITICAL for sounding natural and NOT like an AI):
       };
       messages.push(modelMsg);
 
-      // 3. Save to backend (Writes locally to SQLite cache + immediately backs up to Firestore)
-      await setDoc(doc(db, 'chats', sessionId), {
+      // 3. Save to backend (In-memory local store + Firestore backup)
+      localChatStore.set(sessionId, {
+        messages,
+        customerName,
+        userId,
+        updatedAt: Date.now()
+      });
+
+      // Fire-and-forget background sync to Firestore
+      setDoc(doc(db, 'chats', sessionId), {
         id: sessionId,
         sessionId,
         userId,
+        customerName,
         messages,
         updatedAt: Date.now()
+      }).catch((firestoreErr: any) => {
+        console.warn('Firestore background write error in chat/message:', firestoreErr.message);
       });
 
       res.json({ reply: replyText, messages });
@@ -3291,11 +3337,22 @@ Texting & Style Guidelines (CRITICAL for sounding natural and NOT like an AI):
         return res.status(400).json({ error: 'sessionId is required' });
       }
 
-      await setDoc(doc(db, 'chats', sessionId), {
+      const existing = localChatStore.get(sessionId);
+      localChatStore.set(sessionId, {
+        messages: [],
+        customerName: existing?.customerName || null,
+        userId: existing?.userId || null,
+        updatedAt: Date.now()
+      });
+
+      // Fire-and-forget Firestore clear
+      setDoc(doc(db, 'chats', sessionId), {
         id: sessionId,
         sessionId,
         messages: [],
         updatedAt: Date.now()
+      }).catch((firestoreErr: any) => {
+        console.warn('Firestore write error in chat/clear:', firestoreErr.message);
       });
 
       res.json({ success: true, messages: [] });
@@ -3462,6 +3519,93 @@ ${chatLog}
     } catch (error: any) {
       console.error('Failed to send admin staff message:', error);
       res.status(500).json({ error: 'Failed to send message' });
+    }
+  });
+
+  // AI Marketing Studio Generator (WhatsApp, LinkedIn, Instagram, Google Ads, Email)
+  app.post('/api/admin/ai/generate-marketing', verifyStaff, async (req, res) => {
+    try {
+      const { channel, topic, audience, tone, offer, keyPoints } = req.body;
+      if (!topic) {
+        return res.status(400).json({ error: 'Campaign topic or goal is required' });
+      }
+
+      let channelPrompt = '';
+      if (channel === 'whatsapp') {
+        channelPrompt = `Generate a high-converting, friendly WhatsApp Broadcast message for Printfield customers (B2B corporate clients, HRs, event managers, and local businesses in Whitefield/Bangalore).
+Requirements:
+- Use natural emojis tastefully.
+- Include a clear, compelling hook.
+- Highlight key benefits: 1-2 day local delivery in Whitefield/ITPL/EPIP, own production facility on Borewell Road (no outsourcing), GST invoices, premium quality fabrics & finishes.
+- Clear bullet points of what is on offer.
+- Clear call to action (e.g., "Reply to this message or WhatsApp us at +91 96063 71222 for immediate sample mockups").
+- Keep it under 180 words, formatted with WhatsApp bold (*text*).`;
+      } else if (channel === 'linkedin') {
+        channelPrompt = `Generate a high-performing B2B LinkedIn post for Printfield targeting Bangalore tech park HRs, Talent Acquisition heads, and Procurement managers (RMZ Ecospace, EcoWorld, ITPL, EPIP, Manyata).
+Requirements:
+- Strong thought-provoking hook on employee onboarding, corporate gifting, or company culture through custom merchandise.
+- Professional yet relatable storytelling.
+- Showcase why companies choose Printfield (no middlemen, own manufacturing facility on Borewell Road, premium GSM fabrics, flawless DTF & embroidery, 1-2 day turnaround).
+- Actionable CTA inviting them to DM or connect for a corporate kit catalog.
+- Include 4-6 relevant B2B hashtags (#CorporateGifting #BangaloreStartups #EmployeeEngagement #HRTech #Printfield).`;
+      } else if (channel === 'instagram') {
+        channelPrompt = `Generate an engaging Instagram Reel/Post caption + carousel copy for Printfield.
+Requirements:
+- Catchy opening hook line that stops scrolling.
+- Fun, aesthetic, and energetic tone highlighting custom merchandise (t-shirts, hoodies, neon signages, trophies, welcome kits).
+- Highlight that orders are crafted locally in Whitefield, Bangalore with quick turnaround.
+- Clear CTA ("Link in bio to customize" or "DM us your logo for a free 3D preview").
+- 12-16 trending & hyper-local hashtags (#BangalorePrinting #CustomTshirtsBangalore #WhitefieldBangalore #CorporateSwag #Printfield).`;
+      } else if (channel === 'google_ads') {
+        channelPrompt = `Generate high-CTR Google Search Ad Copy (Responsive Search Ads) for Printfield for the given topic.
+Requirements:
+- 5 high-converting Headlines (Strictly MAX 30 characters each).
+- 3 compelling Descriptions (Strictly MAX 90 characters each).
+- 4 Sitelink extensions with short descriptions.
+- Targeted keywords list (Exact match [keyword], Phrase match "keyword").
+- Highlight local presence: Whitefield, Bangalore, 1-2 Day Delivery, GST Invoices, Direct Manufacturer.`;
+      } else if (channel === 'email') {
+        channelPrompt = `Generate a high-converting B2B Cold/Warm Email Pitch to send to Bangalore corporate HRs or Office Managers.
+Requirements:
+- 3 compelling Subject Line options (High open rates, no spam words).
+- Preview text (preheader).
+- Concise email body (under 180 words): Problem -> Solution -> Value proposition (own production unit, free sample kit delivered to their office) -> Low-friction CTA ("Can I drop off a free sample kit at your office this Thursday?").
+- Professional sign-off.`;
+      } else {
+        channelPrompt = `Generate a high-converting promotional campaign copy for Printfield for ${channel || 'general marketing'}.`;
+      }
+
+      const prompt = `You are the Head of Growth & Marketing for 'Printfield' (https://www.printfieldonline.com), Bangalore's leading custom printing and corporate gifting brand located on Borewell Road, Whitefield.
+
+KEY FACTS ABOUT PRINTFIELD:
+- Location: Borewell Road, Whitefield, Bengaluru
+- Specialty: Corporate Welcome Kits, DTF & Screen Printed T-Shirts, Hoodies, Executive Trophies & Awards, Premium Drinkware, Office Stationery, Signages
+- Production: Own manufacturing & printing facility (no outsourcing, 22+ years experience)
+- Turnaround: 1-2 days local delivery across Whitefield, ITPL, EPIP, Marathahalli, Bellandur, Electronic City
+- Corporate Benefits: GST compliant, free 3D mockups before print, volume pricing, no minimums on gifting
+
+CAMPAIGN BRIEF:
+- Channel: ${channel || 'whatsapp'}
+- Topic/Goal: ${topic}
+- Target Audience: ${audience || 'Corporate companies, HRs, and local businesses in Bangalore'}
+- Tone: ${tone || 'Professional yet engaging'}
+${offer ? `- Special Offer/Discount: ${offer}` : ''}
+${keyPoints ? `- Key Highlights to mention: ${keyPoints}` : ''}
+
+TASK:
+${channelPrompt}
+
+Produce only the final ready-to-use marketing copy.`;
+
+      const generated = await callAIWithFallback(prompt);
+      if (!generated) {
+        return res.status(500).json({ error: 'Failed to generate marketing copy. Please try again.' });
+      }
+
+      res.json({ result: generated, channel, topic });
+    } catch (error: any) {
+      console.error('Failed to generate marketing copy:', error);
+      res.status(500).json({ error: error.message || 'Failed to generate marketing copy' });
     }
   });
 

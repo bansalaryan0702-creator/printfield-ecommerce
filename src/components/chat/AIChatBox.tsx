@@ -11,7 +11,10 @@ import {
   ChevronDown, 
   Loader2,
   User,
-  MessageCircle
+  MessageCircle,
+  ShoppingBag,
+  ArrowRight,
+  ExternalLink
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -212,7 +215,9 @@ export const AIChatBox: React.FC = () => {
         headers,
         body: JSON.stringify({
           message: text,
-          sessionId
+          sessionId,
+          currentPage: window.location.pathname,
+          pageTitle: document.title
         })
       });
 
@@ -299,23 +304,180 @@ export const AIChatBox: React.FC = () => {
     });
   };
 
-  // Replace **text** with bold and handle simple inline structures
+  // Replace **text** with bold, [text](url) with links, and handle URLs
   const parseInlineFormatting = (text: string): React.ReactNode[] => {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
+    const regex = /(\*\*.*?\*\*|\[.*?\]\(https?:\/\/[^\s)]+\)|\[.*?\]\(\/[^\s)]+\)|https?:\/\/[^\s]+)/g;
+    const parts = text.split(regex);
     return parts.map((part, index) => {
+      if (!part) return null;
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={index} className="font-bold text-gray-900">{part.slice(2, -2)}</strong>;
+      }
+      const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+      if (linkMatch) {
+        const [, label, href] = linkMatch;
+        const target = href.startsWith('http') && !href.includes('printfield') ? '_blank' : '_self';
+        return (
+          <a
+            key={index}
+            href={href.startsWith('http') && href.includes('printfield') ? href.replace(/^https?:\/\/[^/]+/, '') : href}
+            className="text-purple-600 hover:text-purple-800 underline font-semibold"
+            target={target}
+            rel="noopener noreferrer"
+          >
+            {label}
+          </a>
+        );
+      }
+      if (part.startsWith('http://') || part.startsWith('https://')) {
+        const isInternal = part.includes('printfield');
+        const href = isInternal ? part.replace(/^https?:\/\/[^/]+/, '') : part;
+        return (
+          <a
+            key={index}
+            href={href}
+            className="text-purple-600 hover:text-purple-800 underline break-all font-semibold"
+            target={isInternal ? '_self' : '_blank'}
+            rel="noopener noreferrer"
+          >
+            {part}
+          </a>
+        );
       }
       return <span key={index}>{part}</span>;
     });
   };
 
-  const suggestionChips = [
-    'Show me corporate t-shirt options',
-    'What trophies do you have?',
-    'Suggest onboarding kit ideas',
-    'What are your most popular gifts?'
-  ];
+  // Extract product recommendations from model message for rich cards
+  const extractProductLinks = (text: string) => {
+    const list: { title: string; url: string; slug: string }[] = [];
+    const seenSlugs = new Set<string>();
+
+    // 1. Match markdown links [Title](url)
+    const mdRegex = /\[([^\]]+)\]\(((?:https?:\/\/[^\s)]+)?\/product\/([a-zA-Z0-9_-]+))\)/g;
+    let match;
+    while ((match = mdRegex.exec(text)) !== null) {
+      const title = match[1];
+      const url = match[2];
+      const slug = match[3];
+      if (slug && !seenSlugs.has(slug)) {
+        seenSlugs.add(slug);
+        list.push({ title, url, slug });
+      }
+    }
+
+    // 2. Match plain product URLs: https://www.printfieldonline.com/product/xyz
+    const rawRegex = /(https?:\/\/(?:www\.)?printfieldonline\.com\/product\/([a-zA-Z0-9_-]+))/g;
+    while ((match = rawRegex.exec(text)) !== null) {
+      const url = match[1];
+      const slug = match[2];
+      if (slug && !seenSlugs.has(slug)) {
+        seenSlugs.add(slug);
+        const title = decodeURIComponent(slug).replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        list.push({ title, url, slug });
+      }
+    }
+
+    return list;
+  };
+
+  const renderProductCards = (text: string) => {
+    const cards = extractProductLinks(text);
+    if (!cards.length) return null;
+
+    return (
+      <div className="mt-3 pt-2.5 border-t border-purple-100/70 space-y-1.5">
+        <div className="text-[10px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1">
+          <Sparkles className="h-3 w-3" />
+          Recommended Items
+        </div>
+        <div className="space-y-1.5">
+          {cards.map((prod, idx) => {
+            const targetUrl = prod.url.startsWith('http') ? prod.url.replace(/^https?:\/\/[^/]+/, '') : prod.url;
+            return (
+              <div
+                key={idx}
+                className="bg-white hover:bg-purple-50/60 border border-purple-100 hover:border-purple-300 rounded-xl p-2.5 flex items-center justify-between gap-2.5 transition-all shadow-xs"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center text-purple-700 shrink-0 border border-purple-200/50">
+                    <ShoppingBag className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-900 truncate">
+                      {prod.title}
+                    </p>
+                    <p className="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      1-2 Day Delivery &bull; Bulk Available
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={targetUrl}
+                  className="shrink-0 px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-[11px] rounded-lg transition-colors flex items-center gap-1 shadow-xs"
+                >
+                  View
+                  <ArrowRight className="h-3 w-3" />
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const getDynamicSuggestionChips = () => {
+    const path = window.location.pathname;
+    if (path.startsWith('/product/')) {
+      return [
+        'What printing methods work best for this?',
+        'Can I get a bulk discount quote?',
+        'What matching items pair best with this?',
+        'What is the turnaround time for delivery?'
+      ];
+    }
+    if (path.includes('apparel') || path.includes('bulk-tshirt')) {
+      return [
+        'DTF printing vs screen printing difference?',
+        'What GSM is recommended for corporate wear?',
+        'Can I see polo t-shirt samples?',
+        'How do I submit our company logo?'
+      ];
+    }
+    if (path.includes('corporate-gifts') || path.includes('corporate-welcome-kits')) {
+      return [
+        'What items can be included in a welcome kit?',
+        'Can the gift box be customized with our logo?',
+        'Turnaround time for 100 welcome kits?',
+        'Do you provide GST invoices for companies?'
+      ];
+    }
+    if (path.includes('trophies')) {
+      return [
+        'Best wooden vs acrylic awards for annual day?',
+        'Can you engrave individual employee names?',
+        'What are your most popular mementos?'
+      ];
+    }
+    if (path.startsWith('/printing-') || path.includes('location')) {
+      return [
+        'Can you deliver to our office in 1-2 days?',
+        'Can I visit your Borewell Road unit?',
+        'What is the minimum order quantity?',
+        'How fast can you do urgent DTF printing?'
+      ];
+    }
+    return [
+      'Show me corporate t-shirt options',
+      'Suggest onboarding kit ideas for new hires',
+      'What trophies & awards do you have?',
+      'What are your most popular corporate gifts?'
+    ];
+  };
+
+  const suggestionChips = getDynamicSuggestionChips();
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
@@ -511,6 +673,7 @@ export const AIChatBox: React.FC = () => {
                               </div>
                             )}
                             {renderMessageContent(msg.text)}
+                            {(msg.role === 'model' || msg.role === 'staff') && renderProductCards(msg.text)}
                             <span 
                               className={`text-[9px] mt-1 block text-right font-medium ${
                                 msg.role === 'user' ? 'text-purple-200' : 'text-gray-400'

@@ -28,6 +28,7 @@ import {
   CheckCircle,
   Image as ImageIcon,
   MessageSquarePlus,
+  MessageCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useProducts } from "../hooks/useProducts";
@@ -280,6 +281,32 @@ export function ProductDetail() {
     
     const otherProducts = allProducts.filter(p => p.id !== product?.id && !sameCategory.find(s => s.id === p.id));
     return [...sameCategory, ...otherProducts].slice(0, 4);
+  }, [allProducts, product]);
+
+  const pairedProducts = useMemo(() => {
+    if (!product || !allProducts.length) return [];
+    const cat = String(product.category || '').toLowerCase();
+
+    let targetCategories: string[] = [];
+    if (cat.includes('apparel') || cat.includes('t-shirt') || cat.includes('clothing')) {
+      targetCategories = ['Drinkware', 'Corporate Gifts', 'Business Stationery'];
+    } else if (cat.includes('stationery') || cat.includes('card') || cat.includes('paper')) {
+      targetCategories = ['Corporate Gifts', 'Apparel', 'Drinkware'];
+    } else if (cat.includes('corporate') || cat.includes('gift') || cat.includes('welcome')) {
+      targetCategories = ['Apparel', 'Drinkware', 'Trophies & Awards'];
+    } else if (cat.includes('troph') || cat.includes('award')) {
+      targetCategories = ['Corporate Gifts', 'Business Stationery', 'Apparel'];
+    } else {
+      targetCategories = ['Corporate Gifts', 'Apparel', 'Drinkware'];
+    }
+
+    const complementary = allProducts.filter(p => 
+      p.id !== product.id && 
+      !p.isDisabled &&
+      targetCategories.some(tc => String(p.category || '').toLowerCase().includes(tc.toLowerCase()))
+    );
+
+    return complementary.slice(0, 3);
   }, [allProducts, product]);
 
   const [showCustomizer, setShowCustomizer] = useState(false);
@@ -2836,6 +2863,18 @@ export function ProductDetail() {
                   {isAdding ? "Adding..." : hasNoValidProductImage ? "Product Disabled" : "Add to Cart"}
                 </Button>
 
+                <a
+                  href={`https://wa.me/919606371222?text=${encodeURIComponent(
+                    `Hi Printfield! I'm interested in ordering "${product?.name}". Could you share the best bulk quote and turnaround time for Bangalore?`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 text-sm sm:text-base font-bold h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  Instant WhatsApp AI Quote
+                </a>
+
                 {isBusinessCard &&
                   activePlacement === "back" &&
                   artworks["front"] &&
@@ -2877,6 +2916,48 @@ export function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {pairedProducts.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-16 pb-8">
+          <div className="bg-gradient-to-br from-purple-50/70 via-indigo-50/40 to-purple-50/30 rounded-3xl p-6 sm:p-10 border border-purple-100 shadow-sm">
+            <div className="max-w-3xl mb-8">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 uppercase tracking-wider mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                AI Smart Cross-Sell
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                Frequently Paired Together
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 mt-2">
+                Order a cohesive brand set. Customers ordering <strong className="text-purple-700">{product?.name}</strong> frequently bundle these items with matching colors and logos.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pairedProducts.map((p, idx) => (
+                <ProductCard key={`paired-${p?.id}-${idx}`} product={p} />
+              ))}
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-purple-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                <strong>Need custom multi-product branding?</strong> Get dedicated design support, unified color-matching, and volume discounts.
+              </div>
+              <a
+                href={`https://wa.me/919606371222?text=${encodeURIComponent(
+                  `Hi Printfield! I am looking to create a corporate bundle starting with "${product?.name}" and complementary items. Please share bundle pricing and options.`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition-all"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Inquire Bundle on WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {suggestedProducts.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-16">
