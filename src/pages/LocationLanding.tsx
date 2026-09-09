@@ -182,6 +182,138 @@ const LOCATIONS: Record<string, {
       services: ["Corporate Onboarding Kits", "Custom T-Shirt & Apparel Printing", "Awards & Trophies", "Signage, Banners & Flex", "Brochures, Catalogues & Flyers", "Custom Gifts & Merchandise"],
       whyUs: ["Minutes from Hoodi on Borewell Road", "Own production unit — no outsourcing", "10+ years serving Bengaluru", "Bulk discounts from 10 pieces", "Free design consultation", "GST invoice for all orders"]
     }
+  },
+  bellandur: {
+    name: "Bellandur & ORR",
+    area: "Bellandur / Outer Ring Road",
+    city: "Bengaluru",
+    pincode: "560103",
+    landmark: "Near RMZ Ecospace & EcoWorld, Outer Ring Road",
+    metaTitle: "Corporate Printing & Gifting in Bellandur Bangalore | Printfield",
+    metaDescription: "Best corporate printing, custom t-shirts & corporate gifts in Bellandur & Outer Ring Road (EcoWorld, RMZ Ecospace). Fast 1-2 day delivery, bulk discounts, GST invoices.",
+    heroHeading: "Corporate Printing Services in Bellandur & ORR",
+    heroSubheading: "Trusted printing & corporate merchandise partner for tech companies in EcoWorld, RMZ Ecospace & Cessna Tech Park.",
+    nearbyAreas: ["Marathahalli", "HSR Layout", "Sarjapur Road", "Kadubeesanahalli", "Whitefield"],
+    deliveryTime: "1-2 days",
+    mapQuery: "Bellandur+Outer+Ring+Road+Bengaluru",
+    latitude: 12.9260,
+    longitude: 77.6762,
+    localKeywords: ["corporate printing bellandur", "custom tshirt printing outer ring road bangalore", "corporate gifts ecoworld", "tshirt printing bellandur", "standee printing ecospace"],
+    localContent: {
+      intro: "Printfield provides high-volume corporate printing, custom branded apparel, employee onboarding kits, and premium awards to businesses along Bangalore's Outer Ring Road and Bellandur tech corridor. Serving enterprises across RMZ Ecospace, RMZ EcoWorld, Embassy TechVillage, and Prestige Tech Park, we provide rapid 1-2 day delivery with our own in-house production unit.",
+      services: ["Employee Welcome Kits & Onboarding Swag", "Corporate Polo & T-Shirt Printing (DTF & Embroidery)", "Custom Awards, Trophies & Mementos", "Conference Standees, Backdrops & Signage", "Branded Drinkware, Sipper Bottles & Diaries", "Marketing Collateral & Brochures"],
+      whyUs: ["Same-day digital mockups with your company logo", "Fast 1-2 day delivery to ORR & Bellandur tech parks", "Direct production unit pricing — no middlemen", "GST compliant with formal credit billing options", "Bulk volume pricing from 10 to 10,000+ pieces", "Dedicated B2B corporate account manager"]
+    }
+  },
+  "electronic-city": {
+    name: "Electronic City",
+    area: "Electronic City",
+    city: "Bengaluru",
+    pincode: "560100",
+    landmark: "Near Infosys Gate & Wipro Tech Park, E-City Phase 1",
+    metaTitle: "Custom Printing & Corporate Gifting in Electronic City Bangalore | Printfield",
+    metaDescription: "Leading custom t-shirt printing, corporate gifting & trophy supplier in Electronic City Phase 1 & 2, Bangalore. Fast delivery, bulk discounts, free 3D digital mockups.",
+    heroHeading: "Custom Printing Services in Electronic City",
+    heroSubheading: "Premium custom apparel, employee onboarding hampers, and event merchandise for tech leaders in Electronic City Phase 1 & 2.",
+    nearbyAreas: ["Bommasandra", "Hosa Road", "HSR Layout", "Koramangala", "BTM Layout"],
+    deliveryTime: "1-2 days",
+    mapQuery: "Electronic+City+Phase+1+Bengaluru",
+    latitude: 12.8452,
+    longitude: 77.6602,
+    localKeywords: ["custom tshirt printing electronic city", "corporate gifts electronic city bangalore", "trophy manufacturers electronic city", "printing services electronic city phase 1"],
+    localContent: {
+      intro: "Printfield is the preferred custom printing and corporate gifting specialist for technology enterprises across Electronic City Phase 1 and Phase 2. From annual day team t-shirts and executive award mementos to new hire welcome kits and expo banners, our Bangalore production facility guarantees premium craftsmanship and reliable delivery.",
+      services: ["Custom Collar Polos & Event T-Shirts", "Corporate Gift Hampers & Tech Accessories", "Crystal, Wooden & Acrylic Awards", "Exhibition Roll-Up Standees & Banners", "ID Cards, Lanyards & Office Stationery", "Custom Mugs, Bottles & Backpacks"],
+      whyUs: ["Trusted by top IT enterprises across E-City", "Free digital mockups before bulk print runs", "Express courier delivery across Phase 1 & Phase 2", "Competitive volume pricing for corporate orders", "Premium fabric GSM and international standard inks", "GST input tax credit on all business invoices"]
+    }
+  },
+  koramangala: {
+    name: "Koramangala",
+    area: "Koramangala",
+    city: "Bengaluru",
+    pincode: "560034",
+    landmark: "Near Sony World Signal & 80 Feet Road",
+    metaTitle: "Custom T-Shirt Printing & Corporate Swag in Koramangala Bangalore | Printfield",
+    metaDescription: "Best custom t-shirt printing, startup swag & corporate gifting in Koramangala, Bengaluru 560034. Fast delivery, bulk orders, online design studio. Order online.",
+    heroHeading: "Custom Printing & Startup Swag in Koramangala",
+    heroSubheading: "High-quality custom t-shirts, startup welcome kits, hoodies & event signage delivered across Koramangala blocks 1 to 8.",
+    nearbyAreas: ["HSR Layout", "Indiranagar", "BTM Layout", "Domlur", "Jayanagar"],
+    deliveryTime: "1-2 days",
+    mapQuery: "Koramangala+Bengaluru",
+    latitude: 12.9352,
+    longitude: 77.6245,
+    localKeywords: ["custom tshirt printing koramangala", "startup swag koramangala bangalore", "corporate gifting koramangala", "standee printing koramangala", "printing shop koramangala"],
+    localContent: {
+      intro: "As Bangalore's startup epicenter, Koramangala moves fast — and Printfield delivers matching speed and quality. We equip startups, co-working spaces, and growing scale-ups with premium brand swag, developer hoodies, team t-shirts, launch event backdrops, and executive gifts, all produced with precision in our Bangalore production unit.",
+      services: ["Startup Swag Boxes & Welcome Packs", "Custom Premium Hoodies & Round Neck T-Shirts", "Roll-Up Standees & Demo Day Banners", "UV Printed Stainless Steel Drinkware", "Custom Stickers, Badges & Notebooks", "Trophies & Milestone Recognition Awards"],
+      whyUs: ["Fast turnaround tailored for high-growth startups", "Order quantities starting from just 10 pieces", "Modern design support & 3D preview visualization", "Direct delivery to all Koramangala blocks within 24-48 hours", "100% satisfaction guarantee on fabric & print finish", "Seamless GST invoice generation"]
+    }
+  },
+  "hsr-layout": {
+    name: "HSR Layout",
+    area: "HSR Layout",
+    city: "Bengaluru",
+    pincode: "560102",
+    landmark: "Near 27th Main Road & Sector 1-7",
+    metaTitle: "Custom Printing & Corporate Gifting in HSR Layout Bangalore | Printfield",
+    metaDescription: "Top custom t-shirt printing, corporate gifting & signage in HSR Layout Bengaluru (Sectors 1-7). Fast delivery, bulk discounts, free design mockups. Request a quote.",
+    heroHeading: "Custom Printing Services in HSR Layout",
+    heroSubheading: "Trusted printing partner for unicorn startups, tech offices & brands across HSR Layout Sectors 1 through 7.",
+    nearbyAreas: ["Koramangala", "Bellandur", "BTM Layout", "Sarjapur Road", "Electronic City"],
+    deliveryTime: "1-2 days",
+    mapQuery: "HSR+Layout+Bengaluru",
+    latitude: 12.9121,
+    longitude: 77.6446,
+    localKeywords: ["custom tshirt printing hsr layout", "corporate gifts hsr layout", "printing services hsr layout bangalore", "signage printing hsr layout 27th main"],
+    localContent: {
+      intro: "Printfield provides top-tier custom printing and corporate gifting across all sectors of HSR Layout. Whether you need 50 corporate polos for your tech team, 500 employee onboarding kits for your new campus, or vibrant event banners on 27th Main Road, our in-house facility guarantees pristine color reproduction and rapid turnaround.",
+      services: ["Custom T-Shirt & Polo Shirt Printing", "Corporate Welcome Kits & Branded Gifts", "Event Roll-Up Standees & Vinyl Banners", "Custom Award Plaques & Acrylic Trophies", "Branded Tech Accessories & Stationery", "Custom Packaging Boxes with Company Logo"],
+      whyUs: ["Rapid delivery to Sectors 1 to 7 within 1-2 days", "Direct manufacturer pricing with no agent markups", "Free digital mockups before production begins", "Low minimum order quantities starting at 10 units", "Over 12 years of printing excellence in Bangalore", "Dedicated corporate customer support"]
+    }
+  },
+  indiranagar: {
+    name: "Indiranagar & EGL",
+    area: "Indiranagar / Domlur",
+    city: "Bengaluru",
+    pincode: "560038",
+    landmark: "Near 100 Feet Road & Embassy Golf Links (EGL)",
+    metaTitle: "Corporate Printing & Custom Apparel in Indiranagar Bangalore | Printfield",
+    metaDescription: "Premium custom printing, t-shirt embroidery & corporate gifts in Indiranagar & Embassy Golf Links (EGL) Bangalore. Fast 1-2 day delivery, bulk orders welcome.",
+    heroHeading: "Corporate Printing Services in Indiranagar",
+    heroSubheading: "Bespoke corporate merchandise, executive gifts, and custom apparel for enterprises across 100ft Road and Embassy Golf Links.",
+    nearbyAreas: ["Domlur", "Koramangala", "Old Airport Road", "Ulsoor", "MG Road"],
+    deliveryTime: "1-2 days",
+    mapQuery: "Indiranagar+Bengaluru",
+    latitude: 12.9784,
+    longitude: 77.6408,
+    localKeywords: ["custom printing indiranagar", "corporate gifting indiranagar bangalore", "tshirt printing EGL domlur", "custom apparel 100 feet road indiranagar"],
+    localContent: {
+      intro: "Serving businesses, agencies, and tech enterprises along 100 Feet Road, 12th Main, and Embassy Golf Links (EGL), Printfield is the premier destination for high-end corporate printing. We specialize in luxury corporate gift hampers, precision-embroidered executive apparel, architectural signage, and premium crystal trophies.",
+      services: ["Executive Corporate Gift Sets & Hampers", "Precision Embroidered Jackets, Polos & Caps", "Crystal, Resin & Metal Achievement Trophies", "Premium Business Cards & Foil Stamped Stationery", "Retail Signage, Acrylic Displays & Event Backdrops", "Branded Sustainable & Eco-Friendly Merchandise"],
+      whyUs: ["Premium finishing with strict multi-point QA checks", "Fast direct dispatch to Indiranagar & Domlur within 1-2 days", "Volume tiered pricing with substantial bulk savings", "Eco-friendly printing options and organic cotton apparel", "Free digital mockups and artwork proofing", "Full GST invoice compliance"]
+    }
+  },
+  manyata: {
+    name: "Manyata Tech Park",
+    area: "Manyata / Hebbal",
+    city: "Bengaluru",
+    pincode: "560045",
+    landmark: "Near Manyata Embassy Business Park, Outer Ring Road",
+    metaTitle: "Corporate Printing & Gifting near Manyata Tech Park Bangalore | Printfield",
+    metaDescription: "Corporate printing, onboarding kits & custom t-shirts near Manyata Tech Park, Hebbal, Bangalore. Fast 1-2 day delivery, bulk discounts, GST invoices.",
+    heroHeading: "Corporate Printing Services near Manyata Tech Park",
+    heroSubheading: "Dedicated corporate printing and branded gifting partner for enterprises across Manyata Embassy Business Park and North Bangalore.",
+    nearbyAreas: ["Hebbal", "Nagavara", "Hennur", "Sahakara Nagar", "Yelahanka"],
+    deliveryTime: "1-2 days",
+    mapQuery: "Manyata+Tech+Park+Bengaluru",
+    latitude: 13.0475,
+    longitude: 77.6200,
+    localKeywords: ["corporate printing manyata tech park", "tshirt printing manyata bangalore", "corporate gifting hebbal", "onboarding kits manyata business park"],
+    localContent: {
+      intro: "Printfield delivers enterprise-grade corporate printing, custom uniforms, and employee welcome kits to multinational firms in Manyata Embassy Business Park and North Bengaluru. With high-capacity automated printing machinery, we easily fulfill large-scale orders from 50 to 20,000+ pieces on time and with zero compromise on quality.",
+      services: ["Large-Scale Corporate Uniform & Polo Printing", "Employee Welcome Kits & New Hire Bundles", "Annual Day Awards, Mementos & Trophies", "Exhibition Standees, Event Signage & Lanyards", "Customized Corporate Gifting & Hampers", "Marketing Brochures, Folders & Stationery"],
+      whyUs: ["High-capacity production capable of 10,000+ units/week", "Reliable dispatch to Manyata Tech Park in 1-2 days", "Factory-direct pricing with corporate volume slabs", "Free digital mockups and fabric swatch approval", "Comprehensive GST billing and enterprise vendor onboarding", "12+ years of trusted corporate service across Bengaluru"]
+    }
   }
 };
 

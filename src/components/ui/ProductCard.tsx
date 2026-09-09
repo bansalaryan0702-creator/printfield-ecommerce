@@ -102,7 +102,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <img 
           referrerPolicy="no-referrer" loading="lazy" 
           src={activeDisplayImage} 
-          alt={hoveredColorName ? `${product.name} - ${hoveredColorName}` : product.name}
+          alt={hoveredColorName ? `${product.name} in ${hoveredColorName} - Custom ${product.category || 'Printing'} Bangalore | Printfield` : `${product.name} - Custom ${product.category || 'Printing'} in Whitefield Bangalore | Printfield`}
           onError={() => {
             if (hoveredColorImage) {
               setHoveredColorImage(null);

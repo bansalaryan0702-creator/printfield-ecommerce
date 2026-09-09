@@ -30,6 +30,8 @@ const LocationLanding = lazy(() => import("./pages/LocationLanding").then(m => (
 const Rating = lazy(() => import("./pages/Rating").then(m => ({ default: m.Rating })));
 const Catalogs = lazy(() => import("./pages/Catalogs").then(m => ({ default: m.Catalogs })));
 const CategoryLanding = lazy(() => import("./pages/CategoryLanding").then(m => ({ default: m.CategoryLanding })));
+const CorporateWelcomeKits = lazy(() => import("./pages/CorporateWelcomeKits").then(m => ({ default: m.CorporateWelcomeKits })));
+const BulkTshirtPrinting = lazy(() => import("./pages/BulkTshirtPrinting").then(m => ({ default: m.BulkTshirtPrinting })));
 
 function LoadingFallback() {
   return (
@@ -56,6 +58,8 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/custom-printing" element={<SEOLanding />} />
+          <Route path="/corporate-welcome-kits-bangalore" element={<CorporateWelcomeKits />} />
+          <Route path="/bulk-tshirt-printing-bangalore" element={<BulkTshirtPrinting />} />
           <Route path="/printing-:locationSlug" element={<LocationLanding />} />
           <Route path="/categories" element={<CategoryPage />} />
           <Route path="/catalogs" element={<Catalogs />} />

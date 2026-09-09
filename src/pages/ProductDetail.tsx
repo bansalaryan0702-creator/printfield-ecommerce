@@ -1933,7 +1933,7 @@ export function ProductDetail() {
                       )}
                       <img referrerPolicy="no-referrer"
                         src={getOptimizedImage(displayImage, 1000) || undefined}
-                        alt={product?.name}
+                        alt={`${product?.name} - Custom ${product?.category || 'Printing'} Whitefield Bangalore | Printfield`}
                         onLoad={() => handleImageLoaded(displayImage)}
                         onError={() => handleImageError(displayImage)}
                         onClick={() => {
@@ -1997,7 +1997,7 @@ export function ProductDetail() {
                   >
                     <img referrerPolicy="no-referrer"
                       src={(getOptimizedImage(img, 150) || undefined) + (retryCount[img] ? `?retry=${retryCount[img]}` : '')}
-                      alt={`${product?.name} ${i + 1}`}
+                      alt={`${product?.name} photo ${i + 1} - Custom ${product?.category || 'Printing'} Printfield Bangalore`}
                       onError={() => handleImageError(img)}
                       className="w-full h-full object-contain p-1.5"
                       loading="lazy"
@@ -2944,7 +2944,7 @@ export function ProductDetail() {
             <h4 className="font-bold text-gray-900">No Upfront Payment</h4>
             <p className="text-sm text-gray-500">Submit specs & receive quotation by email.</p>
             <a
-              href={`https://wa.me/919606371222?text=${encodeURIComponent(`Hi Printfield, I'm interested in: ${product?.name || 'a product'}. Please share details.`)}`}
+              href={`https://wa.me/919606371222?text=${encodeURIComponent(`Hi Printfield, I'd like a custom quotation for ${product?.name || 'this product'} (https://www.printfieldonline.com/product/${product?.slug || product?.id}). Estimated quantity: ${baseQuantity || 1} units. Please share pricing and digital mockup.`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors mt-3"

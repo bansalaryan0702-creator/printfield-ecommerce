@@ -23,26 +23,32 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Products</h3>
+            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Solutions & Products</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/business-stationery" className="hover:text-purple-400 transition-colors">Business Cards & Stationery</Link></li>
-              <li><Link to="/apparel" className="hover:text-purple-400 transition-colors">Custom T-Shirts & Apparel</Link></li>
-              <li><Link to="/corporate-gifts" className="hover:text-purple-400 transition-colors">Corporate Gifts</Link></li>
+              <li><Link to="/corporate-welcome-kits-bangalore" className="text-purple-300 hover:text-white font-medium transition-colors">Corporate Welcome Kits</Link></li>
+              <li><Link to="/bulk-tshirt-printing-bangalore" className="text-purple-300 hover:text-white font-medium transition-colors">Bulk T-Shirt Printing</Link></li>
+              <li><Link to="/corporate-gifts" className="hover:text-purple-400 transition-colors">Corporate Gifting & Hampers</Link></li>
               <li><Link to="/trophies" className="hover:text-purple-400 transition-colors">Trophies & Awards</Link></li>
-              <li><Link to="/drinkware" className="hover:text-purple-400 transition-colors">Drinkware & Bottles</Link></li>
-              <li><Link to="/signage" className="hover:text-purple-400 transition-colors">Signage & Banners</Link></li>
-              <li><Link to="/personalised-gifts" className="hover:text-purple-400 transition-colors">Personalised Gifts</Link></li>
+              <li><Link to="/apparel" className="hover:text-purple-400 transition-colors">Custom Polos & Hoodies</Link></li>
+              <li><Link to="/business-stationery" className="hover:text-purple-400 transition-colors">Business Cards & Stationery</Link></li>
+              <li><Link to="/signage" className="hover:text-purple-400 transition-colors">Signage & Roll-Up Standees</Link></li>
+              <li><Link to="/drinkware" className="hover:text-purple-400 transition-colors">Custom Bottles & Mugs</Link></li>
               <li><Link to="/catalogs" className="hover:text-purple-400 transition-colors">Product Catalogs</Link></li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Locations</h3>
+            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Bangalore Tech Hubs</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/printing-whitefield" className="hover:text-purple-400 transition-colors">Printing in Whitefield</Link></li>
-              <li><Link to="/printing-itpl" className="hover:text-purple-400 transition-colors">Printing in ITPL</Link></li>
-              <li><Link to="/printing-brookefield" className="hover:text-purple-400 transition-colors">Printing in Brookefield</Link></li>
-              <li><Link to="/printing-marathahalli" className="hover:text-purple-400 transition-colors">Printing in Marathahalli</Link></li>
+              <li><Link to="/printing-whitefield" className="hover:text-purple-400 transition-colors">Whitefield (Borewell Rd)</Link></li>
+              <li><Link to="/printing-itpl" className="hover:text-purple-400 transition-colors">ITPL Tech Park</Link></li>
+              <li><Link to="/printing-bellandur" className="hover:text-purple-400 transition-colors">Bellandur & EcoWorld</Link></li>
+              <li><Link to="/printing-electronic-city" className="hover:text-purple-400 transition-colors">Electronic City Phase 1 & 2</Link></li>
+              <li><Link to="/printing-koramangala" className="hover:text-purple-400 transition-colors">Koramangala Startup Hub</Link></li>
+              <li><Link to="/printing-hsr-layout" className="hover:text-purple-400 transition-colors">HSR Layout (Sectors 1-7)</Link></li>
+              <li><Link to="/printing-manyata" className="hover:text-purple-400 transition-colors">Manyata Tech Park (Hebbal)</Link></li>
+              <li><Link to="/printing-indiranagar" className="hover:text-purple-400 transition-colors">Indiranagar & Domlur (EGL)</Link></li>
+              <li><Link to="/printing-brookefield" className="hover:text-purple-400 transition-colors">Brookefield & Marathahalli</Link></li>
             </ul>
           </div>
 
