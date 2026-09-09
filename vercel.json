@@ -11,6 +11,7 @@
   },
   "redirects": [
     { "source": "/categories/", "destination": "/categories", "permanent": true },
+    { "source": "/catalogs/", "destination": "/catalogs", "permanent": true },
     { "source": "/about/", "destination": "/about", "permanent": true },
     { "source": "/faq/", "destination": "/faq", "permanent": true },
     { "source": "/contact/", "destination": "/contact", "permanent": true },

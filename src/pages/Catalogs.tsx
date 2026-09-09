@@ -58,6 +58,7 @@ export function Catalogs() {
       <SEO
         title="Product Catalogs | Printfield"
         description="Download our latest product catalogs featuring corporate gifts, promotional items, custom apparel, and printing services in Whitefield, Bangalore."
+        canonicalUrl="/catalogs"
       />
 
       {/* Hero */}

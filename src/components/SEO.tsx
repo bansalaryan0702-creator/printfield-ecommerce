@@ -22,8 +22,17 @@ export const SEO: React.FC<SEOProps> = ({
   schema,
   robots
 }) => {
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const url = canonicalUrl ? `${siteUrl}${canonicalUrl}` : siteUrl;
+  const siteUrl = 'https://www.printfieldonline.com';
+  let url = siteUrl;
+  if (canonicalUrl) {
+    if (canonicalUrl.startsWith('http')) {
+      url = canonicalUrl;
+    } else {
+      url = `${siteUrl}${canonicalUrl.startsWith('/') ? '' : '/'}${canonicalUrl}`;
+    }
+  } else if (typeof window !== 'undefined') {
+    url = `${siteUrl}${window.location.pathname}`;
+  }
   const image = ogImage || DEFAULT_OG_IMAGE;
 
   return (
@@ -31,7 +40,7 @@ export const SEO: React.FC<SEOProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
-      {robots && <meta name="robots" content={robots} />}
+      <meta name="robots" content={robots || "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
 
       <meta property="og:type" content={type} />
       <meta property="og:url" content={url} />

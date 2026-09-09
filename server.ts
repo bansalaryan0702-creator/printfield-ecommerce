@@ -5089,7 +5089,8 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         const img = product.image || '';
         const canonicalSlug = product.slug || product.id;
         const canonicalUrl = `${baseUrl}/product/${encodeURIComponent(canonicalSlug)}`;
-        const ogImageUrl = img.startsWith('http') ? img : (img.startsWith('/uploads/') ? `https://printfielddigital.s3.ap-south-1.amazonaws.com${img}` : `${baseUrl}${img}`);
+        const rawImg = (product.image || (Array.isArray(product.images) ? product.images[0] : '')) || '';
+        const ogImageUrl = rawImg.startsWith('http') ? rawImg : (rawImg.startsWith('/uploads/') ? `https://printfielddigital.s3.ap-south-1.amazonaws.com${rawImg}` : (rawImg ? `${baseUrl}${rawImg}` : `${baseUrl}/logo.png`));
 
     const distPath = path.join(process.cwd(), 'dist');
     const spaFile = fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html';
@@ -5139,6 +5140,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
           const metaTags = `
     <title>${escapeAttr(title)}</title>
     <meta name="description" content="${escapeAttr(desc)}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="${canonicalUrl}" />
     <meta property="og:title" content="${escapeAttr(title)}" />
     <meta property="og:description" content="${escapeAttr(desc)}" />
@@ -5154,12 +5156,28 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <script type="application/ld+json">${escapeJson(breadcrumbJsonLd)}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the price of ${escapeAttr(product.name)}?","acceptedAnswer":{"@type":"Answer","text":"The price for ${escapeAttr(product.name)} is available on request. Contact us at +91 96063 71222 for bulk pricing and custom orders."}},{"@type":"Question","name":"Can I customize ${escapeAttr(product.name)}?","acceptedAnswer":{"@type":"Answer","text":"Yes, all our products are fully customizable. You can add your logo, text, or custom design to ${escapeAttr(product.name)}. We offer DTF printing, screen printing, and embroidery options."}},{"@type":"Question","name":"What is the minimum order quantity?","acceptedAnswer":{"@type":"Answer","text":"For most products, minimum order is 10 pieces. For bulk screen printing, minimum is 50 pieces. Contact us for specific requirements."}},{"@type":"Question","name":"Do you deliver to Whitefield and nearby areas?","acceptedAnswer":{"@type":"Answer","text":"Yes, we deliver to Whitefield, ITPL, Brookefield, Marathahalli, and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders."}}]}</script>
 `;
+          const productSsrBody = `
+    <main style="max-width:960px;margin:0 auto;padding:24px 16px;font-family:system-ui,-apple-system,sans-serif;">
+      <nav aria-label="Breadcrumb" style="font-size:14px;margin-bottom:16px;color:#6b7280;">
+        <a href="/" style="color:#7c3aed;">Home</a> &gt; <a href="/category/${encodeURIComponent(product.category || 'Products')}" style="color:#7c3aed;">${escapeAttr(product.category || 'Products')}</a> &gt; <span>${escapeAttr(product.name)}</span>
+      </nav>
+      <h1 style="font-size:28px;font-weight:bold;margin-bottom:12px;color:#111827;">${escapeAttr(title)}</h1>
+      ${ogImageUrl && !ogImageUrl.endsWith('logo.png') ? `<img src="${escapeAttr(ogImageUrl)}" alt="${escapeAttr(product.name)}" style="max-width:420px;width:100%;height:auto;border-radius:12px;margin-bottom:16px;object-fit:cover;" />` : ''}
+      <p style="font-size:22px;font-weight:bold;color:#111827;margin-bottom:12px;">₹${product.price || 499}</p>
+      <div style="font-size:16px;line-height:1.7;color:#374151;margin-bottom:20px;">${escapeAttr(desc)}</div>
+      <p style="color:#4b5563;margin-bottom:8px;"><strong>Category:</strong> <a href="/category/${encodeURIComponent(product.category || '')}" style="color:#7c3aed;">${escapeAttr(product.category || '')}</a></p>
+      <p style="color:#4b5563;margin-bottom:8px;"><strong>Minimum Order:</strong> ${product.minQty || 1} units</p>
+      <p style="color:#4b5563;margin-bottom:20px;"><strong>Delivery:</strong> Available across Whitefield, Bengaluru (1-2 days) and pan-India shipping.</p>
+      <a href="/contact" style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Enquire for Bulk Order</a>
+    </main>
+`;
           html = html.replace(/<link rel="canonical" href="[^"]*" \/>/gi, '');
           html = html.replace(/<meta name="description" content="[^"]*" \/>/gi, '');
           html = html.replace(/<title>.*?<\/title>/gi, '');
           html = html.replace(/<meta property="og:.*?\/>/gi, '');
           html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
           html = html.replace('</head>', `${metaTags}\n</head>`);
+          html = html.replace('<div id="root"></div>', `<div id="root">${productSsrBody}</div>`);
           return res.setHeader('Content-Type', 'text/html').send(html);
         }
       } else {
@@ -5400,6 +5418,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       const metaTags = `
     <title>${escapeAttr(title)}</title>
     <meta name="description" content="${escapeAttr(desc)}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="${canonicalUrlFull}" />
     <meta property="og:title" content="${escapeAttr(title)}" />
     <meta property="og:description" content="${escapeAttr(desc)}" />
@@ -5416,11 +5435,28 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <script type="application/ld+json">${escapeJson(faqJsonLd)}</script>
 `;
 
+      const locationSsrBody = `
+    <main style="max-width:1000px;margin:0 auto;padding:24px 16px;font-family:system-ui,-apple-system,sans-serif;">
+      <h1 style="font-size:28px;font-weight:bold;margin-bottom:12px;color:#111827;">${escapeAttr(location.heroHeading || title)}</h1>
+      <p style="font-size:16px;line-height:1.6;color:#4b5563;margin-bottom:20px;">${escapeAttr(location.heroSubheading || desc)}</p>
+      <div style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;border:1px solid #e5e7eb;">
+        <h2 style="font-size:18px;font-weight:600;margin-bottom:12px;color:#111827;">Printing Services Available in ${escapeAttr(location.name)}</h2>
+        <ul style="padding-left:20px;line-height:1.8;color:#374151;">
+          ${(location.localContent?.services || []).map((s: string) => `<li>${escapeAttr(s)}</li>`).join('')}
+        </ul>
+      </div>
+      <p style="color:#4b5563;line-height:1.6;margin-bottom:20px;">${escapeAttr(location.localContent?.intro || '')}</p>
+      <p style="font-size:15px;color:#6b7280;margin-bottom:24px;">Serving: ${escapeAttr([location.area, ...(location.nearbyAreas || [])].join(', '))}. Delivery within ${escapeAttr(location.deliveryTime || '1-2 days')}. Call +91 96063 71222 for immediate quotes.</p>
+      <a href="/categories" style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Explore Custom Products</a>
+    </main>
+`;
+
       html = html.replace(/<title>.*?<\/title>/gi, '');
       html = html.replace(/<link rel="canonical".*?\/>/gi, '');
       html = html.replace(/<meta property="og:.*?\/>/gi, '');
       html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
       html = html.replace('</head>', `${metaTags}\n</head>`);
+      html = html.replace('<div id="root"></div>', `<div id="root">${locationSsrBody}</div>`);
 
       return res.setHeader('Content-Type', 'text/html').send(html);
     } catch (err) {
@@ -5467,6 +5503,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         const metaTags = `
     <title>${escapeAttr(catTitle)}</title>
     <meta name="description" content="${escapeAttr(catDesc)}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="${canonicalUrl}" />
     <meta property="og:title" content="${escapeAttr(catTitle)}" />
     <meta property="og:description" content="${escapeAttr(catDesc)}" />
@@ -5480,12 +5517,35 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <meta name="twitter:image" content="${escapeAttr(catImage)}" />
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE_URL}/"},{"@type":"ListItem","position":2,"name":"${escapeAttr(canonicalCat)}","item":"${canonicalUrl}"}]}</script>
 `;
+
+        const categorySsrBody = `
+    <main style="max-width:1100px;margin:0 auto;padding:24px 16px;font-family:system-ui,-apple-system,sans-serif;">
+      <nav aria-label="Breadcrumb" style="font-size:14px;margin-bottom:16px;color:#6b7280;">
+        <a href="/" style="color:#7c3aed;">Home</a> &gt; <a href="/categories" style="color:#7c3aed;">Categories</a> &gt; <span>${escapeAttr(canonicalCat)}</span>
+      </nav>
+      <h1 style="font-size:28px;font-weight:bold;margin-bottom:12px;color:#111827;">${escapeAttr(catTitle)}</h1>
+      <p style="font-size:16px;line-height:1.6;color:#4b5563;margin-bottom:24px;">${escapeAttr(catDesc)}</p>
+      <h2 style="font-size:20px;font-weight:600;margin-bottom:16px;color:#111827;">Browse Products in ${escapeAttr(canonicalCat)}</h2>
+      <ul style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;list-style:none;padding:0;">
+        ${catProducts.slice(0, 30).map((p: any) => `
+          <li style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;background:#fff;">
+            <a href="/product/${encodeURIComponent(p.slug || p.id)}" style="text-decoration:none;color:#111827;">
+              <h3 style="font-size:16px;font-weight:600;margin:0 0 8px;">${escapeAttr(p.name)}</h3>
+              <p style="color:#7c3aed;font-weight:700;margin:0;">₹${p.price || 499}</p>
+            </a>
+          </li>
+        `).join('')}
+      </ul>
+    </main>
+`;
+
         html = html.replace(/<link rel="canonical" href="[^"]*" \/>/gi, '');
         html = html.replace(/<meta name="description" content="[^"]*" \/>/gi, '');
         html = html.replace(/<title>.*?<\/title>/gi, '');
         html = html.replace(/<meta property="og:.*?\/>/gi, '');
         html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
         html = html.replace('</head>', `${metaTags}\n</head>`);
+        html = html.replace('<div id="root"></div>', `<div id="root">${categorySsrBody}</div>`);
         return res.setHeader('Content-Type', 'text/html').send(html);
       }
     } catch (err) {
@@ -5510,27 +5570,6 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     const distPath = path.join(process.cwd(), 'dist');
     const spaFile = fsSync.existsSync(path.join(distPath, '_spa.html')) ? '_spa.html' : 'index.html';
 
-    app.get('/', (req, res) => {
-      const indexPath = path.join(distPath, spaFile);
-      if (!fsSync.existsSync(indexPath)) {
-        return res.sendFile(indexPath);
-      }
-      let html = fsSync.readFileSync(indexPath, 'utf8');
-      const meta = pageMeta['/'];
-      function escAtr(s: string) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-      const canonicalUrl = `${SITE_URL}${meta.canonical}`;
-      const tags = `<title>${escAtr(meta.title)}</title>\n    <meta name="description" content="${escAtr(meta.description)}" />\n    <link rel="canonical" href="${canonicalUrl}" />\n    <meta property="og:title" content="${escAtr(meta.title)}" />\n    <meta property="og:description" content="${escAtr(meta.description)}" />\n    <meta property="og:url" content="${canonicalUrl}" />\n    <meta property="og:type" content="website" />\n    <meta property="og:site_name" content="Printfield" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:title" content="${escAtr(meta.title)}" />\n    <meta name="twitter:description" content="${escAtr(meta.description)}" />`;
-      html = html.replace(/<link rel="canonical".*?\/>/gi, '');
-      html = html.replace(/<meta name="description".*?\/>/gi, '');
-      html = html.replace(/<title>.*?<\/title>/gi, '');
-      html = html.replace(/<meta property="og:.*?\/>/gi, '');
-      html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
-      html = html.replace('</head>', `${tags}\n</head>`);
-      return res.setHeader('Content-Type', 'text/html').send(html);
-    });
-
-    app.use(express.static(distPath));
-
     const pageMeta: Record<string, { title: string; description: string; canonical: string }> = {
       '/': { title: 'Printfield | Custom Printing, Corporate Gifts & Trophies in Whitefield, Bangalore', description: 'Best printing shop in Whitefield, Bangalore. Custom t-shirt printing, corporate gifts, trophies, signage, business cards & apparel. 22+ years, own production unit. Bulk orders, fast delivery. Call +91 96063 71222.', canonical: '/' },
       '/about': { title: 'About Us - Printfield Digital Solutions', description: 'Learn about Printfield Digital Solutions, your trusted printing partner in Whitefield, Bengaluru.', canonical: '/about' },
@@ -5540,6 +5579,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       '/reviews': { title: 'Customer Reviews - Printfield', description: 'See what our customers say about Printfield printing services in Whitefield, Bangalore.', canonical: '/rating' },
       '/terms': { title: 'Terms of Service - Printfield', description: 'Terms and conditions for using Printfield online printing services.', canonical: '/terms' },
       '/privacy': { title: 'Privacy Policy - Printfield', description: 'Printfield privacy policy. How we collect, use, and protect your personal information.', canonical: '/privacy' },
+      '/catalogs': { title: 'Product Catalogs & Brochures | Printfield Whitefield Bangalore', description: 'Download corporate gifting, awards, promotional apparel, drinkware & printing catalogs from Printfield Digital Solutions Whitefield.', canonical: '/catalogs' },
       '/custom-printing': { title: 'Custom Printing Services in Whitefield Bangalore | Printfield', description: 'Professional custom printing services in Whitefield, Bangalore. T-shirts, mugs, trophies, corporate gifts, signage & more.', canonical: '/custom-printing' },
       '/printing-whitefield': { title: 'Custom T-Shirt Printing in Whitefield Bangalore | Printfield', description: 'Best custom t-shirt printing, corporate gifting & promotional products in Whitefield, Bengaluru 560066. Fast delivery, bulk orders, free design studio.', canonical: '/printing-whitefield' },
       '/printing-itpl': { title: 'Custom T-Shirt Printing near ITPL Bangalore | Printfield', description: 'Custom t-shirt printing & corporate gifting near ITPL, Whitefield, Bengaluru. Fast delivery to ITPL Tech Park and surrounding areas.', canonical: '/printing-itpl' },
@@ -5566,9 +5606,54 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
       '/reset-password': { title: 'Reset Password - Printfield', description: 'Set a new password for your Printfield account.', canonical: '/reset-password' },
     };
 
+    app.get('/', (req, res) => {
+      const indexPath = path.join(distPath, spaFile);
+      if (!fsSync.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      }
+      let html = fsSync.readFileSync(indexPath, 'utf8');
+      const meta = pageMeta['/'];
+      function escAtr(s: string) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      const canonicalUrl = `${SITE_URL}${meta.canonical}`;
+      const tags = `<title>${escAtr(meta.title)}</title>\n    <meta name="description" content="${escAtr(meta.description)}" />\n    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />\n    <link rel="canonical" href="${canonicalUrl}" />\n    <meta property="og:title" content="${escAtr(meta.title)}" />\n    <meta property="og:description" content="${escAtr(meta.description)}" />\n    <meta property="og:url" content="${canonicalUrl}" />\n    <meta property="og:type" content="website" />\n    <meta property="og:site_name" content="Printfield" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:title" content="${escAtr(meta.title)}" />\n    <meta name="twitter:description" content="${escAtr(meta.description)}" />`;
+      const homeSsrBody = `
+    <main style="max-width:1100px;margin:0 auto;padding:32px 16px;font-family:system-ui,-apple-system,sans-serif;">
+      <h1 style="font-size:32px;font-weight:bold;margin-bottom:16px;color:#111827;">Printfield | Custom Printing, Corporate Gifts &amp; Trophies in Whitefield, Bangalore</h1>
+      <p style="font-size:17px;line-height:1.7;color:#4b5563;margin-bottom:24px;">
+        Best custom printing shop in Whitefield, Bangalore. Located on Borewell Road with 22+ years of experience and our own production unit. We specialize in custom t-shirt printing (DTF, screen printing, embroidery), corporate gifts, awards &amp; trophies, business cards, drinkware, signage, and onboarding kits.
+      </p>
+      <div style="margin-bottom:28px;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="/categories" style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Browse All Products</a>
+        <a href="/contact" style="display:inline-block;padding:12px 24px;border:1px solid #7c3aed;color:#7c3aed;border-radius:8px;text-decoration:none;font-weight:600;">Contact Us (+91 96063 71222)</a>
+      </div>
+      <h2 style="font-size:22px;font-weight:600;margin-bottom:14px;color:#111827;">Featured Printing Categories &amp; Services</h2>
+      <ul style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;list-style:none;padding:0;">
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/corporate-gifts" style="color:#7c3aed;text-decoration:none;font-weight:600;">Corporate Gifts &amp; Hampers</a></li>
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/trophies" style="color:#7c3aed;text-decoration:none;font-weight:600;">Trophies, Awards &amp; Mementos</a></li>
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/apparel" style="color:#7c3aed;text-decoration:none;font-weight:600;">Custom T-Shirts &amp; Hoodies</a></li>
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/business-stationery" style="color:#7c3aed;text-decoration:none;font-weight:600;">Business Cards &amp; Stationery</a></li>
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/drinkware" style="color:#7c3aed;text-decoration:none;font-weight:600;">Custom Mugs &amp; Bottles</a></li>
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/signage" style="color:#7c3aed;text-decoration:none;font-weight:600;">Signage, Banners &amp; Standees</a></li>
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/personalised-gifts" style="color:#7c3aed;text-decoration:none;font-weight:600;">Personalised Gifts</a></li>
+        <li style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;"><a href="/education-institutions" style="color:#7c3aed;text-decoration:none;font-weight:600;">Schools &amp; Institutions Printing</a></li>
+      </ul>
+    </main>
+`;
+      html = html.replace(/<link rel="canonical".*?\/>/gi, '');
+      html = html.replace(/<meta name="description".*?\/>/gi, '');
+      html = html.replace(/<title>.*?<\/title>/gi, '');
+      html = html.replace(/<meta property="og:.*?\/>/gi, '');
+      html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
+      html = html.replace('</head>', `${tags}\n</head>`);
+      html = html.replace('<div id="root"></div>', `<div id="root">${homeSsrBody}</div>`);
+      return res.setHeader('Content-Type', 'text/html').send(html);
+    });
+
+    app.use(express.static(distPath));
+
     const notFoundPage = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Page Not Found - Printfield</title><meta name="robots" content="noindex"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1f2937}.card{background:#fff;border-radius:16px;padding:48px;max-width:480px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}h1{font-size:64px;color:#f59e0b;margin-bottom:8px}p{color:#6b7280;margin:12px 0 24px;line-height:1.6}a{display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;transition:background .2s}a:hover{background:#d97706}</style></head><body><div class="card"><h1>404</h1><p>The page you're looking for doesn't exist or has been moved.</p><a href="/">Go to Homepage</a></div></body></html>`;
 
-    const knownPrefixes = ['/', '/categories', '/category', '/product', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/corporate-gifts', '/trophies', '/apparel', '/business-stationery', '/drinkware', '/signage', '/personalised-gifts', '/education-institutions', '/printing-whitefield', '/printing-itpl', '/printing-brookefield', '/printing-marathahalli', '/printing-epip-zone', '/printing-kadugodi', '/printing-hoodi', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
+    const knownPrefixes = ['/', '/categories', '/category', '/product', '/catalogs', '/about', '/contact', '/rating', '/reviews', '/faq', '/custom-printing', '/corporate-gifts', '/trophies', '/apparel', '/business-stationery', '/drinkware', '/signage', '/personalised-gifts', '/education-institutions', '/printing-whitefield', '/printing-itpl', '/printing-brookefield', '/printing-marathahalli', '/printing-epip-zone', '/printing-kadugodi', '/printing-hoodi', '/checkout', '/login', '/admin', '/orders', '/profile', '/terms', '/privacy', '/forgot-password', '/reset-password', '/api', '/sitemap.xml', '/robots.txt', '/uploads'];
     const invalidExtensions = /\.(php|asp|aspx|jsp|cgi|pl|py|rb|do|action|xml|json|txt|csv|doc|docx|pdf|xls|xlsx|zip|rar|exe|dmg|apk)(\?|$)/i;
     const spamPrefixes = ['/xiomi', '/alanwalker', '/wp-admin', '/wp-content', '/wp-includes', '/wordpress'];
 
@@ -5607,6 +5692,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
           const pageMetaTags = `
     <title>${escapeAttr(meta.title)}</title>
     <meta name="description" content="${escapeAttr(meta.description)}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="${canonicalUrl}" />
     <meta property="og:title" content="${escapeAttr(meta.title)}" />
     <meta property="og:description" content="${escapeAttr(meta.description)}" />
@@ -5617,12 +5703,20 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <meta name="twitter:title" content="${escapeAttr(meta.title)}" />
     <meta name="twitter:description" content="${escapeAttr(meta.description)}" />
 `;
+          const pageSsrBody = `
+    <main style="max-width:960px;margin:0 auto;padding:32px 16px;font-family:system-ui,-apple-system,sans-serif;">
+      <h1 style="font-size:28px;font-weight:bold;margin-bottom:16px;color:#111827;">${escapeAttr(meta.title)}</h1>
+      <p style="font-size:16px;line-height:1.7;color:#374151;margin-bottom:24px;">${escapeAttr(meta.description)}</p>
+      <a href="/categories" style="display:inline-block;padding:10px 20px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Explore Products</a>
+    </main>
+`;
           html = html.replace(/<link rel="canonical".*?\/>/gi, '');
           html = html.replace(/<meta name="description".*?\/>/gi, '');
           html = html.replace(/<title>.*?<\/title>/gi, '');
           html = html.replace(/<meta property="og:.*?\/>/gi, '');
           html = html.replace(/<meta name="twitter:.*?\/>/gi, '');
           html = html.replace('</head>', `${pageMetaTags}\n</head>`);
+          html = html.replace('<div id="root"></div>', `<div id="root">${pageSsrBody}</div>`);
           return res.setHeader('Content-Type', 'text/html').send(html);
         }
       }
