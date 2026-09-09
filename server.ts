@@ -5190,7 +5190,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
                 "name": `What is the price of ${product.name}?`,
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": `The price for ${product.name} is ₹${product.price || 'available on request'}. Contact us at +91 96063 71222 for bulk pricing and custom orders.`
+                  "text": `Pricing for ${product.name} is available on request based on quantity and customisation requirements. Contact us at +91 96063 71222 for a custom quote.`
                 }
               },
               {
