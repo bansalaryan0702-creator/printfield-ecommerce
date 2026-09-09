@@ -5103,8 +5103,8 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
             return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
           }
 
-          function escapeJson(str: string) {
-            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+          function safeJsonLd(str: string) {
+            return str.replace(/<\/script/gi, '<\\/script');
           }
 
           const productJsonLd = JSON.stringify({
@@ -5137,6 +5137,45 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
             ]
           });
 
+          const productFaqJsonLd = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": `What is the price of ${product.name}?`,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": `The price for ${product.name} is ₹${product.price || 'available on request'}. Contact us at +91 96063 71222 for bulk pricing and custom orders.`
+                }
+              },
+              {
+                "@type": "Question",
+                "name": `Can I customize ${product.name}?`,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": `Yes, all our products are fully customizable. You can add your logo, text, or custom design to ${product.name}. We offer DTF printing, screen printing, and embroidery options.`
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is the minimum order quantity?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": `For ${product.name}, minimum order quantity is ${product.minQty || 1} piece(s). For bulk orders, volume discounts are available.`
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do you deliver to Whitefield and nearby areas?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, we deliver to Whitefield, ITPL, Brookefield, Marathahalli, and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders."
+                }
+              }
+            ]
+          });
+
           const metaTags = `
     <title>${escapeAttr(title)}</title>
     <meta name="description" content="${escapeAttr(desc)}" />
@@ -5152,9 +5191,9 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <meta name="twitter:title" content="${escapeAttr(title)}" />
     <meta name="twitter:description" content="${escapeAttr(desc)}" />
     <meta name="twitter:image" content="${escapeAttr(ogImageUrl)}" />
-    <script type="application/ld+json">${escapeJson(productJsonLd)}</script>
-    <script type="application/ld+json">${escapeJson(breadcrumbJsonLd)}</script>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the price of ${escapeAttr(product.name)}?","acceptedAnswer":{"@type":"Answer","text":"The price for ${escapeAttr(product.name)} is available on request. Contact us at +91 96063 71222 for bulk pricing and custom orders."}},{"@type":"Question","name":"Can I customize ${escapeAttr(product.name)}?","acceptedAnswer":{"@type":"Answer","text":"Yes, all our products are fully customizable. You can add your logo, text, or custom design to ${escapeAttr(product.name)}. We offer DTF printing, screen printing, and embroidery options."}},{"@type":"Question","name":"What is the minimum order quantity?","acceptedAnswer":{"@type":"Answer","text":"For most products, minimum order is 10 pieces. For bulk screen printing, minimum is 50 pieces. Contact us for specific requirements."}},{"@type":"Question","name":"Do you deliver to Whitefield and nearby areas?","acceptedAnswer":{"@type":"Answer","text":"Yes, we deliver to Whitefield, ITPL, Brookefield, Marathahalli, and all nearby areas in Bengaluru. Delivery is usually within 1-2 days for local orders."}}]}</script>
+    <script type="application/ld+json">${safeJsonLd(productJsonLd)}</script>
+    <script type="application/ld+json">${safeJsonLd(breadcrumbJsonLd)}</script>
+    <script type="application/ld+json">${safeJsonLd(productFaqJsonLd)}</script>
 `;
           const productSsrBody = `
     <main style="max-width:960px;margin:0 auto;padding:24px 16px;font-family:system-ui,-apple-system,sans-serif;">
@@ -5343,8 +5382,8 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
 
       let html = fsSync.readFileSync(indexPath, 'utf8');
 
-      function escapeAttr(str: string) { return String(str || '').replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"'); }
-      function escapeJson(str: string) { return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r'); }
+      function escapeAttr(str: string) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      function safeJsonLd(str: string) { return str.replace(/<\/script/gi, '<\\/script'); }
 
       // LocalBusiness Schema
       const localBusinessJsonLd = JSON.stringify({
@@ -5430,9 +5469,9 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <meta name="twitter:title" content="${escapeAttr(title)}" />
     <meta name="twitter:description" content="${escapeAttr(desc)}" />
     <meta name="twitter:image" content="https://www.printfieldonline.com/logo.png" />
-    <script type="application/ld+json">${escapeJson(localBusinessJsonLd)}</script>
-    <script type="application/ld+json">${escapeJson(breadcrumbJsonLd)}</script>
-    <script type="application/ld+json">${escapeJson(faqJsonLd)}</script>
+    <script type="application/ld+json">${safeJsonLd(localBusinessJsonLd)}</script>
+    <script type="application/ld+json">${safeJsonLd(breadcrumbJsonLd)}</script>
+    <script type="application/ld+json">${safeJsonLd(faqJsonLd)}</script>
 `;
 
       const locationSsrBody = `
@@ -5499,6 +5538,16 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
         function escapeAttr(str: string) {
           return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
+        function safeJsonLd(str: string) { return str.replace(/<\/script/gi, '<\\/script'); }
+
+        const categoryBreadcrumbs = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/` },
+            { "@type": "ListItem", "position": 2, "name": canonicalCat, "item": canonicalUrl }
+          ]
+        });
 
         const metaTags = `
     <title>${escapeAttr(catTitle)}</title>
@@ -5515,7 +5564,7 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
     <meta name="twitter:title" content="${escapeAttr(catTitle)}" />
     <meta name="twitter:description" content="${escapeAttr(catDesc)}" />
     <meta name="twitter:image" content="${escapeAttr(catImage)}" />
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE_URL}/"},{"@type":"ListItem","position":2,"name":"${escapeAttr(canonicalCat)}","item":"${canonicalUrl}"}]}</script>
+    <script type="application/ld+json">${safeJsonLd(categoryBreadcrumbs)}</script>
 `;
 
         const categorySsrBody = `
