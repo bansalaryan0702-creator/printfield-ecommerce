@@ -16,6 +16,10 @@ export function generateProductSchema(product: any, baseUrl: string = 'https://w
   const sizeOptions = product?.sizes?.map((s: any) => s.size) || [];
   const colorOptions = product?.colors || [];
   
+  const rawPrice = parseFloat(String(product?.price ?? ''));
+  const rawBasePrice = parseFloat(String(product?.basePrice ?? ''));
+  const validPrice = (!isNaN(rawPrice) && rawPrice > 0) ? rawPrice : ((!isNaN(rawBasePrice) && rawBasePrice > 0) ? rawBasePrice : 499);
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -29,7 +33,7 @@ export function generateProductSchema(product: any, baseUrl: string = 'https://w
     },
     offers: {
       "@type": "Offer",
-      price: product?.price || 0,
+      price: validPrice,
       priceCurrency: "INR",
       priceValidUntil: "2026-12-31",
       validFrom: "2026-01-01",
@@ -68,6 +72,19 @@ export function generateProductSchema(product: any, baseUrl: string = 'https://w
           },
         },
       },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 7,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/ReturnShippingFees",
+        returnShippingFeesAmount: {
+          "@type": "MonetaryAmount",
+          currency: "INR",
+          value: 0
+        }
+      }
     },
     ...(sizeOptions.length > 0 && {
       size: sizeOptions,
@@ -83,23 +100,29 @@ export function generateCategoryItemListSchema(categoryName: string, products: a
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: `${categoryName} - Printfield`,
-    itemListElement: products.map((product, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": "Product",
-        name: product?.name,
-        url: `${baseUrl}/product/${product?.slug || product?.id}`,
-        image: product?.images?.[0] || product?.image,
-        brand: { "@type": "Brand", name: "Printfield" },
-        offers: {
-          "@type": "Offer",
-          price: product?.price || 0,
-          priceCurrency: "INR",
-          availability: product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+    itemListElement: products.map((product, index) => {
+      const rawPrice = parseFloat(String(product?.price ?? ''));
+      const rawBasePrice = parseFloat(String(product?.basePrice ?? ''));
+      const validPrice = (!isNaN(rawPrice) && rawPrice > 0) ? rawPrice : ((!isNaN(rawBasePrice) && rawBasePrice > 0) ? rawBasePrice : 499);
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Product",
+          name: product?.name,
+          url: `${baseUrl}/product/${product?.slug || product?.id}`,
+          image: product?.images?.[0] || product?.image,
+          brand: { "@type": "Brand", name: "Printfield" },
+          offers: {
+            "@type": "Offer",
+            price: validPrice,
+            priceCurrency: "INR",
+            priceValidUntil: "2026-12-31",
+            availability: product?.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+          },
         },
-      },
-    })),
+      };
+    }),
   };
 }
 

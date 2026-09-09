@@ -475,7 +475,7 @@ export const CategoryLanding: React.FC = () => {
         title={data.title}
         description={data.metaDescription}
         canonicalUrl={`/${categorySlug}`}
-        schema={`${localBusinessSchema}\n${breadcrumbSchema}\n${faqSchema}`}
+        schema={`[${localBusinessSchema},${breadcrumbSchema},${faqSchema}]`}
       />
 
       {/* Hero */}

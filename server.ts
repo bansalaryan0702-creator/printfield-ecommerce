@@ -5107,6 +5107,10 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
             return str.replace(/<\/script/gi, '<\\/script');
           }
 
+          const rawServerPrice = parseFloat(String(product.price ?? ''));
+          const rawServerBasePrice = parseFloat(String(product.basePrice ?? ''));
+          const validServerPrice = (!isNaN(rawServerPrice) && rawServerPrice > 0) ? rawServerPrice : ((!isNaN(rawServerBasePrice) && rawServerBasePrice > 0) ? rawServerBasePrice : 499);
+
           const productJsonLd = JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Product",
@@ -5117,13 +5121,53 @@ Return ONLY valid JSON with "metaTitle" and "metaDescription" fields.`;
             "brand": { "@type": "Brand", "name": "Printfield" },
             "offers": {
               "@type": "Offer",
-              "price": product.price || 499,
+              "price": validServerPrice,
               "priceCurrency": "INR",
               "priceValidUntil": new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
               "url": canonicalUrl,
               "itemCondition": "https://schema.org/NewCondition",
               "availability": product.isDisabled ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
-              "seller": { "@type": "Organization", "name": "Printfield" }
+              "seller": { "@type": "Organization", "name": "Printfield" },
+              "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                  "@type": "MonetaryAmount",
+                  "value": "0",
+                  "currency": "INR"
+                },
+                "shippingDestination": {
+                  "@type": "DefinedRegion",
+                  "addressCountry": "IN"
+                },
+                "deliveryTime": {
+                  "@type": "ShippingDeliveryTime",
+                  "handlingTime": {
+                    "@type": "QuantitativeValue",
+                    "minValue": 1,
+                    "maxValue": 3,
+                    "unitCode": "DAY"
+                  },
+                  "transitTime": {
+                    "@type": "QuantitativeValue",
+                    "minValue": 1,
+                    "maxValue": 5,
+                    "unitCode": "DAY"
+                  }
+                }
+              },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "IN",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "merchantReturnDays": 7,
+                "returnMethod": "https://schema.org/ReturnByMail",
+                "returnFees": "https://schema.org/ReturnShippingFees",
+                "returnShippingFeesAmount": {
+                  "@type": "MonetaryAmount",
+                  "currency": "INR",
+                  "value": 0
+                }
+              }
             }
           });
 

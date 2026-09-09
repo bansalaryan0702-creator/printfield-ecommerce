@@ -1768,6 +1768,10 @@ export function ProductDetail() {
     return info.view === currentView;
   });
 
+  const rawProductPrice = parseFloat(String(product?.price ?? ''));
+  const rawProductBasePrice = parseFloat(String(product?.basePrice ?? ''));
+  const validProductPrice = (!isNaN(rawProductPrice) && rawProductPrice > 0) ? rawProductPrice : ((!isNaN(rawProductBasePrice) && rawProductBasePrice > 0) ? rawProductBasePrice : 499);
+
   return (
     <>
 <SEO 
@@ -1794,7 +1798,7 @@ export function ProductDetail() {
             },
             "offers": {
               "@type": "Offer",
-              "price": product?.price || 0,
+              "price": validProductPrice,
               "priceCurrency": "INR",
               "priceValidUntil": "2026-12-31",
               "validFrom": "2026-01-01",
@@ -1831,6 +1835,19 @@ export function ProductDetail() {
                     "maxValue": 5,
                     "unitCode": "DAY"
                   }
+                }
+              },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "IN",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "merchantReturnDays": 7,
+                "returnMethod": "https://schema.org/ReturnByMail",
+                "returnFees": "https://schema.org/ReturnShippingFees",
+                "returnShippingFeesAmount": {
+                  "@type": "MonetaryAmount",
+                  "currency": "INR",
+                  "value": 0
                 }
               }
             },
