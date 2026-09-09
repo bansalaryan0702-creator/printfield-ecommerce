@@ -2236,31 +2236,36 @@ const SITE_URL = 'https://www.printfieldonline.com';
         googleTokensCache.set(email.toLowerCase().trim(), googleAccessToken);
       }
       
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('email', '==', email), fLimit(1));
-      const qs = await getDocs(q);
-      
-      let user;
-      if (qs.empty) {
-        const id = uid || crypto.randomUUID();
-        user = { id, email, name: name || '', role: 'customer', phone: '', companyName: '' };
-        await setDoc(doc(db, 'users', id), {
-          email, name: name || '', role: 'customer', savedAddresses: '[]', createdAt: Date.now(),
-          googleAccessToken: googleAccessToken || null
-        });
-      } else {
-        const docId = qs.docs[0].id;
-        const existingData = qs.docs[0].data();
-        user = { id: docId, ...existingData, role: existingData.role || 'customer' } as any;
+      let user: any = { id: uid || crypto.randomUUID(), email, name: name || '', role: 'customer', phone: '', companyName: '' };
+
+      try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('email', '==', email), fLimit(1));
+        const qs = await getDocs(q);
         
-        const updateFields: any = {};
-        if (googleAccessToken) {
-          updateFields.googleAccessToken = googleAccessToken;
-          user.googleAccessToken = googleAccessToken;
+        if (qs.empty) {
+          const id = uid || crypto.randomUUID();
+          user = { id, email, name: name || '', role: 'customer', phone: '', companyName: '' };
+          await setDoc(doc(db, 'users', id), {
+            email, name: name || '', role: 'customer', savedAddresses: '[]', createdAt: Date.now(),
+            googleAccessToken: googleAccessToken || null
+          });
+        } else {
+          const docId = qs.docs[0].id;
+          const existingData = qs.docs[0].data();
+          user = { id: docId, ...existingData, role: existingData.role || 'customer' } as any;
+          
+          const updateFields: any = {};
+          if (googleAccessToken) {
+            updateFields.googleAccessToken = googleAccessToken;
+            user.googleAccessToken = googleAccessToken;
+          }
+          if (Object.keys(updateFields).length > 0) {
+            await updateDoc(doc(db, 'users', docId), updateFields);
+          }
         }
-        if (Object.keys(updateFields).length > 0) {
-          await updateDoc(doc(db, 'users', docId), updateFields);
-        }
+      } catch (dbErr: any) {
+        console.warn('Firestore user persistence note (continuing with session):', dbErr.message);
       }
       
       const jwtToken = jwt.sign({ id: user.id, role: user.role, email: user.email }, JWT_SECRET, { expiresIn: '7d' });

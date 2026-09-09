@@ -33,6 +33,27 @@ export function Login() {
     }
   };
 
+  const extractErrorMessage = (err: any): string => {
+    if (!err) return "An unexpected error occurred.";
+    if (typeof err === "string") return err;
+    if (err.message && typeof err.message === "string" && err.message !== "[object Object]") {
+      return err.message;
+    }
+    if (err.error) {
+      if (typeof err.error === "string") return err.error;
+      if (typeof err.error.message === "string") return err.error.message;
+      try {
+        const s = JSON.stringify(err.error);
+        if (s !== "{}" && s !== "[]") return s;
+      } catch {}
+    }
+    try {
+      const s = JSON.stringify(err);
+      if (s !== "{}" && s !== "[]") return s;
+    } catch {}
+    return String(err.message || err.code || err || "Authentication failed");
+  };
+
   // Check if returning from a Google redirect authentication
   React.useEffect(() => {
     let active = true;
@@ -52,7 +73,7 @@ export function Login() {
           const data = await res.json();
 
           if (!res.ok) {
-            throw new Error(data.error || "Google authentication failed");
+            throw new Error(extractErrorMessage(data));
           }
 
           setToken(data.token);
@@ -61,7 +82,7 @@ export function Login() {
         }
       } catch (err: any) {
         console.error("Google redirect auth error:", err);
-        if (active) setError(err.message || "Failed to complete Google sign in");
+        if (active) setError(extractErrorMessage(err));
       } finally {
         if (active) setGoogleLoading(false);
       }
@@ -87,14 +108,14 @@ export function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Authentication failed");
+        throw new Error(extractErrorMessage(data));
       }
 
       setToken(data.token);
       setUser(data.user);
       handlePostAuthRedirect();
     } catch (err: any) {
-      setError(err.message);
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -117,7 +138,7 @@ export function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Google authentication failed");
+        throw new Error(extractErrorMessage(data));
       }
 
       setToken(data.token);
@@ -125,7 +146,7 @@ export function Login() {
       handlePostAuthRedirect();
     } catch (err: any) {
       console.error("Google sign-in error:", err);
-      setError(err.message || "Failed to sign in with Google");
+      setError(extractErrorMessage(err));
     } finally {
       setGoogleLoading(false);
     }
@@ -138,7 +159,7 @@ export function Login() {
       await signInWithGoogleRedirect();
     } catch (err: any) {
       console.error("Google redirect initiate error:", err);
-      setError(err.message || "Failed to initiate Google sign in");
+      setError(extractErrorMessage(err));
       setGoogleLoading(false);
     }
   };
